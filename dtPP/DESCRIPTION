@@ -1,0 +1,12 @@
+Package: dtPP
+Version: 0.0.1
+Title: Lter Life Digital twin: aquatic phytoplankton and phytobenthos production
+Author: Karline Soetaert <karline.soetaert@nioz.nl>
+Maintainer: Karline Soetaert <karline.soetaert@nioz.nl>
+Depends: R (>= 3.5.0), FME, plot3D, dtLife, dtWad
+Imports: grDevices, graphics, stats
+Suggests: knitr, rmarkdown
+Description: Functions to estimate aquatic primary production, with applications in the Dutch Waddensea.
+License: GPL (>= 2)
+VignetteBuilder: knitr
+LazyData: yes

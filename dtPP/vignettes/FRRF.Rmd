@@ -1,0 +1,406 @@
+---
+title: "dtPP - Tools for primary production measurements - Photosynthesis-irradiance data"
+author: "Karline Soetaert"
+date: "02-October-2023"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: 
+abstract: 
+ The R-package dtPP contains tools for estimating aquatic and terrestrial photosynthesis. 
+ It comprises functions to convert raw photosynthesis data into production rates, 
+ functions to fit photosynthesis-irradiance (PI) response curves, 
+ and a function to calculate depth-integrated production. 
+ Here we show the use of this package to estimate aquatic carrying capacity.
+keywords:
+  photosynthesis, algae, aquatic science, PI curve, "R"
+bibliography: 
+  vignettes.bib 
+vignette: >
+  %\VignetteIndexEntry{dtPP: Tools for estimating aquatic photosynthesis - Photosynthesis-irradiance data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup, include=FALSE}
+options(width = 120)
+require(dtPP)
+toBibtex(citation("dtLife"))
+toBibtex(citation("dtWad"))
+toBibtex(citation("dtPP"))
+toBibtex(citation("plot3D"))
+toBibtex(citation("FME"))
+```
+
+# Introduction
+
+
+The R-package *dtPP* is one of a set of digital twin R-packages that deal with aquatic and terrestrial primary production 
+  
+Some of its functions can be used by aquatic scientists as a tool 
+to estimate depth-integrated photosynthesis in aquatic environments. 
+The same functions can also serve to estimate terrestrial primary production for instance in forests.
+
+The package also contains several example datasets, for the Waddensea these are:
+
+* *FRRFdata* with data as generated with the FRRF instrument (The acronym FRRF stands for Fast Repetition Rate Fluorometry). 
+* *PIdata* combines several datasets generated with the FRRF instrument.
+* *Jetty* is a long-term dataset with biogeochemical data from the NIOZ jetty.
+* *Chlor2021* contains a spatial grid of chlorophyll, at monthly resolution, from the Waddensea and surrounding area in 2021.
+
+Other datasets are made available from the dtWad digital twin package:
+
+* *Marsdiep* and *Waddensea* contain the bathymetry of the marsdiep area and the Dutch waddensea respectively.
+* *Grain* is a dataset with sediment characteristics in the Waddensea.
+* *Weather2021* contain wind speeds, light intensity, and radiation for the year 2021 from a weather station near the Waddensea.
+* *Height2021* and *Temp2021* contain water surface elevation (height) and surface water temperature from a few stations in 2021.
+
+
+The package also contains several functions:
+
+* Four mathematical models that describe PI responses: The functions *fWebb* @Webb1974,
+  *fJP* @JassbyPlatt1976, *fPG* @PlattGalegosHarrison1980 and 
+  *fEP* @EilersPeeters1988.
+* Four related functions: *fWebb.I, fJP.I, fPG.I, fEP.I*, are the standardized versions 
+  (respective to I).
+* Functions to fit the PI responses to these model or to newly defined mathematical models.
+These functions make use of the FME @FME package.
+* A function to estimate depth-integrated photosynthesis.
+
+# Datasets
+
+## FRRF data sets
+
+There are two sets of data 
+
+* *FRRFdata* is one data set, generated with the FRRF instrument.
+* *PIdata* combines several datasets generated with the FRRF instrument.
+
+```{r, fig.height=8, fig.width=8}
+par(mfrow=c(2,2), oma=c(0,0,2,0))
+with(FRRFdata, plot(E, JVPII, pch=18, cex=2,
+                    ylab="mmol photons/m3/hour", main="JVPII"))
+with(FRRFdata, plot(E, Fo, pch=18, cex=2))   
+with(FRRFdata, plot(E, Fm, pch=18, cex=2)) 
+with(FRRFdata, plot(E, Fo/Fm, pch=18, cex=2)) 
+mtext(outer=TRUE, side=3, "Dataset FRRFdata", cex=1.5)
+```
+
+```{r, fig.height=8, fig.width=8}
+par(mfrow=c(2,2), las=1, oma=c(0,0,2,0))
+with(PIdata, plot(E, JVPII, col=factor(file), pch=18, cex=2))
+with(PIdata, plot(E, Fo,    col=factor(file), pch=18, cex=2))   
+with(PIdata, plot(E, Fm,    col=factor(file), pch=18, cex=2)) 
+with(PIdata, plot(E, Fo/Fm, col=factor(file), pch=18, cex=2)) 
+mtext(outer=TRUE, side=3, "Dataset PIdata", cex=1.5)
+```
+
+## Biogeochemical data
+
+* *Jetty* is a long-term dataset with biogeochemical data from the NIOZ jetty.
+* *Chlor2021* contains a spatial grid, monthly resolution, from the Waddensea and surrounding area in 2021.
+
+The units and meaning of the variables in the Jetty data is stored in its attributes:
+
+```{r}
+attributes(Jetty)$variables
+```
+
+```{r, fig.height=8, fig.width=8}
+par(mfrow=c(3, 3), las=1, oma=c(0,0,2,0))
+with(Jetty, plot(datetime, Temperature, type="l", lwd=1))
+with(Jetty, plot(datetime, Secchi, type="l", lwd=1))
+with(Jetty, plot(datetime, Chl,  type="l", lwd=1)) 
+with(Jetty, plot(datetime, NO3,  type="l", lwd=1))
+with(Jetty, plot(datetime, NO2,  type="l", lwd=1))
+with(Jetty, plot(datetime, NH4,  type="l", lwd=1))
+with(Jetty, plot(datetime, Si,   type="l", lwd=1))
+with(Jetty, plot(datetime, Ntot, type="l", lwd=1))
+with(Jetty, plot(datetime, DON,  type="l", lwd=1))
+mtext(outer=TRUE, side=3, "Dataset Jetty", cex=1.5)
+```
+
+The 
+
+```{r, fig.width=10, fig.height=10}
+mf <- par(mfrow=c(3,3), las=1, oma=c(0,0,2,0))
+
+image2D(x=Chlor2021$longitude, 
+        y=Chlor2021$latitude, 
+        z=Chlor2021$chlorophyll[,,2:10], 
+        asp=Chlor2021$asp, 
+        log="c", clim=c(0.1, 50),
+        clab="Chl, mg/m3", xlab="dgE", ylab="dgN",
+        main=month.abb[2:10])
+mtext(outer=TRUE, side=3, "Dataset Chlor2021", cex=1.5)
+```
+
+# Four mathematical descriptions of photosynthesis - response curves
+
+Four functions to fit PI curves are included: fWebb, Webb (1974); fJP, Jassby and Platt (1976); fPG, Platt, Galegos and Harrison (1980); and fEP, Eilers and Peeters (1988);
+
+```{r, fig.cap="The four PI models included in the package"}
+I <- 0:1500
+plot(fWebb(I), type="l", lwd=2, 
+     main="Photosynthesis functions",
+     ylab="mgC/m3/hr", xlab="uEinst/m2/s")
+lines(fJP(I),  col=2, lwd=2)
+lines(fPG(I),  col=3, lwd=2)
+lines(fEP(I),  col=4, lwd=2)
+legend("bottomright", legend = c("fWebb", "fJP", "fPG", "fEP"), col=1:4, lwd=2)
+```
+
+# Fitting photosynthesis-irrandiance data sets
+
+Fitting one PI response data set can be done with function *fitPI* whose 
+arguments are:
+
+```{r}
+args(fitPI)
+``` 
+
+To demonstrate its use, we first create the vectors with the data:
+
+```{r}
+I <- seq(0, 100, length.out = 11)
+response <- c(0, 1.6, 1.85, 1.95, 1.99, 2.0, 1.98, 1.95, 1.92, 1.88, 1.82)
+```
+They are fitted to each of the PI models, using function *fitPI*.
+
+```{r}
+FitWebb <- fitPI("Webb", I = I, response = response)
+FitPG   <- fitPI("PG",   I = I, response = response)
+FitJP   <- fitPI("JP",   I = I, response = response)
+FitEP   <- fitPI("EP",   I = I, response = response)
+```
+
+The fitting algorithm used (*modFit* from the *FME* package) returns
+a list of class *modFit* and *FRRF*, that can be interrogated with the usual 
+functions *summary*, *coef*, *deviance* and so on. 
+
+We can look at some results with *summary*
+
+```{r}
+summary(FitWebb)
+summary(FitPG)
+```
+
+The plotting function shows the fit with the data:
+
+```{r}
+plot(FitWebb)
+```
+
+The SSR of the various models is:
+
+```{r}
+c(deviance(FitWebb), deviance(FitPG), deviance(FitJP), deviance(FitEP))
+```
+
+Another way to visualise the correspondence of models versus data is to 
+generate predictions and plot those:
+
+```{r}
+par(mfrow = c(1, 1))
+plot(I, response, ylim = c(0, 2))
+
+# I for prediction
+PARpred <- seq(0, 120, by = 1)
+
+lines(predict(FitWebb, PARpred), lwd = 2)
+lines(predict(FitPG, PARpred), col = "red", lwd = 2)
+lines(predict(FitJP, PARpred), col = "blue", lwd = 2)
+lines(predict(FitEP, PARpred), col = "green", lwd = 2)
+legend("bottomright", c("Webb", "PG", "JP", "EP"), 
+   col = c("black", "red", "blue", "green"), lty = 1, lwd = 2)
+
+# use plot to look at single fits
+par(mfrow = c(2,2))
+plot(FitWebb, main = "Webb")
+plot(FitPG, main = "Platt-Galegos")
+plot(FitJP, main = "Jassby-Platt")
+plot(FitEP, main = "Eilers-Peeters")
+```
+
+# Fitting a newly defined model to one data set
+
+## A simple model
+
+It is possible to define a different model and fit that to a PI dataset.
+
+Let's implement a simple Monod function; this should have as input arguments
+irradiance at which to calculate the reponse, and the parameter vector, in 
+that order; it should return a list with I and response vector:
+
+```{r}
+Monod <- function(I, p) {
+  y <- p[1]*I / (I + p[2])
+  list(x = I, y = y)
+}
+```
+
+The data are similar as above:
+
+```{r}
+I <- seq(0, 100, length.out = 11)
+response <- c(0, 1.6, 1.85, 1.95, 1.99, 2.0, 1.98, 1.95, 1.92, 1.88, 1.82)
+```
+
+To fit the new model, we need to pass initial guesses of the parameters (*pini*).
+
+```{r}
+FitMonod <- fitPI(Monod, I = I, response = response, pini = c(Rm = 2, ks = 25))
+```
+
+We look at some results
+
+```{r}
+summary(FitMonod)
+coef(FitMonod)
+```
+
+The short version of visualising the model fit is to use function *plot* on the fitting object:
+
+```{r, fig.cap="Visualising model fit, using function plot"}
+plot(FitMonod)
+```
+
+# A more complex model
+
+We now define a more complex Monod model where the response also depends on temperature,
+according to a Q10 formulation.
+
+There are thus 3 parameters in this model: the maximal photosynthesis rate (Rm), 
+the half-saturation light intensity (ks) and the temperature coefficient (Q10)
+
+In addition to the irrandance and parameter vector, this model also has
+as input argument the temperature (either one value or a vector of length = length of I):
+
+```{r}
+MonodT <- function(I, p, T) {
+  
+  y <- p[1]*I / (I + p[2]) * p[3]**((T-10)/10)
+  list(x = I, y = y)
+}
+```
+
+The input data now also include the temperature - assume here that temperature
+dropped during the experiment.
+
+```{r}
+I <- seq(0, 100, length.out = 11)
+T <- seq(15, 10, length.out = 11) 
+response <- c(0, 1.6, 1.85, 1.95, 1.99, 2.0, 1.98, 1.95, 1.92, 1.88, 1.82)
+```
+
+The call to *fitPI* now needs to pass also the temperatures; this is 
+done in the *modarg* (model arguments) argument, a list with named objects.
+
+```{r}
+FitMonodT <- fitPI(MonodT, I = I, response = response, 
+  pini = c(Rm = 2, ks = 25, Q10 = 2), modargs = list(T = T))
+```
+
+We look at some results
+
+```{r}
+summary(FitMonodT)
+coef(FitMonodT)
+```
+
+To apply *plot*, we need also to pass the input temperature. 
+in the *plot* function, the response is predicted on I values that form a sequence of 
+100 values, from the minimal to maximal I. Hence, the additional temperature
+vector passed via *modargs* should also be of length 100: 
+
+```{r}
+par(mfrow = c(1, 1))
+plot(FitMonodT, modargs = list(T = seq(15, 10, length.out = 100)), 
+  main = "Monod*f(Temp)")
+```
+
+# Fit models to multiple data sets at once
+
+Sometimes several samples should be fitted at once.
+An example of such a data set is included in the package and called *PIdata*
+
+```{r}
+data(PIdata)
+head(PIdata)
+```
+
+For demonstration purposes, we select the first 5 sets of data;
+as we will select column *JVPII* for fitting, we already remove
+those records where this measurement is *NA*:
+
+```{r}
+ set  <- subset(PIdata, subset = (!is.na(JVPII)))
+ tail(set)
+```
+
+We now fit these all at once using the Eilers-Peeters model:
+
+```{r}
+ mFitEP <- fitmultiPI("EP", id = set$file, 
+                      I=set$E, 
+                      response=set$JVPII, 
+                      normalized = TRUE)
+```
+
+The summary gives the best parameter values with their standard errors and
+fitting probabilities for each data set (ids is the index in PIdat):
+
+```{r}
+ summary(mFitEP)  # look at summary
+```
+
+We can also extract just the coefficients:
+
+```{r}
+ coef(mFitEP)     # extract parameters
+```
+
+We can plot all fits at once:
+
+```{r, fig.height=8, fig.width=8}
+par(mfrow = c(1, 1))
+plot(mFitEP)
+```
+
+Alternatively, we can predict the model fits and plot them in one plot:
+
+```{r, fig.cap="Visualising multiple model fits, using function predict and matplot"}
+ Par <- 1:1500 
+ predEP <- predict (mFitEP, I = Par)
+ head(predEP)
+
+ par (mfrow = c(1, 1))   
+ matplot(Par, predEP, type = "l", lwd = 2, col = 1:10, lty = 1)
+ legend("topright", legend = 1:10, lwd = 2, col = 1:10, lty = 1)
+ points(set[,c("E", "JVPII")], col = (1:10)[set[,"file"]], pch = ".", cex = 4)
+```
+
+#  Fit newly defined model to multiple data sets at once
+
+We now use the Monod function again, and fit it to the multiple data sets
+
+```{r}
+ Monod <- function(I, p) {
+  y <- p[1]*I / (I + p[2])
+  list(x = I, y = y)
+ }
+
+ mFitMonod <- fitmultiPI(Monod, set$file, set$E, set$JVPII, normalized = TRUE, 
+  pini = c(pm = 1, ks = 1))
+ summary(mFitMonod)
+```
+
+# References
+
+<div id="refs"></div>
+
+
+# Acknowledgements
+
+The initial version of some of these functions were created in cooperation with 
+Jacco kromkamp and Gregg Silsbe.
+

@@ -1,0 +1,180 @@
+---
+title: "Estimating integrated photosynthesis in the Wadden Sea using R-package dtPP"
+author: "Karline Soetaert"
+date: "24-December-2023"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: 
+abstract: 
+keywords:
+  photosynthesis, algae, Wadden sea, PI curve, "R"
+bibliography: 
+  vignettes.bib 
+vignette: >
+  %\VignetteIndexEntry{Estimating integrated photosynthesis in the Wadden Sea using R-package dtPP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup, include=FALSE}
+options(width = 120)
+require(dtPP)
+toBibtex(citation("dtLife"))
+toBibtex(citation("dtWad"))
+toBibtex(citation("dtPP"))
+toBibtex(citation("plot3D"))
+toBibtex(citation("FME"))
+```
+
+# A complex example
+
+This example combines measured irradiance data, fluctuating water levels, and time-varying PI-parameters and extinction coefficients with remote sensed chlorophyll data to estimate photosynthesis. 
+
+The integrated photosynthesis is estimated for a 4 -day period. 
+The times for which we want to run the model is input in POSIXct data format.
+
+```{r}
+
+time <- seq(from = as.POSIXct("2021-01-05 01:00:00"), 
+            to   = as.POSIXct("2021-03-05 01:00:00"), 
+            by   = 60*30)  # output 30 minutes
+```
+
+The light intensity has been obtained from the KNMI; they are stored in a data.frame called *Weather2021*.
+The data from station Nr 235 are closest to the measurment site. 
+The light values are called "radiation" in the dataset; they are in J/m2/s.
+Assume that 50% of light is PAR.
+
+```{r}
+st235   <- subset(Weather2021, 
+                  subset = 
+                    station == 235                                &
+                    datetime >= as.POSIXct("2021-01-04 23:59:59") &
+                    datetime <= as.POSIXct("2021-03-05 01:00:10"))
+It.data <- st235[, c("datetime", "radiation")]
+It.data$PAR <- It.data$radiation * 0.5
+It.data$radiation <- NULL
+
+```
+
+## Chlorophyll
+
+Monthly remote sensing data for 2021 are stored in a 3D array (longitude x latitude x time).
+
+The data are recast in long format, retaining only values within the Waddensea and removing absent (NA) values.
+
+```{r}
+# convert 3D array to long format
+ChlLong <- with(Chlor2021, 
+                expand.grid(nr        = 1:nrow(Chlor2021$datetime), 
+                            longitude = longitude, 
+                            latitude  = latitude))
+
+ChlLong$date.from   <- Chlor2021$datetime[ChlLong$nr, 1]
+ChlLong$date.to     <- Chlor2021$datetime[ChlLong$nr, 2]
+ChlLong$chlorophyll <- as.vector(Chlor2021$chlorophyll)
+
+# mask data only in WaddenSea
+ChlLong$mask <- mask_xy(ChlLong[, c("longitude", "latitude")], 
+                        shape = WadShape)$mask
+ii      <- which(is.na(ChlLong$mask))
+ChlLong <- ChlLong[-ii,]
+ChlLong <- na.omit(ChlLong)
+ChlLong <- subset(ChlLong, subset = 
+                    date.from <= as.POSIXct("2021-04-01") &
+                    longitude < 7.5)
+```
+
+# Water height and temperature 
+
+For water height and water temperature  we use the data from station DENHDR and DENHDVSGR
+
+```{r}  
+Ht.data  <- WadHeightHR[ , c("datetime", "DENHDR")]
+Ht.data  <- subset(Ht.data, 
+                  subset =                                         
+                    datetime >= as.POSIXct("2021-01-04 23:59:59")  &
+                    datetime <= as.POSIXct("2021-04-05 01:00:10"))
+
+Tt.data  <- WadTempHR[ , c("datetime", "DENHDVSGR")]
+Tt.data  <- subset(Tt.data, 
+                  subset =                                         
+                    datetime >= as.POSIXct("2021-01-04 23:59:59")  &
+                    datetime <= as.POSIXct("2021-03-05 01:00:10"))
+``` 
+
+
+Photosynthesis parameters change over time. Assume that alpha and ps are Chl-specific values, so multiplying with chlorophyll gives the values to be used.
+
+# PI parameters
+
+ values for alpha, eopt and ps are not available from the Waddensea
+
+The values in Brinkman and Jacobs (2023) are used instead (approximately) 
+
+ Brinkman & Jacobs, 2023. Gross pelagic primary production in the Ems-Dollard estuary,
+ Journal of Sea Research 192 (2023) 102362
+
+ alpha and ps are Chl-specific values -> they need to be multiplied with Chl
+ at each time step
+
+ eopt and ps depend on temperature
+
+```{r}
+Tmon <- average_timeseries(Tt.data, avgOver="mon", 
+                           value = "DENHDVSGR")
+```
+
+
+
+Estimate depth integrated production
+
+```{r}
+Chl_Stats <- unique(ChlLong[,c("longitude", "latitude")])
+
+temp <- as.data.frame(approx(Tt.data, xout=time))  
+
+
+PPall <- NULL
+for (i in 1:nrow(Chl_Stats)){
+  Chl_data <- subset(ChlLong, subset=longitude == Chl_Stats$longitude[i] & 
+                                     latitude  == Chl_Stats$latitude[i]   )
+  Chl_data <- Chl_data[, c("date.from", "chlorophyll")]
+  Chl      <- as.data.frame(approx(Chl_data, xout=time))
+
+# time-variable PI parameters
+# steepness of the light curve, mgC/mgChl/(uEinst/m2/s)
+#  alpha <- 0.049  
+
+# optimal light intensity (in uEinst/m2/s - original values in W/m2)
+#  eopt  <- 4*(150 + 15*ChlRS$Temperature)
+
+# assumed temperature dependence for maximal gross production
+  ps    <- 13*1.06^(temp$y-20)    # mgC/mgChl/h
+
+  PI.par <- data.frame(time  = time,
+                       alpha = 0.049*Chl$y,
+                       eopt  = 4*(150 + 15*temp$y),
+                       ps    = ps*Chl$y)
+ zmean <- 10 
+PP <- integratedPP(zn      = zmean,   # water depth
+                   times   = time,    # output time
+                   It.data = It.data, # light intensity timeseries
+                   kz      = 0.3,     # extinction coefficient
+                   PI.par  = PI.par,
+                   Ht.data = Ht.data, # water height (surface elevation)
+                   avgOver = "day")
+
+PPall <- cbind(PPall, PP$ts$ps)
+}
+colnames(PPall) <- paste(format(Chl_Stats$longitude, digits=3), "E_", 
+                          format(Chl_Stats$latitude,  digits=3), "N", sep="")
+PPall <- data.frame(datetime = PP$ts$time, PPall)
+```
+
+```{r, fig.width=8, fig.height=8}
+matplot(PPall$datetime, PPall[,-1], type="l", 
+        lty=1, ylab="mgC/m2/h", las=1, log="y",
+        main="PP wadden")
+```
+
