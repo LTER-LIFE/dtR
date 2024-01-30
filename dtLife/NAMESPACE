@@ -1,0 +1,23 @@
+importFrom(grDevices, "dev.interactive")
+importFrom(graphics, "lines", "par",  "legend")
+importFrom("graphics", "matplot", "points", "polygon")
+importFrom(stats, "coef", "pf", "predict", "printCoefmat", "AIC", "na.omit")
+importFrom(stats, "approx", "approxfun", "uniroot", "lm", "aggregate", "reshape")
+importFrom(utils, "read.csv", "read.csv2", "read.delim",
+           "read.delim2", "read.table")
+importFrom(ncdf4, "nc_open", "nc_close", "ncvar_get")   
+import(sf)     
+import(FME)
+import(plot3D)
+
+export(wgs84_to_rd, rd_to_wgs84, wgs84_to_xy, xy_to_wgs84)
+export(readRWS, readKNMI) 
+export(readBathymetry, plotBathymetry)
+export(mask_2D, mask_xy, mask_bat)
+export(interpolate_xyt, map_xy, average_timeseries) 
+export(dtreshape, dttolong, dttowide) 
+export(meta)
+
+S3method(subset, dtLife)
+S3method('[', dtLife)
+S3method(plot, dtLife)

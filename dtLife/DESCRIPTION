@@ -1,0 +1,12 @@
+Package: dtLife
+Version: 0.0.1
+Title: Lter Life Digital Twin: general utilities
+Author: Karline Soetaert <karline.soetaert@nioz.nl>
+Maintainer: Karline Soetaert <karline.soetaert@nioz.nl>
+Depends: R (>= 3.5.0), FME, plot3D, sf
+Imports: grDevices, graphics, stats, ncdf4
+Suggests: knitr, rmarkdown
+Description: General functions in support of the digital twins of the LTER Life project.
+License: GPL (>= 2)
+VignetteBuilder: knitr
+LazyData: yes
