@@ -1,0 +1,140 @@
+---
+author: "Karline Soetaert"
+date: "first version: 01-10-2023; current version: `r format(Sys.time(), '%d %B %Y')`"
+word_document:
+  toc: yes
+output:
+  word_document: default
+  pdf_document: null
+  toc: yes
+toc_depth: 3
+title: "Reading and processing data for use in the LTER-LIFE digital twins - the weather
+  data"
+abstract: This document prepares the weather data that are to be used in the LTER
+  life dtWad package. These data are made available from the  KNMI (Royal netherlands
+  meteorological institute). Data from the KNMI that are close to or in the Wadden
+  area are read, and units converted. A file that has the station positions of the
+  KNMI (Royal netherlands meteorological institute).
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+require(dtWad)
+```
+
+# KNMI metadata
+
+SOURCE: ROYAL NETHERLANDS METEOROLOGICAL INSTITUTE (KNMI)
+https://www.knmi.nl/nederland-nu/klimatologie/uurgegevens
+https://www.knmi.nl/nederland-nu/klimatologie/uurgegevens_Noordzee
+
+
+```{r}
+KNMIstations <- read.csv("../raw_data/knmi/csv_knmi_nl_20230623.csv")
+
+names(KNMIstations) <- c("station", "WSI", "startTime", "stopTime", 
+                         "location", "type", "height", 
+                         "pos_x", "pos_y", "latitude", "longitude")
+
+stn_wad <- c(208, 235, 242, 251, 270, 277) # stations from the Wadden area
+KNMIstations$Wadden <- KNMIstations$station %in% stn_wad
+
+save(file="../processed_data/KNMIstations.rda", KNMIstations)
+```
+
+# KNMI datasets
+
+Several datasets were manually downloaded from the KNMI website; 
+the data that are in the wadden area are selected; they are read 
+and combined in a data.frame. This data.frame is in long format.
+
+```{r}
+# stations from the wadden area
+STused <- subset(KNMIstations, subset=station %in% stn_wad)
+```
+
+
+```{r}
+dir="../raw_data/knmi/"
+
+# several files read at once
+files <- paste("uurgeg", stn_wad, "2021-2030.txt", sep="_")
+
+WeatherData <- readKNMI(dir=dir, file=files)
+```
+
+The measured variables in this data set are:
+
+```{r}
+knitr::kable(attributes(WeatherData)$variables, align='l')
+```
+
+The stations in this data set are:
+
+```{r}
+knitr::kable(attributes(WeatherData)$stations[,c(1,3,5:7,10:11)], 
+             digits=c(0,0,0,0,1,2,2), align='l')
+```
+
+## Subsettting the data
+
+From this dataset, only the 2021 data are retained, and the number of variables is restricted:
+
+```{r}
+toselect <- c("station",  "datetime", "windspeed", "temperature",  "radiation")
+Weather2021 <- subset(WeatherData, 
+                      subset = datetime < "2022-01-01")[, toselect]
+
+save(file="../processed_data/WeatherData.rda", WeatherData)
+save(file="../processed_data/Weather2021.rda", Weather2021)
+```
+
+
+```{r, fig.width=8, fig.height=6}
+stats <- attributes(Weather2021)$stations
+plotBathymetry(WadDepth, 
+               pts=stats[,c("longitude", "latitude")], 
+               ptlist=list(cex=4, col= "white"), NAcol="grey", type="image",
+               main="Meteorological stations")
+text(stats$longitude, stats$latitude, labels=stats$station, cex=0.7)
+legend("bottomright", legend = c(stats$station, stats$location), 
+       ncol=2, cex=0.7)
+```
+
+# Showing some data
+
+
+```{r, fig.width=8, fig.height=10, fig.cap="weather data for station 277"}
+st277 <- subset(Weather2021, subset=station==277)
+par(mfrow=c(3,1), las=1)
+with(st277,{
+  plot(datetime, windspeed, type="l", 
+       main="wind speed", ylab="m/s")
+  plot(datetime, temperature, type="l", 
+       main="temperature", ylab="dgC")
+  plot(datetime, radiation, type="l", 
+       main="solar radiation", ylab="W/m2")
+})
+```
+
+\newpage
+
+# References
+
+The following R-sources were used for this work:
+
+R-core:
+
+* R Core Team (2022). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+
+
+R-package dtWad, 
+
+* Soetaert K (2024). dtWad: Waddensea Digital Twin: general utilities. R package version 0.0.1.
+
+\newpage
+
+# Appendix: all KNMI stations
+
+```{r}
+knitr:::kable(KNMIstations[,c(1,3,5:7,10:12)], digits=c(0,0,0,0,1,2,2,1))
+```

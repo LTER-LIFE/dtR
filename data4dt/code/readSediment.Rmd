@@ -1,0 +1,188 @@
+---
+title: "Reading and processing data for use in the LTER-LIFE digital twins: sediment data"
+author: "Karline Soetaert"
+date: "first version: 01-10-2023; current version: `r format(Sys.time(), '%d %B %Y')`" 
+output:
+  pdf_document:
+  toc: yes
+toc_depth: 3
+word_document:
+  toc: yes
+abstract: This document prepares the sediment data that are to be used in the LTER life dtWad package. These data are made available from the Rijkswaterstaat (RWS) and Deltares. Data are read, and sediment properties are calculated. 
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+require(dtWad)
+require(ncdf4)
+require(plot3D)
+```
+
+# Grain sizes
+
+The source file for this dataset was downloaded at:
+
+https://opendap.deltares.nl/thredds/catalog/opendap/rijkswaterstaat/sedimentatlas_waddenzee/catalog.html
+
+
+The following information was extracted from the dataset:
+
+* institution: Rijkswaterstaat
+* source: surface observation
+
+* history: Original filename: korrel
+* tranformation to NetCDF: $HeadURL: https://repos.deltares.nl/repos/OpenEarthRawData/trunk/rijkswaterstaat/sedimentatlas_waddenzee/sedimentatlas_korrel2nc.m $ 
+        
+* Revision: 302, Date: 2009-04-14 12:24:34 +0200 (di, 14 apr 2009) 
+* Author: boer_g
+* references: <http://www.waddenzee.nl/Sedimentatlas.729.0.html>,<http://openearth.deltares.nl>
+* comment: 'Korrelgrootteverdeling' was exported from Sedimentatlas to ASCII file before conversion to NetCDF.
+*terms_for_use: These data can be used freely for research purposes provided that the following source is acknowledged: Rijkswaterstaat.
+        
+        
+```{r}
+file   <- "../raw_data/grainsize/korrel.nc"
+korrel <-  nc_open(file)
+
+# read the particle diameter, in um
+diameter  <- ncvar_get(korrel, "diameter")  
+lat       <- ncvar_get(korrel, "lat")  
+lon       <- ncvar_get(korrel, "lon")  
+stat      <- ncvar_get(korrel, "ID")
+
+# percentage material on sieve by weight
+phi    <- ncvar_get(korrel, "phi")
+cumphi <- ncvar_get(korrel, "cumphi")
+
+# the raw data
+# ==============
+fraction <- t(phi)
+fraction <- fraction[,ncol(fraction):1]
+colnames(fraction) <- paste("X",gsub(" ", "", format(diameter)), sep="")
+
+GrainSize <- data.frame(stationNr = stat, 
+                        longitude = lon, 
+                        latitude  = lat, 
+                        fraction)
+fraction  <- data.frame(cn      = colnames(fraction), 
+                        size_um = diameter)
+
+# add attributes
+attributes(GrainSize)$fraction      <- fraction
+attributes(GrainSize)$datasource    <- "RWS; compiled by Deltares"
+attributes(GrainSize)$EPSG          <- 25831
+attributes(GrainSize)$file          <- "korrel.nc"
+attributes(GrainSize)$processing    <-  paste("Created at", Sys.time())
+attributes(GrainSize)$specifics     <- list(
+   download = "https://opendap.deltares.nl/thredds/catalog/opendap/rijkswaterstaat/sedimentatlas_waddenzee/catalog.html", 
+   institution= "Rijkswaterstaat", source="surface observation", 
+   HeadURL= "https://repos.deltares.nl/repos/OpenEarthRawData/trunk/rijkswaterstaat/sedimentatlas_waddenzee/sedimentatlas_korrel2nc.m", 
+   Revision= 302, 
+   Date= "2009-04-14 12:24:34 +0200 (di, 14 apr 2009)", 
+   Author= "boer_g", 
+   references= "<http://www.waddenzee.nl/Sedimentatlas.729.0.html>,<http://openearth.deltares.nl>",
+   comment= "'Korrelgrootteverdeling' was exported from Sedimentatlas to ASCII file before conversion to NetCDF",
+   terms_for_use="These data can be used freely for research purposes provided that the following source is acknowledged: Rijkswaterstaat."
+)  
+
+# Derived parameters
+# ===================
+Mdphi <- apply (cumphi, MARGIN = 2, 
+  FUN = function(x) approx(x, y = diameter, xout = 50, ties="mean")$y)
+Meanphi <- apply (phi, MARGIN = 2, 
+  FUN = function(x) mean(x * diameter /100, ties="mean"))
+
+gravel <- 100 - cumphi[diameter == 2000, ]
+silt   <- cumphi[diameter == 63, ]
+sand   <- cumphi[diameter == 2000, ] - silt
+
+WadGrain <- data.frame(station   = stat, 
+                    longitude = lon, 
+                    latitude  = lat, 
+                    mdGrain   = Mdphi,   
+                    gravel    = gravel, 
+                    silt      = silt, 
+                    sand      = sand)
+
+
+## variable description
+desc <- data.frame(variable=c("station", "longitude",  "latitude", "mdGrain", "gravel",
+             "silt",  "sand"),
+             description=c("station nr", "dgE", 
+             "dgN", "median grain size, i.e. size at which 50% of grains is > or <", 
+             "gravel fraction, percentage of grains > 2000 umeter", 
+             "silt fraction, percentage of grains < 63 umeter", 
+             "sand fraction, percentage of grains inbetween 63 and 2000 umeter"), 
+             
+             unit=c("-", "dg", "dg", "micrometer", "%", "%", "%"))
+
+attributes(WadGrain)$variables   <- desc   
+attributes(WadGrain)$datasource  <- attributes(GrainSize)$datasource   
+attributes(WadGrain)$EPSG        <- attributes(GrainSize)$EPSG
+attributes(WadGrain)$file        <- attributes(GrainSize)$file 
+attributes(WadGrain)$processing  <- paste("Created at", Sys.time())
+attributes(WadGrain)$specifics   <- attributes(GrainSize)$specifics
+
+  # aspect ratio for plotting
+attributes(WadGrain)$asp <- 1/cos((mean(WadGrain$latitude) * pi)/180)
+#class(WadGrain) <- c("dtLife", "data.frame")
+
+save(file="../processed_data/WadGrain.rda", WadGrain)
+save(file="../processed_data/GrainSize.rda", GrainSize)
+
+# a subset that adds to dtLife
+Sediment <- subset(WadGrain, 
+                   subset= longitude <= 5.01 & 
+                           latitude  <= 53.1)[, c("longitude", "latitude", "mdGrain")]
+save(file="../processed_data/Sediment.rda", Sediment)
+```
+
+```{r, fig.width=10, fig.height=8}
+par(mfrow=c(2,2), las=1)
+asp <- attributes(WadGrain)$asp
+with(WadGrain, {
+  points2D(longitude, 
+           latitude, 
+           colvar   = mdGrain, log="c", 
+           main="Md grainsize", clab="micrometer", 
+           asp=asp, pch=".", cex=2)
+  points2D(longitude, 
+           latitude, 
+           colvar   = silt, log="c", 
+           main="Silt, <63 um", clab="%", 
+           asp=asp, pch=".", cex=2)
+  points2D(longitude, 
+           latitude, 
+           colvar   = sand, log="", 
+           main="Sand, 63-2000 um", clab="%", 
+           asp=asp, pch=".", cex=2)
+  points2D(longitude, 
+           latitude, 
+           colvar   = gravel, log="", 
+           main="Gravel", clab="%", 
+           asp=asp, pch=".", cex=2)
+  })
+
+```
+
+
+\newpage
+
+# References
+
+The following R-sources were used for this work:
+
+R-core:
+
+* R Core Team (2022). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+
+R-package dtWad, 
+
+* Soetaert K (2024). dtWad: Waddensea Digital Twin: general utilities. R package version 0.0.1.
+
+R-package ncdf4
+
+*  Pierce D (2023). _ncdf4: Interface to Unidata netCDF (Version 4 or Earlier) Format Data Files_. R package version 1.21, <https://CRAN.R-project.org/package=ncdf4>
+
+R-package plot3D
+
+* Soetaert K (2021). _plot3D: Plotting Multi-Dimensional Data_. R package version 1.4, <https://CRAN.R-project.org/package=plot3D>.
