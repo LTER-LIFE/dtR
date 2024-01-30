@@ -1,0 +1,11 @@
+Package: dtWad
+Version: 0.0.1
+Title: Lter Life Digital twin: general datasets of the waddensea
+Author: Karline Soetaert <karline.soetaert@nioz.nl>
+Maintainer: Karline Soetaert <karline.soetaert@nioz.nl>
+Depends: R (>= 3.5.0), dtLife
+Suggests: knitr, rmarkdown
+Description: General data sets in support of the digital twins of the Dutch Waddensea.
+License: GPL (>= 2)
+VignetteBuilder: knitr
+LazyData: yes
