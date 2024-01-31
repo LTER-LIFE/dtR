@@ -35,8 +35,8 @@ The times for which we want to run the model is input in POSIXct data format.
 
 ```{r}
 
-time <- seq(from = as.POSIXct("2021-01-05 01:00:00"), 
-            to   = as.POSIXct("2021-03-05 01:00:00"), 
+time <- seq(from = as.POSIXct("2021-01-01 00:00:00"), 
+            to   = as.POSIXct("2021-03-31 23:30:00"), 
             by   = 60*30)  # output 30 minutes
 ```
 
@@ -48,9 +48,9 @@ Assume that 50% of light is PAR.
 ```{r}
 st235   <- subset(Weather2021, 
                   subset = 
-                    station == 235                                &
-                    datetime >= as.POSIXct("2021-01-04 23:59:59") &
-                    datetime <= as.POSIXct("2021-03-05 01:00:10"))
+                    station == 235                                 &
+                    datetime >= as.POSIXct("2020-12-31 23:59:59")  &
+                    datetime <= as.POSIXct("2021-04-01 01:00:10")  )
 It.data <- st235[, c("datetime", "radiation")]
 It.data$PAR <- It.data$radiation * 0.5
 It.data$radiation <- NULL
@@ -82,7 +82,7 @@ ChlLong <- ChlLong[-ii,]
 ChlLong <- na.omit(ChlLong)
 ChlLong <- subset(ChlLong, subset = 
                     date.from <= as.POSIXct("2021-04-01") &
-                    longitude < 7.5)
+                    longitude < 6.)
 ```
 
 # Water height and temperature 
@@ -93,14 +93,14 @@ For water height and water temperature  we use the data from station DENHDR and 
 Ht.data  <- WadHeightHR[ , c("datetime", "DENHDR")]
 Ht.data  <- subset(Ht.data, 
                   subset =                                         
-                    datetime >= as.POSIXct("2021-01-04 23:59:59")  &
-                    datetime <= as.POSIXct("2021-04-05 01:00:10"))
+                    datetime >= as.POSIXct("2020-12-31 23:59:59")  &
+                    datetime <= as.POSIXct("2021-04-01 01:00:10"))
 
 Tt.data  <- WadTempHR[ , c("datetime", "DENHDVSGR")]
 Tt.data  <- subset(Tt.data, 
                   subset =                                         
-                    datetime >= as.POSIXct("2021-01-04 23:59:59")  &
-                    datetime <= as.POSIXct("2021-03-05 01:00:10"))
+                    datetime >= as.POSIXct("2020-12-31 23:59:59")  &
+                    datetime <= as.POSIXct("2021-04-01 01:00:10"))
 ``` 
 
 
@@ -125,19 +125,25 @@ Tmon <- average_timeseries(Tt.data, avgOver="mon",
                            value = "DENHDVSGR")
 ```
 
+Stations and their depth
 
+```{r}
+xy_Stats <- unique(ChlLong[,c("longitude", "latitude")])
+Chl_Stats <- map_xy(input.x  = WadDepth$longitude, 
+                    input.y  = WadDepth$latitude, 
+                    input.2D = WadDepth$depth,
+                    output.xy = xy_Stats)
+```
 
 Estimate depth integrated production
 
 ```{r}
-Chl_Stats <- unique(ChlLong[,c("longitude", "latitude")])
-
 temp <- as.data.frame(approx(Tt.data, xout=time))  
 
 
 PPall <- NULL
 for (i in 1:nrow(Chl_Stats)){
-  Chl_data <- subset(ChlLong, subset=longitude == Chl_Stats$longitude[i] & 
+  Chl_data <- subset(ChlLong, subset=longitude == Chl_Stats$longitude[i]  & 
                                      latitude  == Chl_Stats$latitude[i]   )
   Chl_data <- Chl_data[, c("date.from", "chlorophyll")]
   Chl      <- as.data.frame(approx(Chl_data, xout=time))
@@ -156,7 +162,7 @@ for (i in 1:nrow(Chl_Stats)){
                        alpha = 0.049*Chl$y,
                        eopt  = 4*(150 + 15*temp$y),
                        ps    = ps*Chl$y)
- zmean <- 10 
+ zmean <- Chl_Stats$z[i]
 PP <- integratedPP(zn      = zmean,   # water depth
                    times   = time,    # output time
                    It.data = It.data, # light intensity timeseries
@@ -165,16 +171,18 @@ PP <- integratedPP(zn      = zmean,   # water depth
                    Ht.data = Ht.data, # water height (surface elevation)
                    avgOver = "day")
 
-PPall <- cbind(PPall, PP$ts$ps)
+PPall <- cbind(PPall, PP$ts$PP)
 }
-colnames(PPall) <- paste(format(Chl_Stats$longitude, digits=3), "E_", 
-                          format(Chl_Stats$latitude,  digits=3), "N", sep="")
+colnames(PPall) <- paste("ST",format(Chl_Stats$longitude, digits=3), "E_", 
+                              format(Chl_Stats$latitude,  digits=3), "N", sep="")
 PPall <- data.frame(datetime = PP$ts$time, PPall)
 ```
 
 ```{r, fig.width=8, fig.height=8}
 matplot(PPall$datetime, PPall[,-1], type="l", 
-        lty=1, ylab="mgC/m2/h", las=1, log="y",
+        lty=1, ylab="mgC/m2/h", las=1, lwd=2,
         main="PP wadden")
+
+legend("topleft", legend=names(PPall)[-1], col=1:10, lty=1)
 ```
 

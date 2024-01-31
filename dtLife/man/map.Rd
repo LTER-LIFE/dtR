@@ -198,7 +198,7 @@ image2D(x=xdbl, y=ydbl, z=volcdbl)
 VV    <- volcdbl[seq(1, nrow(volcdbl), by=2), 
                  seq(1, ncol(volcdbl), by=2)]
                  
-image2D(VV-volcano) # SHOULD BE WHITE NOISE or 0, and it is NOT!
+image2D(VV-volcano) # SHOULD BE WHITE NOISE or 0
 
 ## =============================================================
 ## from 2D input to 2D output - increase resolution
@@ -214,8 +214,8 @@ system.time(
                         output.y = ydbl)
 )
 
-VV    <- volcano.dbl2$z[seq(1, nrow(volcdbl), by = 2), 
-                        seq(1, ncol(volcdbl), by = 2)]
+VV    <- volcano.dbl2$z[seq(1, nrow(volcano.dbl2$z), by = 2), 
+                        seq(1, ncol(volcano.dbl2$z), by = 2)]
 image2D(VV-volcano) # SHOULD BE 0
 
 ## =============================================================

@@ -267,6 +267,9 @@ interpolate_2D_xy <-  function(
                         input.2D,         #  depth
                         output.xy){
 
+  dd <- dim(input.2D)
+  if (dd[1] != length(input.x)) stop ("length of 'input.x' should be = nrow(input.2D)")
+  if (dd[2] != length(input.y)) stop ("length of 'input.y' should be = ncol(input.2D)")
   dlon <- diff (input.x)  # diff(input.2D$longitude)
   dlat <- diff (input.y)  # diff(input.2D$latitude)
   
@@ -305,8 +308,8 @@ interpolate_2D_xy <-  function(
     dyvalue <- rbind(0, dyvalue, 0)
     
     newz <- input.2D[cbind(iix, iiy)]+
-                0.5*(dxvalue[cbind(iix, iiy)]*dx[iix] +
-                     dyvalue[cbind(iix, iiy)]*dy[iiy]) 
+                0.5*(dxvalue[cbind(iix, iiy)]*dx +
+                     dyvalue[cbind(iix, iiy)]*dy) 
     row.names(output.xy) <- NULL
     Result <- data.frame(output.xy, z=newz)
     
@@ -424,15 +427,19 @@ interpolate_2D_2D <- function(input.x, input.y, input.2D,
   dxi <- min(diff(sort(unique(input.x))))
   dyi <- min(diff(sort(unique(input.y))))
   
-  dxi <- min(diff(sort(unique(input.x))))
-  dyi <- min(diff(sort(unique(input.y))))
-  
   # map output to input grid cells
   ix <- pmin(length(input.x), as.integer(1+(output.x-xir[1])/dxi))
   iy <- pmin(length(input.y), as.integer(1+(output.y-yir[1])/dyi))
 
-  in2D <- cbind(input.2D[,1], input.2D, input.2D[,ncol(input.2D)])
-  in2D <- rbind(in2D[1,],in2D,     in2D    [nrow(in2D),])
+  ix <- pmax(1, ix)
+  iy <- pmax(1, iy)
+  
+  in2D <- cbind(#input.2D[,1], 
+                input.2D, 
+                input.2D[,ncol(input.2D)])
+  in2D <- rbind(#in2D[1,],
+                in2D,     
+                in2D    [nrow(in2D),])
   
   IG   <- as.matrix(expand.grid(ix, iy))
   IGx1 <- t(t(IG) + c(1,0))
