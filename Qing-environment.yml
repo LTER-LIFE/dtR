@@ -1,0 +1,14 @@
+name: lter-life-wadden-PP
+channels:
+  - conda-forge
+dependencies:
+  - r-irkernel
+  - minio
+  - webdavclient3
+  - r-fme
+  - r-desolve
+  - r-plot3d
+  - r-sf
+  - r-ncdf4
+  - r-tidyverse
+  
