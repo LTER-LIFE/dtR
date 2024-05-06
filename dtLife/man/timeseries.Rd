@@ -40,10 +40,10 @@ average_timeseries(input, avgOver = "hour",  avgTime  = 1,
 # time averages of weather time series - long format
 # ========================================================
 
-data(Weather2021)
+data(Wad_weather)
 
-head(Weather2021)  # timeseries every hour for several stations
-dim(Weather2021)
+head(Wad_weather)  # timeseries every hour for several stations
+dim(Wad_weather)
 
 # ================================================
 # time averages of several time series at once - wide format
@@ -52,7 +52,7 @@ dim(Weather2021)
 # take averages over all the stations
 
 toselect <- c("windspeed", "temperature", "radiation")
-average_timeseries(Weather2021, 
+average_timeseries(Wad_weather, 
                    avgOver = "mon",  
                    value   = toselect,  
                    na.rm   = TRUE)
@@ -61,7 +61,7 @@ average_timeseries(Weather2021,
 
 toselect <- c("windspeed", "temperature", "radiation")
 AT <- average_timeseries(
-                   Weather2021, 
+                   Wad_weather, 
                    avgOver = "mon",  
                    value   = toselect, 
                    by      = "station",
@@ -73,10 +73,10 @@ head(AT)
 # time averages of one time series in wide format
 # ================================================
  
-head(WadTempLR)
+head(Wad_watertemp_LR)
 
-toaverage <- colnames(WadTempLR)[-1]
-average_timeseries(WadTempLR,
+toaverage <- colnames(Wad_watertemp_LR)[-1]
+average_timeseries(Wad_watertemp_LR,
                    avgOver = "mon",  
                    value   = toaverage,
                    na.rm   = TRUE
@@ -87,8 +87,8 @@ average_timeseries(WadTempLR,
 \seealso{
   \code{\link{Marsdiep}} bathymetric data.
   \code{\link{Sediment}} data set with sediment composition.
-  \code{\link{WadTempLR}} data set with water temperature .
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_watertemp_LR}} data set with (low resolution) water temperature from the Waddensea.
+  \code{\link{Wad_weather}} data set with weather information from Waddensea stations.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

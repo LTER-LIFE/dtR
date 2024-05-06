@@ -67,9 +67,13 @@ readKNMI <- function(file, dir="", attr=NULL, ...){
                      unit = c("m/s", "dg", "dgC", "dgC", "J/m2/s", "mbar (hPa)", "octants", "-", "dgC"),
                      original=c("FH", "DD", "T", "TD", "Q", "P", "N", "U", "TZ"))
   stats <- merge(KNMIstations, list(station = unique(KNMI$station)))
+  ID    <- stats[,c("station", "longitude", "latitude")]
+  names(ID)[1] <- "ID"
   
   attributes(KNMI)$variables  <- vars
   attributes(KNMI)$stations   <- stats
+  attributes(KNMI)$ID         <- ID
+  
   attributes(KNMI)$datasource <- "KNMI"
   attributes(KNMI)$file       <- file
   attributes(KNMI)$processing <-  paste("Created at", Sys.time())
@@ -230,6 +234,9 @@ readRWS <- function(file, dir="", attr=NULL, format="wide", ...){
     RWSdat <- merge(RWSdat, variables)   ### THIS TAKES A VERY LONG TIME FOR BIG DATASETS
   
   stats <- unique(RWSdat[,c("stationName", "station", "X", "Y", "longitude", "latitude")])
+  ID    <- stats[,c("station", "longitude", "latitude")]
+  names(ID)[1] <- "ID"
+  
   RWSdat <- RWSdat[,c("station", "longitude", "latitude", "datetime", "variable", "value", "unit", "vnr")]
   
   if (format == "wide"){
@@ -243,9 +250,10 @@ readRWS <- function(file, dir="", attr=NULL, format="wide", ...){
     colnames(RWSdat) <- cn  
   } else format <- "long"
   
-  attributes(RWSdat)$variables <- variables
-  attributes(RWSdat)$stations  <- stats
-  attributes(RWSdat)$datasource    <- "RWS"
+  attributes(RWSdat)$variables   <- variables
+  attributes(RWSdat)$stations    <- stats
+  attributes(RWSdat)$ID          <- ID
+  attributes(RWSdat)$datasource  <- "RWS"
   attributes(RWSdat)$EPSG <- unique(na.omit(RWS$EPSG))
   attributes(RWSdat)$file <- file
   attributes(RWSdat)$processing <-  paste("Created at", Sys.time())

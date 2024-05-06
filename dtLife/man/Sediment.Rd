@@ -21,7 +21,10 @@ data(Sediment)
 
 \description{
  Dataset obtained from rijkswaterstaat, as transformed to netcdf in
- tranformation to NetCDF: https://opendap.deltares.nl/thredds/catalog/opendap/rijkswaterstaat/sedimentatlas_waddenzee/catalog.html.  
+ 
+ https://opendap.deltares.nl/thredds/catalog/opendap/ 
+ 
+ rijkswaterstaat/sedimentatlas_waddenzee/catalog.html.  
  
 From the cumulative data (cumphi) versus grain size, the mdGrain was estimated as the median grain size, i.e. where half is larger and smaller, in terms of weight.
 

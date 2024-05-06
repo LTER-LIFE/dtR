@@ -77,7 +77,7 @@ with(Marsdiep,
 
 }
 \seealso{
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_weather}} data set with weather information from Waddensea stations.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

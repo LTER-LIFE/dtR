@@ -1,15 +1,15 @@
 \name{Water temperature in the wadden sea}
-\alias{WadTempLR}
+\alias{Wad_watertemp_LR}
 \title{
   Low resolution water temperature data from RWS.
 }
 
 \usage{
-data(WadTempLR)
+data(Wad_watertemp_LR)
 }
 
 \value{
-\code{WadTempLR} is a data.frame in \code{wide} format of class \code{dtLife}, with the following items: 
+\code{Wad_watertemp_LR} is a data.frame in \code{wide} format of class \code{dtLife}, with the following items: 
 
 \itemize{
   \item \code{datetime}, Date and time of the measurement, POSIXct format
@@ -41,17 +41,17 @@ Dataset obtained from the Rijkswaterstaat, downloaded from https://waterinfo.rws
 # Plot the data
 # ---------------------------------------------------
 
-plot(WadTempLR, mfrow=c(3,4))
+plot(Wad_watertemp_LR, mfrow=c(3,4))
 
 # ---------------------------------------------------
 # Show the metadata
 # ---------------------------------------------------
 
-meta(WadTempLR)
+meta(Wad_watertemp_LR)
 
 }
 \seealso{
-  \code{\link{Weather2021}} high-resolution data set with weather information.
+  \code{\link{Wad_weather}} data set with weather information from Waddensea stations.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

@@ -7,6 +7,7 @@
 interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, value
                              output.xy, 
                              output.t, 
+                             ID=NULL,   #unique identifier for the output
                              wide = TRUE){  # wide or long format
   
   attrs <- NULL
@@ -18,6 +19,8 @@ interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, v
   if (ncol(input.xytv) != 4) 
     stop ("'input.xytv' should have 4 columns: longitude (x), latitude (y), time, value")
 
+  tname <- names(input.xytv)[3] # to label the output
+  
   # different xy values
 
   input.xy  <- unique(input.xytv[, 1:2])
@@ -27,16 +30,24 @@ interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, v
     output.xy <- matrix(nrow=1, data=output.xy)
   else 
     output.xy <- unique(output.xy[,1:2])
+  
   coord.xy  <- output.xy
   no <- nrow(output.xy)
   
   ##### step 1: weighting points #####
   # distance between two points
   # euclidean_distance
+  if (min(output.xy[,2], na.rm=TRUE) < -90 |
+      max(output.xy[,2], na.rm=TRUE) >  90)
+    stop ("second column of output.xytv should contain valid latitude, -90:90")
+  if (min(input.xy[,2], na.rm=TRUE) < -90 |
+      max(input.xy[,2], na.rm=TRUE) >  90)
+    stop ("second column of input.xy should contain valid latitude, -90:90")
+  asp      <- 1/cos((mean(output.xy[,2], na.rm=TRUE)*pi)/180)  # y/x aspect ratio
   
   DD1 <- outer(output.xy [, 1], input.xy[, 1], FUN="-")
   DD2 <- outer(output.xy [, 2], input.xy[, 2], FUN="-")
-  Distance <- sqrt(DD1^2+DD2^2)
+  Distance <- sqrt(DD1^2+DD2^2*asp^2)
   rm(list=c("DD1", "DD2"))
   
   # find three closest points 
@@ -76,32 +87,38 @@ interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, v
     xytin[,i] <- V.out
   }
   
-  stnames <- paste("st", 1:no, sep="")
-  Stations <- data.frame(stations=stnames,
-                         x=coord.xy[,1], 
-                         y=coord.xy[,2])
+  if (is.null(ID))
+    stnames <- paste("st", 1:no, sep="")
+  else 
+    stnames <- ID
+  
+  if (length(stnames) != no) 
+    stop("'ID' should be of length = output")
+  
+  Stations <- data.frame(ID = stnames,
+                         x  = coord.xy[,1], 
+                         y  = coord.xy[,2])
   row.names(Stations) <- NULL
   
   if (wide){
     result     <- matrix(nrow = length(output.t), 
-                         ncol = 1+nrow(output.xy))
-    result[,1] <- output.t
+                         ncol = nrow(output.xy))
 
     for (i in 1:no){
       iu <- xytin[ ,i.close[i,]]  # data that need to be averaged
       wu <- w.close[i,]           # averaging weights
-      result[,i+1] <- rowSums(sweep(iu, MARGIN=2, STATS=wu, FUN="*"))
+      result[,i] <- rowSums(sweep(iu, MARGIN=2, STATS=wu, FUN="*"))
     }
-  
-    colnames(result) <- c("time", stnames)
+    result <- data.frame(time=output.t, result)
+    colnames(result) <- c(tname, stnames)
   } else {
-    result     <- NULL
+    result     <- data.frame()
     for (i in 1:no){
       iu  <- xytin[ ,i.close[i,]]  # data that need to be averaged
       wu  <- w.close[i,]           # averaging weights
       res <- rowSums(sweep(iu, MARGIN=2, STATS=wu, FUN="*"))
       result <- rbind(result,  
-                      cbind(Stations[i,], output.t, res, row.names=NULL))
+                      data.frame(Stations[i,], output.t, res, row.names=NULL))
     }
     
   }
@@ -109,10 +126,45 @@ interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, v
   if (! is.null(attrs))
     attributes(result) <- c(atout, attrs[!names(attrs) %in% names(atout)])
   
+  if (! is.null(ID)) attr(result, "ID") <- Stations
+  
+  names(Stations)[1] <- "stations"
   attr(result, "stations") <- Stations
+  
   attr(result, "processing") <- c(
     atout$processing, paste("interpolated from 2D-time input, at:", Sys.time()))
   result
+}
+
+# ==============================================================================
+
+match_timeseries <- function(input.xytv, # timeseries in latitude, longitude, time, value
+                             data       # should have ID with (ID, latitude, longitude) in its attributes
+                             ) {  
+  # data on which to map the timeseries
+  dname    <- deparse(substitute(data))
+  tsname   <- deparse(substitute(timeseries))
+
+  timeseries <- as.data.frame(input.xytv)
+  
+  #  if (is.character(timeseries[,dtname]))
+  #    timeseries[,dtname] <- as.Date(timeseries[,dtname])
+  
+  output.xy <- meta(data)$ID  [, c("ID", "longitude", "latitude")]                                    
+  output.t  <- unique(timeseries[, 3])
+  
+  matched   <- interpolate_xyt(timeseries, 
+                               output.xy = output.xy[,-1], 
+                               output.t  = output.t, 
+                               wide      = TRUE, 
+                               ID        = output.xy$ID)
+  
+  attributes(matched)$ID         <- output.xy
+  attributes(matched)$variables  <- meta(input.xytv)$variables
+  attributes(matched)$processing <- paste("matched timeseries named '", tsname, 
+                                          "'with", dname, "at", Sys.time())
+  matched
+  
 }
 
 # ==============================================================================

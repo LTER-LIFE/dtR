@@ -124,13 +124,16 @@ a \code{list} with several items:
 # Uses the default settings
 PP <- integratedPP()
 names(PP)
+
+meta(PP)  # show metadata
+
 PP$ts
 
 attributes(PP)$Description
 plot(PP)
 
 ## =============================================================================
-## changing light intensity, imposing a ight depth profile
+## changing light intensity, imposing a light depth profile
 ## =============================================================================
 
 # --------------------------------------
@@ -144,7 +147,7 @@ plot(Iz.data)
 # --------------------------------------
 # light intensity versus time
 # --------------------------------------
-st235   <- subset(Weather2021, 
+st235   <- subset(Wad_weather, 
                   subset= station == 235            &
                           datetime >= "2021-07-31"  &
                           datetime <= "2021-08-06"   )
@@ -386,7 +389,7 @@ with(PP2$profile,
 # --------------------------------
 # Chlorophyll conc for 2021 do not exist, so we use the 2020 data instead
 
-ChlJetty <- subset(Jetty, 
+ChlJetty <- subset(Wad_biogeo_jetty, 
                    subset = datetime >= as.POSIXct("2019-12-15") &
                             datetime <= as.POSIXct("2021-01-01"))
 
@@ -400,7 +403,7 @@ ChlJetty$datetime <- ChlJetty$datetime+86400*365
 # Irradiance
 # --------------------------------
 # use the weatherdata from station 235 for irradiance
-Irr2021 <- subset(Weather2021, 
+Irr2021 <- subset(Wad_weather, 
                   subset = station==235)[,c("datetime", "radiation")]
 
 # --------------------------------
@@ -482,7 +485,7 @@ plot(Pprod_day, mass="mgC", length="m", time="h")
 \seealso{
   \code{\link{fitPI}} for fitting functions.
 
-  \code{\link{PIdata}} for a data set.
+  \code{\link{FRRFdata}}, \code{\link{LABSTAFdata}} for data sets.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

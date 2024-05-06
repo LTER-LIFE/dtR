@@ -1,12 +1,12 @@
 ---
 title: "Estimating integrated photosynthesis using R-package dtPP"
-author: "Karline Soetaert"
+author: "Karline Soetaert, Stanley Nmor, Qing, Leon"
 date: "04-October-2023"
 output:
   pdf_document: default
   html_document: default
   word_document: 
-abstract: 
+abstract: We use functions from the R-package dtPP to estimate depth-integrated photosynthesis in the aquatic environment for a number of typical cases. We start with a simple example where all forcing functions and parameters are constant. We then impose time-varying light intensities, fluctuating water levels, and time-varying PI parameters.  
 keywords:
   photosynthesis, algae, aquatic science, PI curve, "R"
 bibliography: 
@@ -16,6 +16,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
 ```{r setup, include=FALSE}
 options(width = 120)
 require(dtPP)
@@ -26,12 +27,50 @@ toBibtex(citation("plot3D"))
 toBibtex(citation("FME"))
 ```
 
+# A simple example
+
+In the simplest example, all inputs (depth, light intensity, extinction coefficient, and photosynthetic parameters) are constant.
+
+```{r}
+P1 <- integratedPP(
+  zn      = 10,      # depth of water column, [m]
+  times   = 0,       # time for which to estimate PP, one value
+  
+  # Eilers-Peeters photosynthesis parameters
+  PI.par=c(alpha = 0.05, # (mg C m-3 h-1) * (uE m-2 s-1)-1
+           eopt  = 350,  # (uE m-2 s-1)
+           ps    = 6),   # mg C m-3 h-1
+  
+  It.data = 100,     # light intensity at surface, [uEinst/m2/s]
+  kz      = 1)       # extinction coefficient, [/m]
+```
+
+The function *integratedPP* returns a list with several items: 
+
+* The timeseries of integrated values, 
+* vertical profiles of time-averaged values, and 
+* time-depth (2D) data of light and volumetric photosynthesis.
+
+The function *meta* shows what these variables mean, and their units.
+
+```{r}
+names(P1)
+meta(P1)
+```
+
+
+```{r}
+P1$ts
+names(P1$profile)
+plot(P1, which=c("PP_v", "Iz_I0"))
+```
+
+
 # A complex example
 
-This example uses measured irradiance data, fluctuating water levels, and time-varying PI-parameters. 
+This example uses measured irradiance data (*It.data*), fluctuating water levels (*Ht.data*), and time-varying Photosynthesis-irradiance parameters (*PI.par*). The integrated photosynthesis is estimated for a 4 -day period. 
 
-The integrated photosynthesis is estimated for a 4 -day period. 
-The times for which we want to run the model is input in POSIXct data format.
+The times for which we want to run the model is input in *POSIXct* data format.
 
 ```{r}
 time <- seq(from = as.POSIXct("2021-08-01 01:00:00"), 
@@ -39,40 +78,51 @@ time <- seq(from = as.POSIXct("2021-08-01 01:00:00"),
             by   = 60)  # output every minute
 ```
 
-The light intensity has been obtained from the KNMI; they are stored in a data.frame called *Weather2021*.
-The data from station Nr 235 are closest to the measurment site. 
-The light values are called "radiation" in the dataset; they are in J/m2/s.
+The light intensity has been obtained from the KNMI; the data are stored in a data.frame called *Wad_weather* in the *dtPP* package.
+
+The data from station Nr 235 are closest to the measurement site, and are extracted from the data. 
+
+The light values are called "radiation" in the dataset; they are in J/m2/s. It is assumed that 50% of this light is PAR.
 
 ```{r}
-st235   <- subset(Weather2021, 
+st235   <- subset(Wad_weather, 
                   subset = station==235)
-It.data <- st235[, c("datetime", "radiation")]
+It.data <- data.frame(datetime = st235$datetime, 
+                      PAR      = 0.5* st235$radiation)
 ```
 
-water height varies in time (~tide)
+Water height varies in time (~tide), according to a sine wave, with a periodicity of 12.4 hours.
 
 ```{r}
-zmean       <- 5           # Mean height of water
 t.period    <- 12.4*3600   # tidal period in seconds
 t.amplitude <- 1           # tidal amplitude in meters
 
 wH       <- t.amplitude * sin(2*pi*as.double(time)/t.period)
-Ht.data  <- data.frame(t     = time, 
-                       height= wH)
+Ht.data  <- data.frame(t      = time, 
+                       height = wH)
 ``` 
 
-Photosynthesis parameters change over time. Assume that alpha and ps are Chl-specific values, so multiplying with chlorophyll gives the values to be used.
+The photosynthesis-irradiance parameters alfa and ps are are Chl-specific values. 
+
+As the chlorophyll changes over time, so do these two PI-parameters. 
+
+The used PI parameters are calculated by multiplying the CHl-specific values with chlorophyll.
 
 ```{r}
 Chl <- data.frame(time = as.POSIXct(c("2021-08-01 01:00:00", 
-            "2021-08-02 01:00:00", "2021-08-03 01:00:00", 
-            "2021-08-04 01:00:00", "2021-08-05 01:00:00")),
-            conc = c(1, 2, 4, 3, 1))
+               "2021-08-02 01:00:00", "2021-08-03 01:00:00", 
+               "2021-08-04 01:00:00", "2021-08-05 01:00:00")),
+               conc = c(1, 2, 4, 3, 1))
 ```
 
+The photosynthesis-irradiance curves were fitted with the Eilers-Peeters model.
 
 ```{r}
-pars  = list(alpha = 0.02, eopt = 250, ps=0.5) # alpha, ps: Chl-specific value
+# Eilers-Peeters photosynthesis parameters
+pars = list(alpha = 0.05, # (mg C m-3 h-1) * (uE m-2 s-1)-1
+            eopt  = 350,  # (uE m-2 s-1)
+            ps    = 6)    # mg C m-3 h-1
+
 PI.par <-   data.frame(
     time  = Chl$time,    
     alpha = pars$alpha*Chl$conc,   
@@ -83,17 +133,25 @@ PI.par <-   data.frame(
 Estimate depth integrated production
 
 ```{r}
-PP <- integratedPP(zn      = zmean,   # water depth
+PP <- integratedPP(zn      = 5,       # water depth
                    times   = time,    # output time
                    It.data = It.data, # light intensity timeseries
-                   kz      = 0.3,     # extinction coefficient
+                   kz      = 1.5,     # extinction coefficient
+                   PI.par  = PI.par,
+                   Ht.data = Ht.data) # water height (surface elevation)
+
+PP2 <- integratedPP(zn      = 0.5,       # water depth
+                   times   = time,    # output time
+                   It.data = It.data, # light intensity timeseries
+                   kz      = 1.5,     # extinction coefficient
                    PI.par  = PI.par,
                    Ht.data = Ht.data) # water height (surface elevation)
 ```
 
 ```{r, fig.width=8, fig.height=8}
 par(mfrow=c(3,2))
-plot(PP, lwd=2, mfrow=NULL)
+plot(PP, which="PP", lwd=2, mfrow=NULL)
+lines(PP2$ts$times, PP2$ts$PP, col="red")
 with(PP$ts, plot(times, alpha, 
                  xlab=" time", ylab="..", main="alpha", 
                  lwd=2, type="l", las=1))

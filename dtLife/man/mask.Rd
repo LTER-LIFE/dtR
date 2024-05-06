@@ -124,8 +124,8 @@ mask_bat(bat, shape, EPSG=4326)
 \seealso{
   \code{\link{Marsdiep}} bathymetric data.
   \code{\link{Sediment}} data set with sediment composition.
-  \code{\link{WadTempLR}} data set with water temperature .
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_watertemp_LR}} data set with (low resolution) water temperature from the Waddensea.
+  \code{\link{Wad_weather}} data set with weather information from Waddensea stations.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

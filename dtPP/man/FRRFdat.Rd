@@ -59,7 +59,7 @@ data(FRRFdata)
 
 # this is how the data sets were created
 \dontrun{
- fpath        <- system.file("extdata", package="FRRF")
+ fpath        <- system.file("extdata", package="dtPP")
  FRRFdata_raw <- readFRRF(file="20220628-150602.csv", dir=fpath)
  FRRFdata     <- standardizeFRRF(FRRFdata_raw, 
                                  Fblanc = 0.1)

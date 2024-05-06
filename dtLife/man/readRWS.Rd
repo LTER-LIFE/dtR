@@ -160,7 +160,7 @@ plot(Shape, add = TRUE)
 
 }
 \references{
-https://waterinfo.rws.nl/
+https://waterinfo.rws.nl
 }
 \seealso{
 \link{readKNMI}, \link{readBathymetry} for other reading functions.

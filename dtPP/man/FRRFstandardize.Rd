@@ -85,7 +85,7 @@ If not specified, then aLHII_0 is estimated at E=0; in case this produces NA, th
 ## =============================================================
 
 # path of the external data of the package
-fpath <- system.file("extdata", package="FRRF")
+fpath <- system.file("extdata", package="dtPP")
 
 # Read the FRRF file
 F1 <- readFRRF(file = "49O_40m_FRRF.csv", 
@@ -170,7 +170,7 @@ with(F2sc, summary(JVPII-JVPII_uc))
 
   \code{\link{fWebb}} for the various PI functions.
 
-  \code{\link{PIdata}} for a data set.
+  \code{\link{LABSTAFdata}} for a data set generated with the labSTAF.
   
   \code{\link{FRRFdata}} for fitting with normalized and not normalized data.
   

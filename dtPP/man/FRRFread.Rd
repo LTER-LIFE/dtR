@@ -73,7 +73,7 @@ The attributes of the object also contain all information passed with argument "
 \examples{
 
 # path of the external data of the package
-fpath <- system.file("extdata", package="FRRF")
+fpath <- system.file("extdata", package="dtPP")
 
 ## =============================================================
 ## Read the FRRF file
@@ -124,7 +124,7 @@ AF1$author
 
   \code{\link{fWebb}} for the various PI functions.
 
-  \code{\link{PIdata}} for a data set.
+  \code{\link{LABSTAFdata}} for a data set generated with the labSTAF.
   
   \code{\link{FRRFdata}} for fitting with normalized and not normalized data.
   

@@ -282,7 +282,7 @@ plot (FitMonodT,
 ## =============================================================
 
 # the data generated with tee labSTAF
- set  <- subset(PIdata, subset = (! is.na(JVPII)))
+ set  <- subset(LABSTAFdata, subset = (! is.na(JVPII)))
 
 # The light intensity is called "E" here
 # Fit all at once  
@@ -311,8 +311,8 @@ plot (FitMonodT,
  legend("topright", legend = 1:10, 
         lwd = 2, col = 1:10, lty = 1)
  
- points(PIdata[,-1], 
-        col = (1:10)[PIdata[,1]], pch = ".", cex = 4)
+ points(LABSTAFdata[,-1], 
+        col = (1:10)[LABSTAFdata[,1]], pch = ".", cex = 4)
 
 ## =============================================================
 ## Fit newly defined model to multiple data sets at once
@@ -325,9 +325,9 @@ plot (FitMonodT,
  }
 
  mFitMonod <- fitmultiPI(model      = Monod, 
-                         id         = PIdata$file, 
-                         I          = PIdata$E, 
-                         response   = PIdata$JVPII, 
+                         id         = LABSTAFdata$file, 
+                         I          = LABSTAFdata$E, 
+                         response   = LABSTAFdata$JVPII, 
                          normalized = TRUE, 
                          pini       = c(pm = 1, ks = 1))
                     
@@ -360,7 +360,7 @@ plot (FitMonodT,
 \seealso{
   \code{\link{fWebb}} for the various PI functions.
 
-  \code{\link{PIdata}} for a data set.
+  \code{\link{LABSTAFdata}} for a data set.
   
   \code{\link{FRRFdata}} for fitting with normalized and not normalized data.
   

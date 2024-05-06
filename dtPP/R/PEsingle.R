@@ -70,10 +70,10 @@ predict.fitPI <- function(object, I, modargs = NULL, normalized = FALSE, ...) {
   else if (model=="JP")   # Jassby - Platt
     Pred <- fJP(x, p)$y
  
-  else if(model=="PG") 
+  else if (model=="PG") 
     Pred <- fPG(x, p)$y
    
-  else if(model=="EP")
+  else if (model=="EP")
     Pred <- fEP(x, p)$y
   
   else
@@ -180,11 +180,11 @@ fitPI <- function(model, I, response, normalized = FALSE, pini = NULL,
   
   #Initial Parameter Estimates  - in case pini = NULL
   if (is.null(pini)) {
-    alpha <- 0.2   # max(y)
-    ek    <- 200 # mean(range(x))
     beta  <- 0.05
-    eopt  <- 800
-    ps    <- alpha*ek
+    eopt  <- max(I, na.rm=TRUE)
+    ek    <- eopt/2 # mean(range(x))
+    ps    <- max(response, na.rm=TRUE)
+    alpha <- ps/ek   # max(y)
   }
   
   if (is.function(model)) {

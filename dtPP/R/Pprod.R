@@ -331,9 +331,9 @@ integratedPP <- function(
 ## General plotting functions for depth-integrated photosynthesis
 ## =============================================================================
 
-plot.integratedPP <- function(x, mass="ugC", length="m", time="s", 
+plot.integratedPP <- function(x, ..., mass="ugC", length="m", time="s", 
                               light="uEinst/m2/s", type="l", 
-                              las=1, which="ts", ...){
+                              las=1, which="ts"){
   # for labelling the plots
   surface <- paste( length, "^2", sep="")
   vol     <- paste( length, "^3", sep="")
@@ -344,6 +344,19 @@ plot.integratedPP <- function(x, mass="ugC", length="m", time="s",
   # number of figures to plot
   
   ldots <- list(...)
+  ndots <- names(ldots)
+  nx <- 0
+  x2 <- list()
+  
+  lld <- ldots
+  if (length(lld)){
+    for (i in 1:length(lld)) 
+       if (inherits(lld[[i]], "integratedPP")) {
+       x2[[nx <- nx + 1]] <- ldots[[i]]
+       ldots[[i]] <- NULL
+       names(x2)[nx] <- ndots[i]
+    }
+  }
   
   nv <- 0  # columns to plot
   
@@ -356,13 +369,13 @@ plot.integratedPP <- function(x, mass="ugC", length="m", time="s",
   if ("ts" %in% which)   
     which.ts <- colname.ts[-1]  # first one is time
   else
-    which.ts <- colname.ts[which(colname.ts %in% which)]
+    which.ts <- colname.ts[which(colname.ts %in% sub("ts.", "", which))]
   
   colname.prof <- colnames(x$profile)
   if ("profile" %in% which) 
     which.prof <- colname.prof[-c(1, ncol(x$profile))]
   else
-    which.prof <- colname.prof[which(colname.prof %in% which)]
+    which.prof <- colname.prof[which(colname.prof %in% sub("profile.", "", which))]
 
   nv <- length(which.ts) + length(which.prof)
   
@@ -385,7 +398,7 @@ plot.integratedPP <- function(x, mass="ugC", length="m", time="s",
   
   main <- c(PP  = "Integrated production", TotalDepth="Total depth", 
             Isurf= "Light at surface", Ibot="Light at bottom", 
-             z = "depth", PP.v="mean volumetric production",
+            z = "depth", PP.v="mean volumetric production",
             Iz_I0="mean light penetration (relative)", 
             surface="horizontal surface area")
   mainunknown <- c(which.ts[!which.ts %in% names(main) ],
@@ -395,20 +408,35 @@ plot.integratedPP <- function(x, mass="ugC", length="m", time="s",
   main <- c(main, newmain)
   
   if (length(which.ts)){
-
-    for (var in which.ts)
-     plot(x$ts$times, x$ts[,var], xlab=xlab, ylab=units[var], 
-        main=main[var],type=type, las=las,...)
+    for (var in which.ts){
+      
+    y <- x$ts[,var]
+    if (nx > 0){ 
+      for (j in 1:nx) 
+        y <- cbind(y, x2[[j]]$ts[,var])
+    }
+     do.call("matplot", c(alist(x=x$ts$times, y=y, 
+          xlab=xlab, ylab=units[var], 
+          main=main[var], type=type, las=las), ldots))
+    }
   }
   
   if (length(which.prof)){
       
-    for (var in which.prof)
-      plot (x$profile[,var], x$profile$z, ylab= paste("depth", length), xlab=units[var], 
-                         main=main[var], 
-                         ylim=rev(range(x$profile$z)), type=type,  las=las, ...)
+    for (var in which.prof){
+      xx <- x$profile[,var]
+      y <- x$profile$z
+      if (nx > 0){ 
+      for (j in 1:nx) 
+        xx <- cbind(xx, x2[[j]]$profile[,var])
+        y  <- cbind(y, x2[[j]]$profile$z)
+      }
+      do.call("matplot", c(alist(x=xx, y=y, 
+            ylab= paste("depth", length), xlab=units[var], 
+            main=main[var], ylim=rev(range(x$profile$z)), 
+            type=type, las=las), ldots))
+     }
   }
-  
   par(mfrow=pm)
 }
 

@@ -348,14 +348,16 @@ standardizeFRRF <- function(frrf,
     aLHII_0 <- mean(ff$a_LHII[ff$E <= 0])
   
   Noa <- (length(aLHII_0) == 0)
-  if (! Noa) Noa <- (is.na(Noa) | is.nan(aLHII_0))
+  if (! Noa) Noa <- (is.na(Noa) | is.nan(aLHII_0) | is.infinite(aLHII_0))
     
   if (Noa) {# If no data at E=0; use linear regression
     ffS <- ff [ff$E<100,]
     ffS <- ffS[! is.infinite(ffS$a_LHII), ]
     if (nrow(ffS) > 1)
       aLHII_0 <- coef(lm(ffS$a_LHII ~ ffS$E))[1]
-    else
+    else if (nrow(ffS) == 1)
+      aLHII_0 <- ffS$a_LHII
+    else 
       aLHII_0 <- NA
    }   
   

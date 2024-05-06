@@ -1,11 +1,11 @@
 \name{NIOZ Jetty data}
-\alias{Jetty}
+\alias{Wad_biogeo_jetty}
 \title{
  Water-column biogeochemical measurements taken from the NIOZ jetty (lon=4.789dgE lat=53.002dgN).
 }
 
 \usage{
-data(Jetty)
+data(Wad_biogeo_jetty)
 }
 
 \value{
@@ -44,28 +44,34 @@ From 1974 onwards, sampling frequency was 40-60 times per year, varying from onc
 twice a week during phytoplankton spring blooms.
 Sampling was always performed at high tide (+/- 10 min), i.e. when the water was still coming in from the North Sea. 
 
+In the current dataset, only the biotic parameters are selected.
 
-* Water temperature was measured using an oceanographic bucket thermometer. 
-* Salinity was measured by means of Autolab salinometer (Type 601MKIII)
+}
+
+\details{
+
+The sampling and measurement details:
+
+\itemize{
+\item Water temperature was measured using an oceanographic bucket thermometer. 
+\item Salinity was measured by means of Autolab salinometer (Type 601MKIII)
 until the mid-1980s and an ENDECO handheld salinometer (Type 2) hereafter.
-* Suspended particulate matter concentrations  were determined by 
+\item Suspended particulate matter concentrations  were determined by 
 filtration over pre-weighted filters. Filters were rinsed with 25 ml
 demineralized water and dried overnight at 60 dgC. Several types of filters
 were used; cellulose acetate filters with a pore
 size of 0.45 microm (1974-1976; 1978-1985) and polycarbonate filters
 with a pore size of 0.80 microm (2006-2010) were the most commonly
 used ones.
-* Chlorophyll-a concentrations were quantified from water samples filtered 
+\item Chlorophyll-a concentrations were quantified from water samples filtered 
 over MgCO3 coated filters and based on non-acidified spectrophotometric measurements. 
 Since 2009, chlorophyll-a was measured using a HPLC. The HPLC-derived values were converted to spectrophotometric values using the empirical equation CHLaSPEC=CHLaHPLC/0.82. 
-* The observed Secchi-disk depth is the depth at which a lowered white disk just
+\item The observed Secchi-disk depth is the depth at which a lowered white disk just
 disappears from the observer's sight. This procedure was repeated two to three times, with an estimated accuracy of 5 cm. When the Secchi-disk depth was larger than the actual depth at
 the sampling station, measurements were made by holding the stick
 at a 45dg angle or performed at an alternative location, i.e. the NIOZ
 harbor instead of the NIOZ jetty.
-
-In the current dataset, only the biotic parameters are selected.
-
+}
 }
 
 \examples{
@@ -85,22 +91,22 @@ plotBathymetry(Marsdiep, type = "image",
 
 mf <- par(mfrow=c(2,2))
 
-with(Jetty, 
+with(Wad_biogeo_jetty, 
    plot(x =datetime, y=Temperature, 
         main="temperature", ylab="dgC", xlab="time",
         las=1, type= "l"))
 
-with(Jetty, 
+with(Wad_biogeo_jetty, 
    plot(x = datetime, y = Salinity, 
         main = "salinity", ylab = "", xlab = "time",
         las = 1, type= "l"))
         
-with(Jetty, 
+with(Wad_biogeo_jetty, 
    plot(x = datetime, y = Secchi, 
         main = "secchi depth", ylab = "m", xlab = "time",
         las = 1, type = "l"))
         
-with(Jetty, 
+with(Wad_biogeo_jetty, 
    plot(x = datetime, y = SPM, 
         main = "SPM", ylab = "mg/m3", xlab = "time",
         las = 1, type =  "l"))
@@ -108,7 +114,7 @@ with(Jetty,
 par(mfrow=c(2,2))        
 xlim <- as.POSIXct(c("1990-01-01", "2021-01-01"))
 
-with(Jetty, {
+with(Wad_biogeo_jetty, {
    plot(x = datetime, y = PO4, 
         main = "PO4", ylab = "mmol/m3", xlab = "time",
         xlim = xlim, las = 1, type= "l")
@@ -124,7 +130,7 @@ with(Jetty, {
 })
 
 xlim <- as.POSIXct(c("2000-01-01", "2021-01-01"))
-with(Jetty, {
+with(Wad_biogeo_jetty, {
    plot(x = datetime, y = DON, 
         main = "DON", ylab = "mmol/m3", xlab = "time",
         xlim = xlim, las = 1, type = "l")
@@ -140,17 +146,17 @@ with(Jetty, {
 })
 
 par(mfrow=c(1,1))
-with(Jetty, 
+with(Wad_biogeo_jetty, 
    plot(x = datetime, y = Chl, 
         main = "chlorophyll", ylab = "mg/m3", xlab = "time",
         las = 1, type = "l"))
 
-pairs(Jetty[,8:16], pch = ".", cex = 3)
+pairs(Wad_biogeo_jetty[,8:16], pch = ".", cex = 3)
 
 par(mfrow=mf)   
 }
 \seealso{
-  \code{\link{Chlor2021}} a monthly, spatially-explicit chlorophyll data set.
+  \code{\link{Wad_chlor_RS}} a monthly, spatially-explicit chlorophyll data set.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

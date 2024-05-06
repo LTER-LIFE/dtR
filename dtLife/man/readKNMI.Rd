@@ -133,31 +133,31 @@ The columns of the raw KNMI files mean (taken from the first part of the text fi
 
 (note: most of the units have been converted in the derived data).
 
-\itemize{
-\item YYYYMMDD  = date (YYYY=year,MM=month,DD=day)
-\item HH        = time (HH=hour)
-\item DD        = Mean wind direction (in degrees) for the 10-minute period preceding the observation time stamp (360=north, 90=east, 180=south, 270=west, 0=calm, 990=variable)
-\item FH        = Mean wind speed (in 0.1 m/s) for the hour preceding the observation time stamp
-\item FF        = Mean wind speed (in 0.1 m/s) for the 10-minute period preceding the observation time stamp
-\item FX        = Maximum wind gust (3 second mean wind speed; in 0.1 m/s) in the preceding hour
-\item T         = Temperature (in 0.1 degrees Celsius) at 1.50 m at the time of observation
-\item TD        = Dew point temperature (in 0.1 degrees Celsius) at 1.50 m at the time of observation
-\item SQ        = Sunshine duration (in 0.1 hour) during the hourly division, calculated from global radiation (-1 for <0.05 hour)
-\item Q         = Global radiation (in J/cm2) during the hourly division
-\item DR        = Duur van de neerslag (in 0.1 uur) per uurvak / Precipitation duration (in 0.1 hour) during the hourly division
-\item RH        = Hourly precipitation amount (in 0.1 mm) (-1 for <0.05 mm)
-\item P         = Air pressure (in 0.1 hPa) reduced to mean sea level, at the time of observation
-\item VV        = Horizontal visibility at the time of observation (0=less than 100m, 1=100-200m, 2=200-300m,..., 49=4900-5000m, 50=5-6km, 56=6-7km, 57=7-8km, ..., 79=29-30km, 80=30-35km, 81=35-40km,..., 89=more than 70km)
-\item N         = Cloud cover (in octants), at the time of observation (9=sky invisible)
-\item U         = Relative atmospheric humidity (in percents) at 1.50 m at the time of observation
-\item WW        = Present weather code (00-99), description for the hourly division.
-\item IX        = Indicator present weather code (1=manned and recorded (using code from visual observations), 2,3=manned and omitted (no significant weather phenomenon to report, not available), 4=automatically recorded (using code from visual observations), 5,6=automatically omitted (no significant weather phenomenon to report, not available), 7=automatically set (using code from automated observations)
-\item M         = Fog 0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
-\item R         = Rainfall 0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
-\item S         = Snow 0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
-\item O         = Thunder  0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
-\item Y         = Ice formation 0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
-\item TZ        = Sea surface temperature (in 0.1 degrees Celsius) at the time of observation
-}
+ \itemize{
+  \item YYYYMMDD  = date (YYYY=year,MM=month,DD=day)
+  \item HH        = time (HH=hour)
+  \item DD        = Mean wind direction (in degrees) for the 10-minute period preceding the observation time stamp (360=north, 90=east, 180=south, 270=west, 0=calm, 990=variable)
+  \item FH        = Mean wind speed (in 0.1 m/s) for the hour preceding the observation time stamp
+  \item FF        = Mean wind speed (in 0.1 m/s) for the 10-minute period preceding the observation time stamp
+  \item FX        = Maximum wind gust (3 second mean wind speed; in 0.1 m/s) in the preceding hour
+  \item T         = Temperature (in 0.1 degrees Celsius) at 1.50 m at the time of observation
+  \item TD        = Dew point temperature (in 0.1 degrees Celsius) at 1.50 m at the time of observation
+  \item SQ        = Sunshine duration (in 0.1 hour) during the hourly division, calculated from global radiation (-1 for <0.05 hour)
+  \item Q         = Global radiation (in J/cm2) during the hourly division
+  \item DR        = Duur van de neerslag (in 0.1 uur) per uurvak / Precipitation duration (in 0.1 hour) during the hourly division
+  \item RH        = Hourly precipitation amount (in 0.1 mm) (-1 for <0.05 mm)
+  \item P         = Air pressure (in 0.1 hPa) reduced to mean sea level, at the time of observation
+  \item VV        = Horizontal visibility at the time of observation (0=less than 100m, 1=100-200m, 2=200-300m,..., 49=4900-5000m, 50=5-6km, 56=6-7km, 57=7-8km, ..., 79=29-30km, 80=30-35km, 81=35-40km,..., 89=more than 70km)
+  \item N         = Cloud cover (in octants), at the time of observation (9=sky invisible)
+  \item U         = Relative atmospheric humidity (in percents) at 1.50 m at the time of observation
+  \item WW        = Present weather code (00-99), description for the hourly division.
+  \item IX        = Indicator present weather code (1=manned and recorded (using code from visual observations), 2,3=manned and omitted (no significant weather phenomenon to report, not available), 4=automatically recorded (using code from visual observations), 5,6=automatically omitted (no significant weather phenomenon to report, not available), 7=automatically set (using code from automated observations)
+  \item M         = Fog 0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
+  \item R         = Rainfall 0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
+  \item S         = Snow 0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
+  \item O         = Thunder  0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
+  \item Y         = Ice formation 0=no occurrence, 1=occurred during the preceding hour and/or at the time of observation
+  \item TZ        = Sea surface temperature (in 0.1 degrees Celsius) at the time of observation
+ }
 }
 \keyword{utilities}

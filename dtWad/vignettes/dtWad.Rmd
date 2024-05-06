@@ -35,9 +35,9 @@ The package dtWad contains tools and datasets that will be useful for other twin
 It contains several data sets:
 
 * *Waddpth* contains the bathymetry of the Dutch waddensea 
-* *WadGrain* is a dataset with sediment characteristics in the Waddensea.
-* *Weather2021* contain wind speeds, light intensity, and radiation for the year 2021.
-* *HT2021* contains water surface elevation (height) and surface water temperature from a few stations in 2021.
+* *Wad_sediment* is a dataset with sediment characteristics in the Waddensea.
+* *Wad_weather* contain wind speeds, light intensity, and radiation for the year 2021.
+* *Wad_waterheight_HR* and*Wad_watertemp_HR* contains water surface elevation (height) and surface water temperature from a few stations in 2021.
 
 The package also contains several functions:
 
@@ -52,11 +52,11 @@ It also contains several small data files that are not exported, but used to dem
 
 ## Bathymetry
 
-* *Marsdiep* and *WadDepth* contain the bathymetry of the marsdiep area and the Dutch  respectively.
+* *Marsdiep* and *Wad_depth* contain the bathymetry of the marsdiep area and the Dutch  respectively.
 
 ```{r, fig.width = 7, fig.height=10}
 par(mfrow=c(2,1), oma=c(0,0,2,0), las=1)
-with(WadDepth, {
+with(Wad_depth, {
    image2D(longitude, latitude, z=depth, asp=asp)
   invisible(lapply(contours, FUN=lines))
   })
@@ -64,30 +64,30 @@ with(WadDepth, {
 with(Marsdiep, 
    image2D(longitude, latitude, z=depth, asp=asp))
 with(Marsdiep, invisible(lapply(contours, FUN=lines, col="white")))
-mtext(outer=TRUE, side=3, "Datasets WadDepth and Marsdiep", cex=1.5)
+mtext(outer=TRUE, side=3, "Datasets Wad_depth and Marsdiep", cex=1.5)
 
 ```
 
 ## Abiotic conditions
 
-* *WadGrain* is a dataset with sediment characteristics in the Waddensea.
+* *Wad_sediment* is a dataset with sediment characteristics in the Waddensea.
 * *Weather2021* contain wind speeds, light intensity, and radiation for the year 2021.
-* *Height2021* and *Temp2021* contain water surface elevation (height) and surface water temperature from a few stations in 2021.
+* *Wad_waterheight_2021_HR* and *Wad_watertemp_2021_HR* contain water surface elevation (height) and surface water temperature from a few stations in 2021.
 
 ```{r, fig.width=8, fig.height=6}
 par(mfrow=c(2,2))
 
-asp <- 1/cos((mean(WadGrain$latitude)*pi)/180)
-with(WadGrain, points2D(longitude, latitude, colvar=mdGrain, 
+asp <- 1/cos((mean(Wad_sediment$latitude)*pi)/180)
+with(Wad_sediment, points2D(longitude, latitude, colvar=mdGrain, 
        log="c", clab="um", main="Median grain size",
        pch=".", las=1, cex=2, asp=asp))         
-with(WadGrain, points2D(longitude, latitude, colvar=silt, 
+with(Wad_sediment, points2D(longitude, latitude, colvar=silt, 
        log="c", clab="", main="percent silt",
        pch=".", las=1, cex=2, asp=asp))         
-with(WadGrain, points2D(longitude, latitude, colvar=sand, 
+with(Wad_sediment, points2D(longitude, latitude, colvar=sand, 
        log="", clab="", main="percent sand",
        pch=".", las=1, cex=2, asp=asp)) 
-with(WadGrain, points2D(longitude, latitude, colvar=sand, 
+with(Wad_sediment, points2D(longitude, latitude, colvar=sand, 
        log="", clab="", main="percent sand",
        xlim=c(4.5, 5), ylim=c(52.8, 53.4),
        pch=".", las=1, cex=2, asp=asp))        

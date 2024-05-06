@@ -40,13 +40,13 @@ time <- seq(from = as.POSIXct("2021-01-01 00:00:00"),
             by   = 60*30)  # output 30 minutes
 ```
 
-The light intensity has been obtained from the KNMI; they are stored in a data.frame called *Weather2021*.
+The light intensity has been obtained from the KNMI; they are stored in a data.frame called *Wad_weather*.
 The data from station Nr 235 are closest to the measurment site. 
 The light values are called "radiation" in the dataset; they are in J/m2/s.
 Assume that 50% of light is PAR.
 
 ```{r}
-st235   <- subset(Weather2021, 
+st235   <- subset(Wad_weather, 
                   subset = 
                     station == 235                                 &
                     datetime >= as.POSIXct("2020-12-31 23:59:59")  &
@@ -65,18 +65,18 @@ The data are recast in long format, retaining only values within the Waddensea a
 
 ```{r}
 # convert 3D array to long format
-ChlLong <- with(Chlor2021, 
-                expand.grid(nr        = 1:nrow(Chlor2021$datetime), 
+ChlLong <- with(Wad_chlor_RS, 
+                expand.grid(nr        = 1:nrow(Wad_chlor_RS$datetime), 
                             longitude = longitude, 
                             latitude  = latitude))
 
-ChlLong$date.from   <- Chlor2021$datetime[ChlLong$nr, 1]
-ChlLong$date.to     <- Chlor2021$datetime[ChlLong$nr, 2]
-ChlLong$chlorophyll <- as.vector(Chlor2021$chlorophyll)
+ChlLong$date.from   <- Wad_chlor_RS$datetime[ChlLong$nr, 1]
+ChlLong$date.to     <- Wad_chlor_RS$datetime[ChlLong$nr, 2]
+ChlLong$chlorophyll <- as.vector(Wad_chlor_RS$chlorophyll)
 
 # mask data only in WaddenSea
 ChlLong$mask <- mask_xy(ChlLong[, c("longitude", "latitude")], 
-                        shape = WadShape)$mask
+                        shape = Wad_shape)$mask
 ii      <- which(is.na(ChlLong$mask))
 ChlLong <- ChlLong[-ii,]
 ChlLong <- na.omit(ChlLong)
@@ -90,13 +90,13 @@ ChlLong <- subset(ChlLong, subset =
 For water height and water temperature  we use the data from station DENHDR and DENHDVSGR
 
 ```{r}  
-Ht.data  <- WadHeightHR[ , c("datetime", "DENHDR")]
+Ht.data  <- Wad_waterheight_HR[ , c("datetime", "DENHDR")]
 Ht.data  <- subset(Ht.data, 
                   subset =                                         
                     datetime >= as.POSIXct("2020-12-31 23:59:59")  &
                     datetime <= as.POSIXct("2021-04-01 01:00:10"))
 
-Tt.data  <- WadTempHR[ , c("datetime", "DENHDVSGR")]
+Tt.data  <- Wad_watertemp_HR[ , c("datetime", "DENHDVSGR")]
 Tt.data  <- subset(Tt.data, 
                   subset =                                         
                     datetime >= as.POSIXct("2020-12-31 23:59:59")  &
@@ -129,9 +129,9 @@ Stations and their depth
 
 ```{r}
 xy_Stats <- unique(ChlLong[,c("longitude", "latitude")])
-Chl_Stats <- map_xy(input.x  = WadDepth$longitude, 
-                    input.y  = WadDepth$latitude, 
-                    input.2D = WadDepth$depth,
+Chl_Stats <- map_xy(input.x  = Wad_depth$longitude, 
+                    input.y  = Wad_depth$latitude, 
+                    input.2D = Wad_depth$depth,
                     output.xy = xy_Stats)
 ```
 

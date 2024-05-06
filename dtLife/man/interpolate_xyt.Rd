@@ -1,6 +1,6 @@
 \name{interpolate_xyt}
 \alias{interpolate_xyt}
-
+\alias{match_timeseries}
 \title{
   Interpolates spatial timeseries data -  to be used for spatially sparse datasets.
 }
@@ -11,10 +11,14 @@
   For each output position, it finds the three spatially closest data sets in the input data. 
   For the selected spatial input points, the time series values are interpolated to the required time output points. 
   These three data sets are then averaged, using inverse distance weighing.
+
+  \code{match_timeseries} matches a timeseries to a dataset that has an "ID" in its metadata. 
 }
 
 \usage{
-interpolate_xyt (input.xytv, output.xy, output.t, wide=TRUE)
+interpolate_xyt (input.xytv, output.xy, output.t, ID=NULL, wide=TRUE)
+match_timeseries(input.xytv, data)   
+
 }
 
 \arguments{
@@ -28,6 +32,11 @@ interpolate_xyt (input.xytv, output.xy, output.t, wide=TRUE)
  \item{output.t }{Vector with the times to which the time series should be interpolated.
    Should be of the same type as the input times (3rd column of \code{input})  
    }
+ \item{ID }{Vector with unique identifiers for the output; should be of same length as nrows of output.xy. Used for labelling the output; If absent output will be labeled "st1", "st2", ...
+   Should be of the same type as the input times (3rd column of \code{input})  
+   }
+  \item{data }{dataset that has an ID in its attributes, from which the output.xy, and ID can be extracted.
+  }
  \item{wide }{If TRUE, then the output will be in wide format, i.e. one column per point interpolated, if FALSE then the output will be in long format, i.e. 4 columns with (x, y, time, value).
   }
 }
@@ -38,18 +47,19 @@ interpolate_xyt (input.xytv, output.xy, output.t, wide=TRUE)
     
     \itemize{
      \item the first column, contains the times, as in \code{output.t},
-     \item other columns contain the interpolated values for each of the stations in \code{output.xy}. 
+     \item other columns contain the interpolated values for each of the stations in \code{output.xy}. These columns are either labeled "st1",... or are give the names as provided by argument \code{ID}.
     }    
     The positions of these stations are stored in attribute "stations" of the returned object.
   
   if argument \code{wide} is \code{FALSE}, then:
   
-  Function \code{interpolate_xyt} returns a \code{data.frame} with 4 columns: 
+  Function \code{interpolate_xyt} returns a \code{data.frame} with 5 columns: 
   
   \itemize{
-     \item the first column, contains the times, as in \code{output.t},
-     \item second and third columns contain the x- and y-coordinates for each of the stations in \code{output.xy},
-     \item fourth column contains the interpolated value.
+     \item \code{ID}, the unique identifier or station name
+     \item \code{output.t}, the times, as in argument \code{output.t},
+     \item the \code{x}- and \code{y}-coordinates for each of the stations, as input by argument \code{output.xy},
+     \item \code{res}, the interpolated value.
   }
 }
 \note{
@@ -173,17 +183,17 @@ par(mfrow=pm)
 ## 2D interpolation of weather data
 ## =============================================================
 
-Weather.stations <- attributes(Weather2021)$stations
-head(Weather2021)
+Weather.stations <- attributes(Wad_weather)$stations
+head(Wad_weather)
 
 # Create daily averages of the Windspeed as input
 
-Weather2021$Day <- as.Date(Weather2021$datetime)
+Wad_weather$Day <- as.Date(Wad_weather$datetime)
 
 mf <- par(mfrow=c(3,1))
 
-WS <- aggregate(x   = Weather2021$windspeed, 
-                by  = list(Weather2021$Day, Weather2021$station), 
+WS <- aggregate(x   = Wad_weather$windspeed, 
+                by  = list(Wad_weather$Day, Wad_weather$station), 
                 FUN = mean)
 colnames(WS) <- c("date", "station", "windspeed")               
 
@@ -227,7 +237,8 @@ Output.stations <- attributes(Output.wind)$stations
 
 par(mfrow=c(3,3))
 image2D(x = outx, y = outy, 
-        z = matrix(nrow = nx, ncol = ny, data = Output.wind[6,-1], 
+        z = matrix(nrow = nx, ncol = ny, 
+                   data = as.numeric(Output.wind[6,-1]), 
                    byrow = TRUE))
 
 DD <- subset(Input, subset = date == Output.wind[6,1])
@@ -256,8 +267,8 @@ points2D(x      = DD$latitude,
 \seealso{
   \code{\link{Marsdiep}} bathymetric data.
   \code{\link{Sediment}} data set with sediment composition.
-  \code{\link{WadTempLR}} data set with water temperature .
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_watertemp_LR}} data set with (low resolution) water temperature from the Waddensea.
+  \code{\link{Wad_weather}} data set with weather information from Waddensea stations.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

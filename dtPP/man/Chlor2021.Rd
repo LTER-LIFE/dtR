@@ -1,11 +1,11 @@
-\name{Chlor2021}
-\alias{Chlor2021}
+\name{Wad_chlor_RS}
+\alias{Wad_chlor_RS}
 \title{
   Timeseries of Chl data from remote sensing.
 }
 
 \usage{
-data(Chlor2021)
+data(Wad_chlor_RS)
 }
 
 
@@ -40,14 +40,14 @@ data(Chlor2021)
 
 mf <- par(mfrow=c(3,3))
 
-image2D(x = Chlor2021$longitude, 
-        y = Chlor2021$latitude, 
-        z = Chlor2021$chlorophyll[,,2:10], 
+image2D(x = Wad_chlor_RS$longitude, 
+        y = Wad_chlor_RS$latitude, 
+        z = Wad_chlor_RS$chlorophyll[,,2:10], 
         clab = "Chl, mg/m3", 
         xlab = "dgE", ylab = "dgN",
         main = month.abb[2:10],
         log = "c", clim = c(0.1, 50),
-        las = 1, asp = Chlor2021$asp)
+        las = 1, asp = Wad_chlor_RS$asp)
          
 par(mfrow=mf)         
 }

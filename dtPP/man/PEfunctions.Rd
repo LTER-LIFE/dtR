@@ -185,7 +185,7 @@ boxplot(fEP  (p = data.frame(alpha=alpha, eopt = 180, ps = 50),
 \seealso{
   \code{\link{fitPI}} for fitting functions.
 
-  \code{\link{PIdata}} for a data set.
+  \code{\link{FRRFdata}}, \code{\link{LABSTAFdata}} for data sets.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

@@ -68,14 +68,14 @@ for \code{dttolong}, it is assumed that \code{datetime} marks the beginning of t
 
 # low resolution temperature data
 
-head(WadTempLR)
-meta(WadTempLR)$format
+head(Wad_watertemp_LR)
+meta(Wad_watertemp_LR)$format
 
 # reshape to long format, 
 # keep the na values
 # ----------------------------
 
-WadTempL <- dtreshape(x     = WadTempLR, 
+WadTempL <- dtreshape(x     = Wad_watertemp_LR, 
                       na.rm = FALSE)
 
 head(WadTempL)
@@ -85,7 +85,7 @@ meta(WadTempL)$format
 # remove the na values
 # ----------------------------
 
-WadTempL2 <- dtreshape(x    = WadTempLR)
+WadTempL2 <- dtreshape(x    = Wad_watertemp_LR)
 
 head(WadTempL2)
 
@@ -105,16 +105,16 @@ head(WW[order(WW$datetime), ])   # original ordering
 # three weather variables, multiple stations
 # columns = weather variables
 
-head(Weather2021)
-meta(Weather2021)$format
+head(Wad_weather)
+meta(Wad_weather)$format
 
 # Convert to long format
 # ----------------------------
 
 # does not work with default arguments (swaps according to station):
-# head(dttolong(Weather2021))
+# head(dttolong(Wad_weather))
 
-WeatherL <- dttolong(x    = Weather2021, 
+WeatherL <- dttolong(x    = Wad_weather, 
                      swap = "variable")   # name of the long variable
 
 head(WeatherL)
@@ -136,8 +136,8 @@ head(WeatherS)
 \seealso{
   \code{\link{Marsdiep}} bathymetric data.
   \code{\link{Sediment}} data set with sediment composition.
-  \code{\link{WadTempLR}} data set with water temperature .
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_watertemp_LR}} data set with (low resolution) water temperature from the Waddensea.
+  \code{\link{Wad_weather}} data set with weather information from Waddensea stations.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

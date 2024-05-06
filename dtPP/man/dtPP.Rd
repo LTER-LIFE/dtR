@@ -25,7 +25,7 @@
 ## show examples (see respective help pages for details)
 example(fitPI)
 example(fitmultiPI)
-example(PIdata)
+example(FRRFdata)
 
 }
 }

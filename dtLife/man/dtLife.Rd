@@ -8,7 +8,7 @@
 \description{
  Tools to facilitate digital twin creation of the LTER-Life project.
       \if{html}{\figure{dtLife.png}{options: width=180 alt="Logo" align='right'}}
-\if{latex}{\figure{wad.png}{options: width=0.8in}}
+\if{latex}{\figure{dtLife.png}{options: width=0.8in}}
 }
 \author{
   Karline Soetaert

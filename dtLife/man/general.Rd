@@ -24,16 +24,16 @@ meta(x)
 
 \examples{
 
-meta(WadTempLR)
+meta(Wad_watertemp_LR)
 meta(Marsdiep)
-meta(Weather2021)
+meta(Wad_weather)
 
 }
 
 \seealso{
   \code{\link{Marsdiep}} bathymetric data.
-  \code{\link{WadTempLR}} data set with water temperature data from the Waddensea.
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_watertemp_LR}} data set with (low resolution) water temperature data from the Waddensea.
+  \code{\link{Wad_weather}} data set with weather information from Waddensea stations.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

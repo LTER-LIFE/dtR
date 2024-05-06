@@ -20,9 +20,8 @@ vignette: >
 ```{r setup, include=FALSE}
 options(width = 120)
 require(dtLife)
-toBibtex(citation("dtLife"))
-toBibtex(citation("plot3D"))
-toBibtex(citation("FME"))
+knitr::write_bib(c(.packages()), file="packages.bib") # adds all used pacakages to bib
+knitr::write_bib(c("plot3D","FME"), file="packages.bib")
 ```
 
 # Introduction
@@ -35,8 +34,8 @@ It contains several data sets:
 
 
 * *Marsdiep* contains the bathymetry of the marsdiep area in the Dutch waddensea.
-* *Weather2021* contain wind speeds, light intensity, and radiation for the year 2021.
-* *WadTempLR* contains low resolution surface water temperature from Waddensea stations in 2021.
+* *Wad_weather* contain wind speeds, light intensity, and radiation for the year 2021.
+* *Wad_watertemp_LR* contains low resolution surface water temperature from Waddensea stations in 2021.
 
 The package also contains several functions:
 
@@ -67,31 +66,31 @@ mtext(outer=TRUE, side=3, "Datasets Waddensea and Marsdiep", cex=1.5)
 
 ## Abiotic conditions - weather data
 
- *Weather2021* contain wind speeds, light intensity, and radiation for the year 2021.
+ *Wad_weather* contain wind speeds, light intensity, and radiation for the year 2021.
 
 ```{r}
-head(Weather2021)
-meta(Weather2021)
+head(Wad_weather)
+meta(Wad_weather)
 ```
 
 ```{r, fig.width=8, fig.height=6}
 par(mfrow=c(2,2))
-Weather235 <- subset(Weather2021, subset=station==235)
+Weather235 <- subset(Wad_weather, subset=station==235)
 plot(Weather235, type="l")
 ```
 
 ## Abiotic conditions - water temperature
 
-* *WadTempLR* contains water temperatures, at roughly monthly resoltuion, for several station in the Waddensea
+* *Wad_watertemp_LR* contains water temperatures, at roughly monthly resoltuion, for several station in the Waddensea
 
 ```{r}
-data(WadTempLR)
-head(WadTempLR)
-meta(WadTempLR)
+data(Wad_watertemp_LR)
+head(Wad_watertemp_LR)
+meta(Wad_watertemp_LR)
 ```
 
 ```{r, fig.width=8, fig.height=8}
-plot(WadTempLR, mfrow=c(3,4), type="l", las=1, ylab="dgC")
+plot(Wad_watertemp_LR, mfrow=c(3,4), type="l", las=1, ylab="dgC")
 ```
 
 ## Abiotic conditions - sediment data

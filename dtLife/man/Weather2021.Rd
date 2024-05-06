@@ -1,18 +1,18 @@
-\name{Weather2021}
-\alias{Weather2021}
+\name{Wad_weather}
+\alias{Wad_weather}
 \title{
   Weather time series from the Dutch Meteorological Society (KNMI), hourly data for 2021
 }
 
 \usage{
-data(Weather2021)
+data(Wad_weather)
 }
 
 
 \value{
   a data.frame of class \code{dtLife} with the following items: 
 \itemize{
-  \item \code{station}, Nr of station - see attributes(Weather2021)$stations
+  \item \code{station}, Nr of station - see attributes(Wad_weather)$stations
   \item \code{datetime}, Date and time of the measurement, POSIXct format
   \item \code{windspeed}, wind velocity, 10 m above the ground, [m/s]
   \item \code{temperature}, air temperature [dg C]
@@ -52,10 +52,10 @@ data(Weather2021)
  
  WeatherData <- readKNMI(dir=dir, file=files) 
  
- Weather2021 <- subset(WeatherData, 
+ Wad_weather <- subset(WeatherData, 
                       subset = datetime < "2022-01-01")
                       
-  Weather2021 <- Weather2021[, c("station",  "datetime", 
+  Wad_weather <- Wad_weather[, c("station",  "datetime", 
                                  "windspeed", "temperature",  "radiation")]
 
 }
@@ -66,7 +66,7 @@ data(Weather2021)
 # Show the position of the data
 # ---------------------------------------------------
 
-Stations <- attributes(Weather2021)$stations
+Stations <- attributes(Wad_weather)$stations
 Stations
 
 # ---------------------------------------------------
@@ -89,14 +89,14 @@ plot(Shape, add = TRUE)
 # ---------------------------------------------------
 # Summaries of the data
 # ---------------------------------------------------
-aggregate(x   = Weather2021$windspeed, 
-          by  = list(Weather2021$station), 
+aggregate(x   = Wad_weather$windspeed, 
+          by  = list(Wad_weather$station), 
           FUN = mean, na.rm=TRUE)
-aggregate(x   = Weather2021$temperature, 
-          by  = list(Weather2021$station), 
+aggregate(x   = Wad_weather$temperature, 
+          by  = list(Wad_weather$station), 
           FUN = mean, na.rm=TRUE)
-aggregate(x   = Weather2021$radiation, 
-          by  = list(Weather2021$station), 
+aggregate(x   = Wad_weather$radiation, 
+          by  = list(Wad_weather$station), 
           FUN = mean, na.rm=TRUE)
 
 # ---------------------------------------------------
@@ -104,7 +104,7 @@ aggregate(x   = Weather2021$radiation,
 # ---------------------------------------------------
 
 mf <- par(mfrow=c(3,1))
-St_235 <- subset(Weather2021, subset=station==235)
+St_235 <- subset(Wad_weather, subset=station==235)
 
 with(St_235, 
    plot(x    = datetime, 
@@ -131,8 +131,8 @@ with(St_235,
 
 # estimate the daily-averages
 
-Weather2021Day <- average_timeseries(
-            input    = Weather2021,
+Wad_weatherDay <- average_timeseries(
+            input    = Wad_weather,
             avgOver  = "day",
             datetime = "datetime",
             value    = c("windspeed", "temperature", "radiation"),
@@ -141,20 +141,20 @@ Weather2021Day <- average_timeseries(
 
 mf <- par(mfrow=c(3,1))
 
-plot(x    = Weather2021Day$datetime,
-     y    = Weather2021Day$windspeed, 
+plot(x    = Wad_weatherDay$datetime,
+     y    = Wad_weatherDay$windspeed, 
      main = "daily mean wind speed", 
      ylab = "m/s", xlab = "time",
      las  = 1, type = "l")
         
-plot(x    = Weather2021Day$datetime,
-     y    = Weather2021Day$temperature, 
+plot(x    = Wad_weatherDay$datetime,
+     y    = Wad_weatherDay$temperature, 
      main = "daily mean air temperature", 
      ylab = "m/s", xlab = "time",
      las = 1, type = "l")
      
-plot(x    = Weather2021Day$datetime,
-     y    = Weather2021Day$radiation, 
+plot(x    = Wad_weatherDay$datetime,
+     y    = Wad_weatherDay$radiation, 
      main = "daily mean light intensity", 
      ylab = "W/m2", xlab = "time",
      las  = 1, type = "l")
@@ -162,13 +162,13 @@ plot(x    = Weather2021Day$datetime,
 par(mfrow=mf)    
 
 \dontrun{
-plot(Weather2021Day, type="l")
+plot(Wad_weatherDay, type="l")
 }
 }
 \seealso{
   \code{\link{Marsdiep}} bathymetric data.
   \code{\link{Sediment}} data set with sediment composition.
-  \code{\link{WadTempLR}} data set with water temperature .
+  \code{\link{Wad_watertemp_LR}} data set with (low resolution) water temperature from the Waddensea.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

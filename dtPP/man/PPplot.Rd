@@ -56,7 +56,7 @@ time <- seq(from = as.POSIXct("2021-08-01 01:00:00"),
 
 # dataset for light intensity
 
-st235   <- subset(Weather2021, 
+st235   <- subset(Wad_weather, 
                   subset= station==235)
 
 It.data <- st235[, c("datetime", "radiation")]
@@ -102,7 +102,7 @@ image2D(PP,
 \seealso{
   \code{\link{fitPI}} for fitting functions.
 
-  \code{\link{PIdata}} for a data set.
+  \code{\link{FRRFdata}}, \code{\link{LABSTAFdata}} for data sets.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

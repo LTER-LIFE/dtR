@@ -1,19 +1,19 @@
 \name{Bathymetry}
 \alias{Bathymetry}
-\alias{WadDepth}
-\alias{WadShape}
+\alias{Wad_depth}
+\alias{Wad_shape}
 
 \title{
   Coarse bathymetry of the Dutch Waddensea area wadensea shape file.
 }
 
 \usage{
-data(WadDepth)
+data(Wad_depth)
 }
 
 
 \value{
-WadDepth is a \code{list} with the following items:
+Wad_depth is a \code{list} with the following items:
 
 \itemize{
   \item \code{longitude}, longitude at the middle of the grid in x [dgE], length=693.
@@ -49,7 +49,7 @@ WadDepth is a \code{list} with the following items:
   For consistency with the water height data, they were converted to NAP using a data set from 
 https://english.defensie.nl/topics/hydrography/documents/applications/2020/06/12/nllat2018)
 
-  For \code{WadDepth}, the resolution of the original dataset was reduced 
+  For \code{Wad_depth}, the resolution of the original dataset was reduced 
   with a factor 4.
   
 }
@@ -62,7 +62,7 @@ https://english.defensie.nl/topics/hydrography/documents/applications/2020/06/12
 
 mf <- par(mfrow=c(2,1))
 
-with(WadDepth, {
+with(Wad_depth, {
    image2D(longitude, latitude, z=depth, asp=asp, las=1)
    invisible(lapply(contours, FUN=lines))
 })
@@ -76,12 +76,12 @@ par(mfrow=mf)
 # Plot the bathymetry only
 # ---------------------------------------------------
 
-plotBathymetry(WadDepth)
-plotBathymetry(WadDepth, type="both")
-plotBathymetry(WadDepth, type="contour")
+plotBathymetry(Wad_depth)
+plotBathymetry(Wad_depth, type="both")
+plotBathymetry(Wad_depth, type="contour")
 
 # add shade to emphasise topography - use negative depths.
-plotBathymetry(WadDepth, 
+plotBathymetry(Wad_depth, 
                shade = 0.15, 
                NAcol = grey(0.7),
                col   = ramp.col(col=c("darkblue", "lightblue", "white")),
@@ -91,17 +91,17 @@ plotBathymetry(WadDepth,
 # Plot the bathymetry with points on top
 # ---------------------------------------------------
 
-plotBathymetry(WadDepth, 
-               pts    = WadGrain[,-1], 
+plotBathymetry(Wad_depth, 
+               pts    = Wad_sediment[,-1], 
                ptlist = list(cex=0.5), 
                log    = "c", clab="um",
                main   = "Grain size")
 
 }
 \seealso{
-  \code{\link{WadGrain}} data set with sediment composition.
-  \code{\link{Water2021}} data set with water temperature and height.
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_sediment}} data set with sediment composition.
+  \code{\link{Wad_watertemp_HR}} data set with water temperature and height.
+  \code{\link{Wad_weather}} data set with weather information.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

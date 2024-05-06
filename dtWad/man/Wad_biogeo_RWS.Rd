@@ -1,16 +1,16 @@
-\name{WadBiogeo}
-\alias{WadBiogeo}
+\name{Wad_biogeo_RWS}
+\alias{Wad_biogeo_RWS}
 \title{
-  Biogeochemical data for all monitoring stations in the Waddensea, for 2021, at 0.5 to 1 monthly intervals.
+  Biogeochemical data for all RWS monitoring stations in the Waddensea, for 2021, at 0.5 to 1 monthly intervals.
 }
 
 \usage{
-data(WadBiogeo)
+data(Wad_biogeo_RWS)
 }
 
 
 \value{
-WadBiogeo is a  data.frame of class \code{dtLife}, with the following items: 
+Wad_biogeo_RWS is a  data.frame of class \code{dtLife}, with the following items: 
 \itemize{
   \item \code{station, longitude, latitude}, name and position (in EPSG 25831) of station - see \code{attributes(object)$stations}
   \item \code{datetime}, Date and time of the measurement, POSIXct format
@@ -42,7 +42,7 @@ WadBiogeo is a  data.frame of class \code{dtLife}, with the following items:
 # Plot the position of the data
 # ---------------------------------------------------
 
-with(WadDepth, 
+with(Wad_depth, 
    image2D(x   = longitude, 
            y   = latitude, 
            z   = depth, clab = "m", 
@@ -52,7 +52,7 @@ with(WadDepth,
           )
 
 
-stats  <- attributes(WadBiogeo)$stations
+stats  <- attributes(Wad_biogeo_RWS)$stations
 points(x = stats$longitude, 
        y = stats$latitude, 
        pch = 18, cex=3)
@@ -61,17 +61,17 @@ points(x = stats$longitude,
 # A quick look at the data:
 # ---------------------------------------------------
 
-plot(WadBiogeo, pch=18)
+plot(Wad_biogeo_RWS, pch=18)
 
 # different color per station
-plot(WadBiogeo, 
+plot(Wad_biogeo_RWS, 
      pch = 18, cvar = "station")
 
 
 # ---------------------------------------------------
 # Select one variable
 # ---------------------------------------------------
-BG <- WadBiogeo
+BG <- Wad_biogeo_RWS
 
 # use as.Date to get rid of the times - keep only sampling days
 BG$datetime <- as.Date(BG$datetime) 
@@ -86,8 +86,8 @@ CHL <- CHL[order(CHL$datetime),]
 }
 \seealso{
   \code{\link{Bathymetry}} bathymetric data.
-  \code{\link{WadGrain}} data set with sediment composition.
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_sediment}} data set with sediment composition.
+  \code{\link{Wad_weather}} data set with weather information.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>
