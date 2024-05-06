@@ -1,14 +1,14 @@
 \name{Water2021}
 \alias{Water2021}
-\alias{WadTempHR}
-\alias{WadHeightHR}
+\alias{Wad_watertemp_HR}
+\alias{Wad_waterheight_HR}
 
 \title{
   High- resolution water height and water temperature data from RWS.
 }
 
 \usage{
-data(WadTempHR)
+data(Wad_watertemp_HR)
 }
 
 \note{
@@ -20,7 +20,7 @@ The values for water height, reported (as integers) in cm were divided by 100 to
 
 \value{
 
-\code{WadHeightHR}, and \code{WadTempHR} are \code{data.frames} in \code{wide} format of class \code{dtLife}, with the following items: 
+\code{Wad_waterheight_HR}, and \code{Wad_watertemp_HR} are \code{data.frames} in \code{wide} format of class \code{dtLife}, with the following items: 
 \itemize{
   \item \code{datetime}, Date and time of the measurement, POSIXct format
   \item \code{...}, the temperature (dgC) or water height (m) at each of the stations; the column names refer to the stations, as described in \code{attributes(object)$stations}.
@@ -39,7 +39,7 @@ All objects have the following attributes:
 }
 
 \description{
- \code{WadHeightHR}, \code{WadTempHR}: high resolution water heights and temperature for all stations in the Waddensea,  and for the first 3 months of 2021, at 0.5 hour intervals.
+ \code{Wad_waterheight_HR}, \code{Wad_watertemp_HR}: high resolution water heights and temperature for all stations in the Waddensea,  and for the first 3 months of 2021, at 0.5 hour intervals.
   
  Water height is versus NAP (Normaal Amsterdams Peil) .
  
@@ -53,7 +53,7 @@ All objects have the following attributes:
 # Plot the position of the data
 # ---------------------------------------------------
 
-with(WadDepth, 
+with(Wad_depth, 
    image2D(x = longitude, 
            y = latitude, 
            z = depth, clab = "m", 
@@ -62,7 +62,7 @@ with(WadDepth,
            colkey = list(length=0.5, width=0.5))
            )
            
-stats <- attributes(WadTempHR)$stations
+stats <- attributes(Wad_watertemp_HR)$stations
 points(x = stats$longitude, 
        y = stats$latitude, 
        pch = 18, cex = 3, col = "grey")
@@ -73,9 +73,9 @@ points(x = stats$longitude,
 
 mf <- par(mfrow=c(2,1))
 
-HT2021 <- WadTempHR[,1:2]
+HT2021 <- Wad_watertemp_HR[,1:2]
 colnames(HT2021)[2] <- "T"
-HT2021 <- merge(HT2021, WadHeightHR[,c("datetime", "DENHDVSGR")])
+HT2021 <- merge(HT2021, Wad_waterheight_HR[,c("datetime", "DENHDVSGR")])
 colnames(HT2021)[3] <- "Height"
 
 with(HT2021, 
@@ -151,7 +151,7 @@ par(mfrow=mf)
 # Plot high-resolution data
 # ---------------------------------------------------
 
-plot(WadHeightHR)
+plot(Wad_waterheight_HR)
 
 # ---------------------------------------------------
 # Taking time-averages
@@ -159,7 +159,7 @@ plot(WadHeightHR)
 
 # 30 minute resolution
 HH <- average_timeseries(
-        input   = Weather2021, 
+        input   = Wad_weather, 
         avgOver = "min", 
         avgTime = 30,
         datetime = "datetime",
@@ -203,8 +203,8 @@ dim(H15b)
 }
 \seealso{
   \code{\link{Bathymetry}} bathymetric data.
-  \code{\link{WadGrain}} data set with sediment composition.
-  \code{\link{Weather2021}} data set with weather information.
+  \code{\link{Wad_sediment}} data set with sediment composition.
+  \code{\link{Wad_weather}} data set with weather information.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>
