@@ -75,6 +75,21 @@ with(Marsdiep,
      invisible(lapply(contours, 
                       FUN = lines, col = "white")))
 
+
+# =============================
+# Convert this to xyz format
+# =============================
+
+ZZ <- with(Marsdiep, 
+     map_xy(input.x   = longitude, 
+            input.y   = latitude, 
+            input.2D  = depth, 
+            output.xy = expand.grid(x=longitude, y=latitude)))
+
+head(ZZ)
+
+points2D(ZZ[,1], ZZ[,2], colvar = ZZ[,3])
+
 }
 \seealso{
   \code{\link{Wad_weather}} data set with weather information from Waddensea stations.

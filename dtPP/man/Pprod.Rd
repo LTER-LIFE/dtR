@@ -27,7 +27,8 @@ integratedPP (
     kz=0.1, Iz.data=NULL, Iz.fun=NULL, 
     Mz.data=1, Mz.fun=NULL,
     Ht.data=NULL, Ht.fun=NULL,
-    avgOver=NULL, avgTime=1)   
+    avgOver=NULL, avgTime=1,
+    verbose)   
 }
 
 \arguments{
@@ -59,6 +60,8 @@ integratedPP (
  \item{avgOver }{Only when \code{times} is of type POSIXct or POSIXlt: the time instance over which has to be averaged, i.e. one of "sec", "min", "hour", "mon", "year", "mday" (day of the month), "wday" (day of the week), "yday" (day of the year). See \link[dtLife]{average_timeseries}.
  }
  \item{avgTime }{The length of time units over which need to be averaged.
+ }
+ \item{verbose }{If TRUE, will write warnings to the screen.
  }
 }
 

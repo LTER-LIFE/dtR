@@ -16,7 +16,8 @@
 }
 
 \usage{
-interpolate_xyt (input.xytv, output.xy, output.t, ID=NULL, wide=TRUE)
+interpolate_xyt (input.xytv, output.xy, output.t, barycentric = FALSE,
+                    nmean = 3, ID=NULL, geographic = TRUE)
 match_timeseries(input.xytv, data)   
 
 }
@@ -32,17 +33,20 @@ match_timeseries(input.xytv, data)
  \item{output.t }{Vector with the times to which the time series should be interpolated.
    Should be of the same type as the input times (3rd column of \code{input})  
    }
+ \item{barycentric }{If TRUE, then the interpolation will be done by barocentric coefficients. The default is to use inverse distance approximation.
+  }
+  \item{nmean }{The number of points over which the new value will be averaged. 
+  }
+  \item{geographic }{If TRUE then it is assumed that the spatial points are geographic coordinates (latitude, longitude) and an aspect ratio for distances will be used.
+  }
  \item{ID }{Vector with unique identifiers for the output; should be of same length as nrows of output.xy. Used for labelling the output; If absent output will be labeled "st1", "st2", ...
    Should be of the same type as the input times (3rd column of \code{input})  
    }
   \item{data }{dataset that has an ID in its attributes, from which the output.xy, and ID can be extracted.
   }
- \item{wide }{If TRUE, then the output will be in wide format, i.e. one column per point interpolated, if FALSE then the output will be in long format, i.e. 4 columns with (x, y, time, value).
-  }
+  
 }
 \value{
-  if argument \code{wide} is \code{TRUE}, then:
-  
     Function \code{interpolate_xyt} returns a \code{data.frame} with:
     
     \itemize{
@@ -51,16 +55,6 @@ match_timeseries(input.xytv, data)
     }    
     The positions of these stations are stored in attribute "stations" of the returned object.
   
-  if argument \code{wide} is \code{FALSE}, then:
-  
-  Function \code{interpolate_xyt} returns a \code{data.frame} with 5 columns: 
-  
-  \itemize{
-     \item \code{ID}, the unique identifier or station name
-     \item \code{output.t}, the times, as in argument \code{output.t},
-     \item the \code{x}- and \code{y}-coordinates for each of the stations, as input by argument \code{output.xy},
-     \item \code{res}, the interpolated value.
-  }
 }
 \note{
 For this to work it is necessary that the input consists of spatial points for which a time series of values is defined.
@@ -123,15 +117,6 @@ head(Output.t)
 head(Output.v)
 
 attributes(Output.v)$stations
-
-# same but output now in long format:
-
-Output.v.long <- interpolate_xyt(input.xytv = Input.xytv, 
-                                 output.xy  = Output.xy , 
-                                 output.t   = Output.t  , 
-                                 wide       = FALSE)
-
-head(Output.v.long)
 
 ## =============================================================
 ## 2D-time interpolation of sine waves 
@@ -198,7 +183,7 @@ WS <- aggregate(x   = Wad_weather$windspeed,
 colnames(WS) <- c("date", "station", "windspeed")               
 
 Input <- merge(
-         Weather.stations[ , c("station", "latitude", "longitude")],
+         Weather.stations[ , c("station", "longitude", "latitude")],
          WS              [ , c("station", "date", "windspeed")]
               )
               
@@ -228,25 +213,82 @@ Output.t <- as.Date(c("2021-01-01", "2021-02-01",
                       "2021-09-01", "2021-10-01", 
                       "2021-11-01", "2021-12-01"))
 
-# interpolate
+# interpolate - inverse distances, based on 3 points
+system.time(
 Output.wind <- interpolate_xyt(input.xytv  = Input, 
                                output.xy   = Output.xy, 
+                               barycentric = FALSE,
                                output.t    = Output.t)
-                               
+)
+
+# inverse distances, based on 6 points
+system.time(
+Output.wind.1 <- interpolate_xyt(input.xytv  = Input, 
+                               output.xy   = Output.xy, 
+                               barycentric = FALSE,
+                               nmean       = 6,   # mean of all points
+                               output.t    = Output.t)
+)
+
+# interpolate using barycentric interpolation
+system.time(
+Output.wind.2 <- interpolate_xyt(input.xytv  = Input, 
+                               output.xy   = Output.xy, 
+                               barycentric = TRUE,
+                               output.t    = Output.t)
+)
+
+# interpolate using barycentric interpolation - different triangels
+system.time(
+Output.wind.3 <- interpolate_xyt(input.xytv  = Input, 
+                               output.xy   = Output.xy, 
+                               barycentric = 2,
+                               output.t    = Output.t)
+)
+
 Output.stations <- attributes(Output.wind)$stations
 
-par(mfrow=c(3,3))
+par(mfrow=c(2, 3))
+
+DD <- subset(Input, subset = date == Output.wind[6, 1])
+
 image2D(x = outx, y = outy, 
         z = matrix(nrow = nx, ncol = ny, 
-                   data = as.numeric(Output.wind[6,-1]), 
-                   byrow = TRUE))
+                   data = as.numeric(Output.wind[6,-1])),
+        xlim = range(DD$longitude),
+        ylim = range(DD$latitude),
+        clim = range(DD$windspeed),
+        main = "inverse distance - 3 points")
+image2D(x = outx, y = outy, 
+        z = matrix(nrow = nx, ncol = ny, 
+                   data = as.numeric(Output.wind.1[6,-1])),
+        xlim = range(DD$longitude),
+        ylim = range(DD$latitude),
+        clim = range(DD$windspeed),
+        main = "inverse distance - 6 points")
 
-DD <- subset(Input, subset = date == Output.wind[6,1])
-points2D(x      = DD$latitude, 
-         y      = DD$longitude, 
+image2D(x = outx, y = outy, 
+        z = matrix(nrow = nx, ncol = ny, 
+                   data = as.numeric(Output.wind.2[6,-1])),
+        xlim = range(DD$longitude),
+        ylim = range(DD$latitude),
+        clim = range(DD$windspeed),
+        main = "barycentric interpolation - fixed triangle")
+image2D(x = outx, y = outy, 
+        z = matrix(nrow = nx, ncol = ny, 
+                   data = as.numeric(Output.wind.3[6,-1])),
+        xlim = range(DD$longitude),
+        ylim = range(DD$latitude),
+        clim = range(DD$windspeed),
+        main = "barycentric interpolation - closest triangle")
+
+points2D(x      = DD$longitude, 
+         y      = DD$latitude, 
          colvar = DD$windspeed, 
-         cex = 4, pch = 18)
+         pch=18, cex=2)
 
+matplot(Output.wind[,-1], type="l", lty=1)
+# matplot(Output.wind.2[,-1], type="l", lty=1)
 }
 \references{
  Jassby A.D. and T. Platt, 1976. Mathematical formulation of the relationship 

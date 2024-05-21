@@ -1,5 +1,5 @@
 \name{Ems-Dollard PI parameters and biogeochemistry}
-\alias{Ems_ps}
+\alias{Ems_ps_parameters}
 \alias{Ems_biogeo}
 \title{
  Water-column PI parameters and biogeochemical measurements taken in the Ems-Dollard (2012-2013). WMR data

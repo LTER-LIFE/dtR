@@ -162,7 +162,7 @@ for (i in 1:nrow(Chl_Stats)){
                        alpha = 0.049*Chl$y,
                        eopt  = 4*(150 + 15*temp$y),
                        ps    = ps*Chl$y)
- zmean <- Chl_Stats$z[i]
+ zmean <- Chl_Stats$v[i]
 PP <- integratedPP(zn      = zmean,   # water depth
                    times   = time,    # output time
                    It.data = It.data, # light intensity timeseries

@@ -77,8 +77,10 @@ system.time(
 
 Grain.all <- merge(Grain.all, Sediment)
 
+# Grain.all has elements x, y, and v (for variable)
+
 with(Grain.all, 
-  plot(x    = z, 
+  plot(x    = v, 
        y    = mdGrain, pch = ".", cex = 2,
        main = "sediment-depth relationships"))
 }

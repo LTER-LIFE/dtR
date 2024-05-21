@@ -50,8 +50,11 @@ dttowide <- function(x,
   if (!swap %in% cn)
     stop("cannot go to wide format based on ", swap, " as column does not exist")
 
-  # it is assumed that datetime marks the end of the id section
+  # it is assumed that datetime, date or time marks the end of the id section
   nt    <- which(cn == "datetime")
+  if (!length(nt)) nt <- which(cn == "date")
+  if (!length(nt)) nt  <- which(cn == "time")
+  
   idvar <- cn   [1:nt]
   idvar <- idvar[-which(cn == swap)]
   
@@ -93,6 +96,9 @@ dttolong <- function (x,
   
   # it is assumed that datetime marks the beginning of the varying section
   nt    <- which(cn == "datetime")
+  if (!length(nt)) nt <- which(cn == "date")
+  if (!length(nt)) nt  <- which(cn == "time")
+  
   nc    <- (nt+1):ncol(x)
   xx    <- reshape(x, 
                    direction= "long", 

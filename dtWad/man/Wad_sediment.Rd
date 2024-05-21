@@ -71,6 +71,30 @@ plotBathymetry(Wad_depth,
                log    = "c", clab = "um",
                main   = "Grain size")
 
+# ---------------------------------------------------
+# Create image rather than points
+# ---------------------------------------------------
+
+# this is requested at too high resolution - a lot of NA, where there 
+# no values in the grid cell
+Mdgrain2D <- map_xy(input.xyv = Wad_sediment[,c("longitude", "latitude", "mdGrain")],
+                    output.x = seq(from       = min(Wad_sediment$longitude), 
+                                   to         = max(Wad_sediment$longitude),
+                                   length.out = 500),
+                    output.y = seq(from       = min(Wad_sediment$latitude), 
+                                   to         = max(Wad_sediment$latitude),
+                                   length.out = 500))
+
+# find NAs and select only the ones in the Wadden:
+
+#NAs     <- which(is.na(Mdgrain2D$mdGrain), arr.ind = TRUE)
+#NAcoord <- data.frame(longitude = Mdgrain2D$longitude[NAs[,1]], 
+#                      latitude  = Mdgrain2D$latitude [NAs[,2]])
+#NAs     <- mask_xy(coordinates = NAcoord, shape=Wad_shape)
+#NAcoord <- subset(NAcoord, subset = ! is.na(NAs$mask))
+
+#Mdext <- map_xy(input.xyv = Wad_sediment[,c("longitude", "latitude", "mdGrain")],
+#                output.xy = NAcoord)
 
 ## =============================================================
 ## find corresponding depths for grain size data
@@ -97,7 +121,7 @@ system.time(
 )
 
 Grain.ext <- merge(Grain.ext, Wad_sediment)
-with(Grain.ext, plot(z, mdGrain))
+with(Grain.ext, plot(v, mdGrain))  # v = value in Grain.ext
 
 # ----------------------------------
 # full dataset
@@ -119,7 +143,7 @@ GG$mask[is.na(GG$mask)] <- 0
 Grain.all <- merge(Grain.all, Wad_sediment)
 Grain.all <- merge(Grain.all, GG)
 
-with(Grain.all, plot(z, mdGrain, col=mask+1, pch=".", cex=2,
+with(Grain.all, plot(v, mdGrain, col=mask+1, pch=".", cex=2,
      main="sediment-depth relationships"))
 legend("topleft", col=1:2, pch=18, legend=c("northsea", "waddensea"))
 
