@@ -13,17 +13,13 @@
 }
 
 \usage{
-\method{plot}{integratedPP}(x, mass="ugC", length="m", time="s", 
-              light="uEinst/m2/s", type="l", las=1, which = "ts", ...)
-\method{image2D}{integratedPP}(z, mass="ugC", length="m", time="s", 
-              light="uEinst/m2/s", las=1, ...)
+\method{plot}{integratedPP}(x, ..., type="l", las=1, which = "ts")
+\method{image2D}{integratedPP}(z,  las=1, ...)
     
 }
 
 \arguments{
  \item{x, z }{An object of class \code{integratedPP} whose contents need to be plotted.
- }
- \item{mass, length, time, light }{Names of mass (e.g. ug C), length (e.g. m), time (second), and light intensity. This will be used to label the plots.
  }
   \item{type }{The type of the plots - the default draws lines. 
   }
@@ -46,7 +42,7 @@ Does not return anything
 ## Changing water height
 ## =============================================================
 
-zmean <- 5              # Mean height of water
+depth <- 5              # Mean height of water column
 
 # run model for 10 days; use date format
 time <- seq(from = as.POSIXct("2021-08-01 01:00:00"), 
@@ -71,7 +67,7 @@ wH      <- t.amplitude * sin(2*pi*as.double(time)/t.period)
 Ht.data <- data.frame(t      = time, 
                       height = wH)
 
-PP <- integratedPP(zn      = zmean,   
+PP <- integratedPP(zmax    = depth,   
                    time    = time, 
                    It.data = It.data, 
                    kz      = 0.2,

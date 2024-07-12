@@ -18,7 +18,7 @@
 
 \usage{
 integratedPP (
-    z0=0, zn=100, nbox=100, zi=NULL, 
+    zmin=0, zmax=100, nbox=100, zi=NULL, 
     times=0:10, convFac=1.,
     PI.par=c(alpha=0.05, eopt=1000, ps=50), 
     PI.fun=NULL, 
@@ -28,15 +28,16 @@ integratedPP (
     Mz.data=1, Mz.fun=NULL,
     Ht.data=NULL, Ht.fun=NULL,
     avgOver=NULL, avgTime=1,
-    verbose)   
+    verbose = TRUE, 
+    unit = list(mass = "mgC", length = "m", time = "h", light = "uEinst/m2/s"))   
 }
 
 \arguments{
- \item{z0, zn }{The minimal and maximum depth over which the photosynthesis needs to be summed, typical unit: [m]. If \code{zi} is not \code{NULL}, then \code{z0} and \code{zn} will be estimated as the minimum and maximum of \code{zi} respectively. In the other case, \code{zi} will be estimated based on  \code{z0}, \code{zn} and \code{nbox}.
+ \item{zmin, zmax }{The minimal and maximum depth over which the photosynthesis needs to be summed, typical unit: [m]. If \code{zi} is not \code{NULL}, then \code{zmin} and \code{zmax} will be estimated as the minimum and maximum of \code{zi} respectively. In the other case, \code{zi} will be estimated based on  \code{zmin}, \code{zmax} and \code{nbox}.
  }
  \item{nbox }{Number of boxes for which the photosynthesis will be calculated and summed. If \code{zi} is not \code{NULL} \code{nbox} will be estimated as the length of \code{zi} - 1.
  }
- \item{zi }{Depth at the box \code{i}nterfaces. If not \code{NULL} then \code{zi} will be used to estimate nbox (length(zi)-1)), \code{z0} (min(zi)) and \code{zn} (max(zi))). If NULL, \code{zi} will be calculated using an exponentially increasing grid size, where the size of the first box equals \code{zn/nbox/10}.
+ \item{zi }{Depth at the box \code{i}nterfaces. If not \code{NULL} then \code{zi} will be used to estimate nbox (length(zi)-1)), \code{zmin} (min(zi)) and \code{zmax} (max(zi))). If NULL, \code{zi} will be calculated using an exponentially increasing grid size, where the size of the first box equals \code{(zmax-zmin)/nbox/10}.
  }
  \item{times }{Time for which the integrated photosynthesis needs to be calculated. The unit of times should be consistent with the units of the time series. Can be of type \code{POSIXct}. If \code{avgOver} is NULL, then \code{times} will also be the output time.
  }
@@ -62,6 +63,9 @@ integratedPP (
  \item{avgTime }{The length of time units over which need to be averaged.
  }
  \item{verbose }{If TRUE, will write warnings to the screen.
+ }
+ \item{unit }{A vector or list with units of \code{mass}, \code{length}, \code{time}, \code{light}. 
+ Names of mass (e.g. ug C), length (e.g. m), time (second), and light intensity. This will be used to generate units of the output variabes, and to label the plots. (note: units generated do not take into account convfac )
  }
 }
 
@@ -95,7 +99,7 @@ a \code{list} with several items:
    \itemize{
     \item times, the output times (argument times), if \code{avgOver} is not NULL, this will be averaged over time. 
     \item PP, the depth-integrated photosynthesis for each time, 
-    \item TotalDepth, the sum of \code{zmean} and \code{H.t} (mean depth + surface elevation), 
+    \item TotalDepth, the sum of \code{zmax} and \code{H.t} (mean depth + surface elevation), 
           i.e. the total depth over which PP was estimated,
     \item Isurf, the light intensity at the surface,
     \item Ibot, the remaining light at the bottom of the grid,
@@ -163,7 +167,7 @@ plot(It.data)
 # height of water is constant, 5 m
 # --------------------------------------
 
-zmean <- 5
+depth <- 5
 
 # --------------------------------------
 # run model for 4 days; use date format
@@ -175,7 +179,7 @@ time <- seq(from = as.POSIXct("2021-08-01 01:00:00"),
 
 
 # Photosynthesis with changing irradiance
-P1 <- integratedPP(zn      = zmean,      # water depth
+P1 <- integratedPP(zmax    = depth,      # water depth
                    times   = time,  
                    It.data = It.data,    # irradiance 
                    Iz.data = Iz.data)
@@ -200,7 +204,7 @@ with(P1$profile,
 ## =============================================================================
 
 # water height varies in time (~tide)
-zmean <- 5              # Mean height of water
+depth <- 5              # Mean height of water
 
 # run model for 4 days; use date format
 time <- seq(from = as.POSIXct("2021-08-01 01:00:00"), 
@@ -214,7 +218,7 @@ wH          <- t.amplitude * sin(2*pi*as.double(time)/t.period)
 Ht.data <- data.frame(t      = time, 
                       height = wH)
 
-PP <- integratedPP(zn      = zmean,   
+PP <- integratedPP(zmax    = depth,   
                    times   = time, 
                    It.data = It.data, 
                    Iz.data = Iz.data,
@@ -455,7 +459,7 @@ times <- seq(from = as.POSIXct("2021-01-01"),
 # integrated production, averaged over a day
 
 Pprod_day <- integratedPP(
-                 zn      = 10,            # water depth
+                 zmax    = 10,            # water depth
                  times   = times,
                  PI.par  = PI.par,
                  It.data = Irr2021,
