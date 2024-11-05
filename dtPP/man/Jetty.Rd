@@ -159,7 +159,9 @@ par(mfrow=mf)
   \code{\link{Wad_chlor_RS}} a monthly, spatially-explicit chlorophyll data set.
 }
 \author{
-  Karline Soetaert <karline.soetaert@nioz.nl>
+  Data provider: Katja Philippart (NIOZ)
+  
+  Data extraction and preparation: Karline Soetaert <karline.soetaert@nioz.nl>
 }
 
 \references{
