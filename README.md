@@ -8,6 +8,7 @@ R packages for digital twins
 To date it contains 3 R-packages:
 
 * *dtLife*, the main LTER-LIFE R-package that contains global functions
+* *dtTools*, same as *dtLife* with the intention to replace it. For now, *dtLife* is only supported for backward compatibility of previous protoDT
 * *dtWad*, the Waddensea LTER-LIFE R-package with data
 * *dtPP*, the LTER-LIFE R-package for estimating photosynthesis
 
@@ -32,6 +33,12 @@ Once the above packages have been installed, type the following command in the R
 devtools::install_github("LTER-LIFE/dtR/dtLife", depend=TRUE)
 ```
 
+*dtTools* is a copy of *dtLife* with functionalities developed to replace *dtLife* in the future. For compatibility reason, we still currently support dtLife. Future development will continue with dtTools. 
+
+```
+devtools::install_github("LTER-LIFE/dtR/dtTools", depend=TRUE)
+```
+
 after which you can install the *dtWad* package:
 
 ```
@@ -42,6 +49,6 @@ and the *dtPP* package:
 devtools::install_github("LTER-LIFE/dtR/dtPP", depend=TRUE)
 ```
 
-Then, type ``require(dtLife)`` in the R-console to load the package in R. 
+Then, type ``require(dtLife)`` and ``require(dtTools)``  in the R-console to load the package in R. 
 
 That's it! After this step, you should be able to use the packages.
