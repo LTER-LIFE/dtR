@@ -4,48 +4,48 @@
 # ==============================================================================
 # ==============================================================================
 
-map_xy <-  function(input.xyv, # latitude (x), longitude (y), value
-                    input.x, input.y, input.2D,
-                    output.xy, 
-                    output.x, output.y){
+map_xy <-  function(input_xyv, # latitude (x), longitude (y), value
+                    input_x, input_y, input_2D,
+                    output_xy, 
+                    output_x, output_y){
   # check input
-  if (missing (input.xyv)){
-    if (missing(input.x) | missing(input.y) | missing(input.2D) )
-      stop("either input.xyv should be input or (input.x, input.y & input.2D)")
+  if (missing (input_xyv)){
+    if (missing(input_x) | missing(input_y) | missing(input_2D) )
+      stop("either input_xyv should be input or (input_x, input_y & input_2D)")
   }
     
   # check output
-  if (missing (output.xy)){
-    if (missing(output.x) | missing(output.y) )
-      stop("either output.xy should be input or (output.x & output.y)")
+  if (missing (output_xy)){
+    if (missing(output_x) | missing(output_y) )
+      stop("either output_xy should be input or (output_x & output_y)")
   }
   
   # call correct function
-  if (! missing(input.xyv) & 
-      ! missing (output.xy))
-    result <- interpolate_xy_xy(input.xyv = input.xyv, # latitude (x), longitude (y), value
-                                output.xy = output.xy) 
+  if (! missing(input_xyv) & 
+      ! missing (output_xy))
+    result <- interpolate_xy_xy(input_xyv = input_xyv, # latitude (x), longitude (y), value
+                                output_xy = output_xy) 
   
-  else if (! missing(input.x) & ! missing(input.y) & ! missing(input.2D) & 
-           ! missing(output.xy))
-    result <- interpolate_2D_xy (input.x   = input.x, 
-                                 input.y   = input.y, # latitude (x), longitude (y)
-                                 input.2D  = input.2D,         #  depth
-                                 output.xy = output.xy)
+  else if (! missing(input_x) & ! missing(input_y) & ! missing(input_2D) & 
+           ! missing(output_xy))
+    result <- interpolate_2D_xy (input_x   = input_x, 
+                                 input_y   = input_y, # latitude (x), longitude (y)
+                                 input_2D  = input_2D,         #  depth
+                                 output_xy = output_xy)
   
-  else if (!missing(input.xyv) & ! missing(output.x) & 
-           !missing(output.y))
-    result <- interpolate_xy_2D(input.xyz = input.xyv, 
-                               output.x  = output.x, 
-                               output.y  = output.y)
+  else if (!missing(input_xyv) & ! missing(output_x) & 
+           !missing(output_y))
+    result <- interpolate_xy_2D(input_xyz = input_xyv, 
+                               output_x  = output_x, 
+                               output_y  = output_y)
   
-  else if (! missing(input.x) & ! missing(input.y) & ! missing(input.2D) & 
-           ! missing(output.x) & !missing(output.y))
-    result <- interpolate_2D_2D (input.x  = input.x, 
-                                 input.y  = input.y, 
-                                 input.2D = input.2D, 
-                                 output.x = output.x, 
-                                 output.y = output.y)
+  else if (! missing(input_x) & ! missing(input_y) & ! missing(input_2D) & 
+           ! missing(output_x) & !missing(output_y))
+    result <- interpolate_2D_2D (input_x  = input_x, 
+                                 input_y  = input_y, 
+                                 input_2D = input_2D, 
+                                 output_x = output_x, 
+                                 output_y = output_y)
   
   else 
     stop ("one of the required arguments is missing")
@@ -59,39 +59,39 @@ map_xy <-  function(input.xyv, # latitude (x), longitude (y), value
 
 # ==============================================================================
 
-interpolate_xy_xy <-  function(input.xyv, # latitude (x), longitude (y), value
-                            output.xy){
+interpolate_xy_xy <-  function(input_xyv, # latitude (x), longitude (y), value
+                            output_xy){
   
-  if (ncol(input.xyv) != 3) 
-    stop ("'input.xyv' should have 3 columns: latitude (x), longitude (y), value")
+  if (ncol(input_xyv) != 3) 
+    stop ("'input_xyv' should have 3 columns: latitude (x), longitude (y), value")
 
   ##### step 1: weighting points #####
   # distance between two points 
 
-  input.xy  <- input.xyv[, 1:2]
-  ni <- nrow(input.xy)
-  if (ni == 0) stop("input.xyv is empty")
+  input_xy  <- input_xyv[, 1:2]
+  ni <- nrow(input_xy)
+  if (ni == 0) stop("input_xyv is empty")
   
-  output.xy <- unique(output.xy)
-  coord.xy <- output.xy[,1:2]
-  no <- nrow(output.xy)
-  if (no == 0) stop("output.xy is empty")
+  output_xy <- unique(output_xy)
+  coord.xy <- output_xy[,1:2]
+  no <- nrow(output_xy)
+  if (no == 0) stop("output_xy is empty")
 
   # Check overlap of x and of y - IF NO overlap: stop
-  if (max(input.xy[,1]) < min(output.xy[,1]))
+  if (max(input_xy[,1]) < min(output_xy[,1]))
     stop( "cannot perform mapping: x-variables of in-output do not overlap")
-  if (min(input.xy[,1]) > max(output.xy[,1]))
+  if (min(input_xy[,1]) > max(output_xy[,1]))
     stop( "cannot perform mapping: x-variables of in-output do not overlap")
   # Check overlap of x and of y - IF NO overlap: stop
-  if (max(input.xy[,2]) < min(output.xy[,2]))
+  if (max(input_xy[,2]) < min(output_xy[,2]))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
-  if (min(input.xy[,2]) > max(output.xy[,2]))
+  if (min(input_xy[,2]) > max(output_xy[,2]))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
   
   # euclidean_distance
   
-  DD1 <- outer(output.xy [, 1], input.xy[, 1], FUN="-")
-  DD2 <- outer(output.xy [, 2], input.xy[, 2], FUN="-")
+  DD1 <- outer(output_xy [, 1], input_xy[, 1], FUN="-")
+  DD2 <- outer(output_xy [, 2], input_xy[, 2], FUN="-")
   Distance <- sqrt(DD1^2+DD2^2)
   rm(list=c("DD1", "DD2"))
   
@@ -142,9 +142,9 @@ interpolate_xy_xy <-  function(input.xyv, # latitude (x), longitude (y), value
 
   ##### step2: interpolate #####
 
-  result <- sapply(1:no, FUN=function(i) sum(w.close[i,]*input.xyv[i.close[i,],3]))
+  result <- sapply(1:no, FUN=function(i) sum(w.close[i,]*input_xyv[i.close[i,],3]))
   result <- data.frame(coord.xy, value=result)
-  colnames(result)[3]<- colnames(input.xyv)[3]
+  colnames(result)[3]<- colnames(input_xyv)[3]
   
   result
 }
@@ -156,67 +156,67 @@ interpolate_xy_xy <-  function(input.xyv, # latitude (x), longitude (y), value
 # ==============================================================================
 
 interpolate_2D_xy <-  function(
-                        input.x, input.y, # latitude (x), longitude (y)
-                        input.2D,         #  depth
-                        output.xy){
+                        input_x, input_y, # latitude (x), longitude (y)
+                        input_2D,         #  depth
+                        output_xy){
 
   # Check overlap of x and of y - IF NO overlap: stop
-  if (max(input.x) < min(output.xy[,1]))
+  if (max(input_x) < min(output_xy[,1]))
     stop( "cannot perform mapping: x-variables of in-output do not overlap")
-  if (min(input.x) > max(output.xy[,1]))
+  if (min(input_x) > max(output_xy[,1]))
     stop( "cannot perform mapping: x-variables of in-output do not overlap")
   # Check overlap of x and of y - IF NO overlap: stop
-  if (max(input.y) < min(output.xy[,2]))
+  if (max(input_y) < min(output_xy[,2]))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
-  if (min(input.y) > max(output.xy[,2]))
+  if (min(input_y) > max(output_xy[,2]))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
   
   
-  dd <- dim(input.2D)
-  if (dd[1] != length(input.x)) stop ("length of 'input.x' should be = nrow(input.2D)")
-  if (dd[2] != length(input.y)) stop ("length of 'input.y' should be = ncol(input.2D)")
-  dlon <- diff (input.x)  # diff(input.2D$longitude)
-  dlat <- diff (input.y)  # diff(input.2D$latitude)
+  dd <- dim(input_2D)
+  if (dd[1] != length(input_x)) stop ("length of 'input_x' should be = nrow(input_2D)")
+  if (dd[2] != length(input_y)) stop ("length of 'input_y' should be = ncol(input_2D)")
+  dlon <- diff (input_x)  # diff(input_2D$longitude)
+  dlat <- diff (input_y)  # diff(input_2D$latitude)
   
   equidistant <- diff(range(dlon)) == 0 &
                  diff(range(dlat)) == 0
   
   if (! equidistant){  # SLOW!
-   input.2D.grid        <- expand.grid(input.x, input.y)
-   names(input.2D.grid) <- c("longitude", "latitude")
-   input.2D.grid$depth  <- as.vector(input.2D)
-   input.2D.grid        <- na.omit(input.2D.grid)
+   input_2D.grid        <- expand.grid(input_x, input_y)
+   names(input_2D.grid) <- c("longitude", "latitude")
+   input_2D.grid$depth  <- as.vector(input_2D)
+   input_2D.grid        <- na.omit(input_2D.grid)
 
-   gg    <- na.omit(output.xy)
+   gg    <- na.omit(output_xy)
   
-   Result <- map_xy(input.xyv = input.2D.grid, 
-                    output.xy = gg[,1:2])
+   Result <- map_xy(input_xyv = input_2D.grid, 
+                    output_xy = gg[,1:2])
   } else {
-    lonmin <- min(input.x)
-    latmin <- min(input.y)
+    lonmin <- min(input_x)
+    latmin <- min(input_y)
     ilon   <- function(x) 1+(x-lonmin)/dlon[1]
     ilat   <- function(x) 1+(x-latmin)/dlat[1]
-    ix  <- sapply(output.xy[,1], FUN=ilon)
-    iy  <- sapply(output.xy[,2], FUN=ilat)
+    ix  <- sapply(output_xy[,1], FUN=ilon)
+    iy  <- sapply(output_xy[,2], FUN=ilat)
     
     ### CHECK IF THIS IS WHAT WE WANT !!!! - EXTRAPOLATION
-    iix <- pmin(length(input.x) , as.integer(ix))  # index to pt on right
+    iix <- pmin(length(input_x) , as.integer(ix))  # index to pt on right
     iix <- pmax(1 , iix)  # index to pt on left
-    iiy <- pmin(length(input.y) , as.integer(iy))  # index to pt above
+    iiy <- pmin(length(input_y) , as.integer(iy))  # index to pt above
     iiy <- pmax(1, iiy)  # index to pt below
 
-    dx  <- (output.xy[,1]-input.x[iix])  /dlon[1]
-    dy  <- (output.xy[,2]-input.y[iiy] ) /dlat[1]
-    dxvalue <- input.2D[,-1] - input.2D[,-ncol(input.2D)]
+    dx  <- (output_xy[,1]-input_x[iix])  /dlon[1]
+    dy  <- (output_xy[,2]-input_y[iiy] ) /dlat[1]
+    dxvalue <- input_2D[,-1] - input_2D[,-ncol(input_2D)]
     dxvalue <- cbind(0, dxvalue, 0)
-    dyvalue <- input.2D[-1,] - input.2D[-nrow(input.2D),]
+    dyvalue <- input_2D[-1,] - input_2D[-nrow(input_2D),]
     dyvalue <- rbind(0, dyvalue, 0)
     
-    newz <- input.2D[cbind(iix, iiy)]+
+    newz <- input_2D[cbind(iix, iiy)]+
                 0.5*(dxvalue[cbind(iix, iiy)]*dx +
                      dyvalue[cbind(iix, iiy)]*dy) 
-    row.names(output.xy) <- NULL
-    Result <- data.frame(output.xy, v=newz)
+    row.names(output_xy) <- NULL
+    Result <- data.frame(output_xy, v=newz)
     
   }
   Result 
@@ -228,56 +228,56 @@ interpolate_2D_xy <-  function(
 # ==============================================================================
 # ==============================================================================
 
-interpolate_xy_2D <- function(input.xyz, 
-                   output.x=NULL, output.y=NULL){
+interpolate_xy_2D <- function(input_xyz, 
+                   output_x=NULL, output_y=NULL){
   
-  if (is.null(output.x)) 
-    output.x <- sort(unique(input.xyz[,1]))
-  if (is.null(output.y)) 
-    output.y <- sort(unique(input.xyz[,2]))
+  if (is.null(output_x)) 
+    output_x <- sort(unique(input_xyz[,1]))
+  if (is.null(output_y)) 
+    output_y <- sort(unique(input_xyz[,2]))
   
-  xo  <- unique(output.x)
+  xo  <- unique(output_x)
   xor <- range(xo)
   dxo <- diff(xor)/(length(xo)-1)
   
-  yo <- unique(output.y)
+  yo <- unique(output_y)
   yor <- range(yo)
   dyo <- diff(yor)/(length(yo)-1)
   
-  dxi <- min(diff(sort(unique(input.xyz[,1]))))
-  dyi <- min(diff(sort(unique(input.xyz[,2]))))
+  dxi <- min(diff(sort(unique(input_xyz[,1]))))
+  dyi <- min(diff(sort(unique(input_xyz[,2]))))
   
   # Check overlap of x and of y - IF NO overlap: stop
-  if (max(input.xyz[,1]) < min(output.x))
+  if (max(input_xyz[,1]) < min(output_x))
     stop( "cannot perform mapping: x-variables of in-output do not overlap")
-  if (min(input.xyz[,1]) > max(output.x))
+  if (min(input_xyz[,1]) > max(output_x))
     stop( "cannot perform mapping: x-variables of in-output do not overlap")
   # Check overlap of x and of y - IF NO overlap: stop
-  if (max(input.xyz[,2]) < min(output.y))
+  if (max(input_xyz[,2]) < min(output_y))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
-  if (min(input.xyz[,2]) > max(output.y))
+  if (min(input_xyz[,2]) > max(output_y))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
 
   # increase resolution
   if (dxi > dxo | dyi > dyo) {
-#    Ux <- diff(range(diff(sort(unique(input.xyz[,1])))))
-#    Uy <- diff(range(diff(sort(unique(input.xyz[,2])))))
+#    Ux <- diff(range(diff(sort(unique(input_xyz[,1])))))
+#    Uy <- diff(range(diff(sort(unique(input_xyz[,2])))))
 #    if (Ux == 0 & Uy == 0) {  # uniform grid
-       OO <- interpolate_xy_2D(input.xyz, output.x=NULL, output.y=NULL)
-       return(interpolate_2D_2D(OO$x, OO$y, OO$v, output.x, output.y))  # RECURSIVE!!!??
+       OO <- interpolate_xy_2D(input_xyz, output_x=NULL, output_y=NULL)
+       return(interpolate_2D_2D(OO$x, OO$y, OO$v, output_x, output_y))  # RECURSIVE!!!??
 #    }
 #    else stop("cannot map: input resolution too low and nonuniform input grid")
   } else {
     
   # map input to output grid cells
   # use approx to estimate the ix and iy values
-   app  <- approx(x = xo, y=1:length(xo), xout=input.xyz[,1], rule=2)
+   app  <- approx(x = xo, y=1:length(xo), xout=input_xyz[,1], rule=2)
    ix   <- as.integer(app$y)
-   app  <- approx(x = yo, y=1:length(yo), xout=input.xyz[,2], rule=2)
+   app  <- approx(x = yo, y=1:length(yo), xout=input_xyz[,2], rule=2)
    iy   <- as.integer(app$y)
     
-#  ix <- as.integer(1+(input.xyz[,1]-xor[1])/dxo)
-  iy <- as.integer(1+(input.xyz[,2]-yor[1])/dyo)
+#  ix <- as.integer(1+(input_xyz[,1]-xor[1])/dxo)
+  iy <- as.integer(1+(input_xyz[,2]-yor[1])/dyo)
 
   # No points to map in these output intervals.
   ix.lack <- which(!1:length(xo) %in% unique(ix))
@@ -297,16 +297,16 @@ interpolate_xy_2D <- function(input.xyz,
     iy      <- c(iy, iy.lack)
     
     # create empty vector with all lacking values
-    toadd   <- input.xyz[1:(lx+ly), ]
+    toadd   <- input_xyz[1:(lx+ly), ]
     toadd[,] <- 0
-    input.xyz <- rbind(input.xyz, toadd)
+    input_xyz <- rbind(input_xyz, toadd)
   }
   
   # sum all variables within a grid cell, and count the number of elements
-  zsum <- tapply(input.xyz[,3], 
+  zsum <- tapply(input_xyz[,3], 
                  INDEX = list(ix, iy), 
                  FUN   = sum)
-  zlen <- tapply(input.xyz[,3], 
+  zlen <- tapply(input_xyz[,3], 
                  INDEX = list(ix, iy), 
                  FUN   = length)
   
@@ -325,7 +325,7 @@ interpolate_xy_2D <- function(input.xyz,
   y <- yo[as.integer(colnames(zsum))]
   val <- zsum/zlen
   out <- list(x, y, val)
-  names(out) <- colnames(input.xyz)[1:3]
+  names(out) <- colnames(input_xyz)[1:3]
   return(out)
   }
 }
@@ -336,85 +336,85 @@ interpolate_xy_2D <- function(input.xyz,
 # ==============================================================================
 # ==============================================================================
 
-interpolate_2D_2Dold <- function(input.x, input.y, input.2D, 
-                              output.x=NULL, output.y=NULL){
+interpolate_2D_2Dold <- function(input_x, input_y, input_2D, 
+                              output_x=NULL, output_y=NULL){
   
-  if (is.null(output.x)) 
-    output.x <- sort(unique(input.x))
-  if (is.null(output.y)) 
-    output.y <- sort(unique(input.y))
+  if (is.null(output_x)) 
+    output_x <- sort(unique(input_x))
+  if (is.null(output_y)) 
+    output_y <- sort(unique(input_y))
   
  # output grid size
-  xo  <- unique(output.x)
+  xo  <- unique(output_x)
   xor <- range(xo)
 
-  yo <- unique(output.y)
+  yo <- unique(output_y)
   yor <- range(yo)
 
-  xi  <- unique(input.x)
+  xi  <- unique(input_x)
   xir <- range(xi)
   
-  yi <- unique(input.y)
+  yi <- unique(input_y)
   yir <- range(yi)
   
   if (diff(range(diff(xi))) != 0 | diff(range(diff(yi))) != 0)
     stop("cannot interpolate - grid sizes are not constant")
   
   # input grid size
-  dxi <- min(diff(sort(unique(input.x))))
-  dyi <- min(diff(sort(unique(input.y))))
+  dxi <- min(diff(sort(unique(input_x))))
+  dyi <- min(diff(sort(unique(input_y))))
   
   # map output to input grid cells
-  ix <- pmin(length(input.x), as.integer(1+(output.x-xir[1])/dxi))
-  iy <- pmin(length(input.y), as.integer(1+(output.y-yir[1])/dyi))
+  ix <- pmin(length(input_x), as.integer(1+(output_x-xir[1])/dxi))
+  iy <- pmin(length(input_y), as.integer(1+(output_y-yir[1])/dyi))
 
   ix <- pmax(1, ix)
   iy <- pmax(1, iy)
   
-  in2D <- cbind(input.2D, 
-                input.2D[,ncol(input.2D)])
+  in2D <- cbind(input_2D, 
+                input_2D[,ncol(input_2D)])
   in2D <- rbind(in2D,     
                 in2D    [nrow(in2D),])
   
   IG   <- as.matrix(expand.grid(ix, iy))
   IGx1 <- t(t(IG) + c(1,0))
-  OX   <- rep(output.x, times=length(output.y))
-  vx   <- in2D[IG] + (in2D[IGx1]-in2D[IG])*(OX-input.x[IG[,1]])/dxi  
-  vx   <- matrix(nrow=length(output.x), ncol=length(output.y), data=vx)
+  OX   <- rep(output_x, times=length(output_y))
+  vx   <- in2D[IG] + (in2D[IGx1]-in2D[IG])*(OX-input_x[IG[,1]])/dxi  
+  vx   <- matrix(nrow=length(output_x), ncol=length(output_y), data=vx)
 #  ZX<<- zx
   
   IG   <- as.matrix(expand.grid(iy, ix))[, c(2,1)]
   IGy1 <- t(t(IG) + c(0,1))
-  OY   <- rep(output.y, times=length(output.x))
-  vy   <- in2D[IG] + (in2D[IGy1]-in2D[IG])*(OY-input.y[IG[,2]])/dyi  
-  vy   <- matrix(nrow=length(output.x), ncol=length(output.y), data=vy, byrow=TRUE)
+  OY   <- rep(output_y, times=length(output_x))
+  vy   <- in2D[IG] + (in2D[IGy1]-in2D[IG])*(OY-input_y[IG[,2]])/dyi  
+  vy   <- matrix(nrow=length(output_x), ncol=length(output_y), data=vy, byrow=TRUE)
   vv   <- 0.5*(vx+vy)
 #  ZY<<- zy
   
-  out <- list(x=output.x, y=output.y, v=vv)
+  out <- list(x=output_x, y=output_y, v=vv)
   out
 }
 
 # ==============================================================================
 # ==============================================================================
 
-interpolate_2D_2D <- function(input.x, input.y, input.2D, 
-                              output.x=NULL, output.y=NULL){
+interpolate_2D_2D <- function(input_x, input_y, input_2D, 
+                              output_x=NULL, output_y=NULL){
   
-  if (is.null(output.x)) 
-    output.x <- sort(unique(input.x))
-  if (is.null(output.y)) 
-    output.y <- sort(unique(input.y))
+  if (is.null(output_x)) 
+    output_x <- sort(unique(input_x))
+  if (is.null(output_y)) 
+    output_y <- sort(unique(input_y))
   
   # output grid size
-  xo  <- unique(output.x)
-  yo  <- unique(output.y)
+  xo  <- unique(output_x)
+  yo  <- unique(output_y)
 
   # interpolate in x direction  
   # yn = y[ix] + fac*(y[ix+1]-y[ix])
 
   # use approx to estimate the ix and fac values
-  app  <- approx(x = input.x, y=1:length(input.x), xout=xo, rule=2)
+  app  <- approx(x = input_x, y=1:length(input_x), xout=xo, rule=2)
 
   ix   <- as.integer(app$y)
   fac  <- app$y- ix
@@ -422,65 +422,65 @@ interpolate_2D_2D <- function(input.x, input.y, input.2D,
   no <- length(fac) # number of output values
 
   OO <- sapply(1:no, 
-               FUN=function(x) input.2D[ix[x], ]+    
-             (input.2D[ixp1[x], ]- input.2D[ix[x], ])*fac[x])
+               FUN=function(x) input_2D[ix[x], ]+    
+             (input_2D[ixp1[x], ]- input_2D[ix[x], ])*fac[x])
   
-  input.2D <- t(OO)
+  input_2D <- t(OO)
   
   # interpolate in y direction
-  app  <- approx(x = input.y, y=1:length(input.y), xout=yo, rule=2)
+  app  <- approx(x = input_y, y=1:length(input_y), xout=yo, rule=2)
   ix   <- as.integer(app$y)
   fac  <- app$y- ix
   ixp1 <- pmin(ix+1, max(ix, na.rm=TRUE))
   no   <- length(fac) # number of output values
   
-  output.2D <- sapply(1:no, 
-                FUN=function(x) input.2D[, ix[x]] +    
-                 (input.2D[, ixp1[x]]-input.2D[, ix[x]])*fac[x])
+  output_2D <- sapply(1:no, 
+                FUN=function(x) input_2D[, ix[x]] +    
+                 (input_2D[, ixp1[x]]-input_2D[, ix[x]])*fac[x])
 
-  out <- list(x=output.x, y=output.y, v=output.2D)
+  out <- list(x=output_x, y=output_y, v=output_2D)
   out
 }
 
 # ==============================================================================
 
-  map_tx <-  function(input.txv, # time (t), position (x), value
-                      input.t, input.x, input.2D,
-                      output.tx,
-                      output.t, output.x){
+  map_tx <-  function(input_txv, # time (t), position (x), value
+                      input_t, input_x, input_2D,
+                      output_tx,
+                      output_t, output_x){
 
     # convert time to numeric...
-    if (!missing (input.txv)){
+    if (!missing (input_txv)){
       
-    if (! is.numeric(input.txv[,1]) )
-      input.txv[,1] <- as.numeric(input.txv[,1])
+    if (! is.numeric(input_txv[,1]) )
+      input_txv[,1] <- as.numeric(input_txv[,1])
     } 
     
-    if (!missing (input.t)){
-      if (! is.numeric(input.t))
-        input.t <- as.numeric(input.t)
+    if (!missing (input_t)){
+      if (! is.numeric(input_t))
+        input_t <- as.numeric(input_t)
     }        
-    if (!missing (output.t)){
-      ot <- output.t
-      if (!is.numeric(output.t))
-        output.t <- as.numeric(output.t)
+    if (!missing (output_t)){
+      ot <- output_t
+      if (!is.numeric(output_t))
+        output_t <- as.numeric(output_t)
     }        
-    if (!missing (output.tx)){
-      ot <- output.tx[,1]
-      if (!is.numeric(output.tx[,1]))
-        output.tx[,1] <- as.numeric(output.tx[,1])
+    if (!missing (output_tx)){
+      ot <- output_tx[,1]
+      if (!is.numeric(output_tx[,1]))
+        output_tx[,1] <- as.numeric(output_tx[,1])
     }        
     
-    RES <- map_xy (input.txv, # latitude (x), longitude (y), value
-                   input.t, input.x, input.2D,
-                   output.tx, 
-                   output.t, output.x)
+    RES <- map_xy (input_txv, # latitude (x), longitude (y), value
+                   input_t, input_x, input_2D,
+                   output_tx, 
+                   output_t, output_x)
     
-    if (!missing (output.t)){
+    if (!missing (output_t)){
       RES <- list(t=ot, x=RES$y, v=RES$v)
     }        
     
-    if (!missing (output.tx)){
+    if (!missing (output_tx)){
       RES[,1] <- ot
     }        
     
@@ -572,7 +572,7 @@ CreateTriangles <- function(n = 5) {
 
 #pick_xyt <- function(longitude=5.2, latitude=53.2, 
 #                     input=NULL,
-#                     output.t=unique(input$datetime),
+#                     output_t=unique(input$datetime),
 #                     what="waterheight",
 #                     shape=Wadshape,
 #                     plotit = FALSE, 
@@ -584,14 +584,14 @@ CreateTriangles <- function(n = 5) {
 #  if (what == "waterheight"){
 #    if (is.null(input)) input <- HeightHR
 #    pickdata(longitude=longitude, latitude=latitude, 
-#             output.t=output.t, input=input, 
+#             output_t=output_t, input=input, 
 #             shape=shape, plotit=plotit, n=n, verbose=verbose, 
 #             what=what, ...)
     
 #  } else if (what == "temperature") {
 #    if (is.null(input)) input <- TempHR
 #    pickdata(longitude=longitude, latitude=latitude, 
-#             output.t=output.t, input=input, 
+#             output_t=output_t, input=input, 
 #             shape=shape, plotit=plotit, n=n, verbose=verbose, 
 #             what=what, ...)
     
@@ -603,13 +603,13 @@ CreateTriangles <- function(n = 5) {
 #      input <- dtreshape(input, swap="station")
 #    }
 #    pickdata(longitude=longitude, latitude=latitude, 
-#             output.t=output.t, input=input, 
+#             output_t=output_t, input=input, 
 #             shape=shape, plotit=plotit, n=n, verbose=verbose, 
 #             what=what, ...)
 #  } else {
 #    if (is.null(input)) stop (" 'input' should be provided for variable ", what)
 #    pickdata(longitude=longitude, latitude=latitude, 
-#             output.t=output.t, input=input, 
+#             output_t=output_t, input=input, 
 #             shape=shape, plotit=plotit, n=n, verbose=verbose, 
 #             what=what, ...)
 #  }
@@ -622,7 +622,7 @@ CreateTriangles <- function(n = 5) {
 pickdata <- function(longitude=5.2, latitude=53.2, 
                      depth= NA,  # depth versus NAP
                      from="2021-01-01", to="2021-02-01", by=3600,
-                     output.t=seq(as.POSIXct(from),     # default = hourly
+                     output_t=seq(as.POSIXct(from),     # default = hourly
                                   as.POSIXct(to), 
                                   by=by),
                      what = "watertemperature",
@@ -638,18 +638,18 @@ pickdata <- function(longitude=5.2, latitude=53.2,
     
   }
   
-  output.t <-  output.t [order(output.t)]
+  output_t <-  output_t [order(output_t)]
   input    <- input[order(input$datetime), ]
   
   # Make a selection of the input based on times
-  if (is.numeric(output.t)) # index to the datetime
-    input <- input[output.t,]
+  if (is.numeric(output_t)) # index to the datetime
+    input <- input[output_t,]
   else {
-#    ii <- which(input$datetime >= min(output.t) &     
-#                input$datetime <= max(output.t))
+#    ii <- which(input$datetime >= min(output_t) &     
+#                input$datetime <= max(output_t))
 #    
 #    if (! length(ii))
-#      stop ("cannot interpolate: no overlap in time between input and output.t")
+#      stop ("cannot interpolate: no overlap in time between input and output_t")
 #    
 #    ir <- range(ii) + c(-1,1)   # one more before and after
 #    ir <- pmin(nrow(input), ir)
@@ -735,12 +735,12 @@ pickdata <- function(longitude=5.2, latitude=53.2,
                FUN    = function(v) 
                  approx(x    = input[ ,1], 
                         y    = v, 
-                        xout = output.t, 
+                        xout = output_t, 
                               rule = 2)$y)     
   
   # take weighted average of input data: multiply all columns (margin=2)
   # with correct weighing factor (wu) and sum over the rows
-  res <- data.frame(datetime = output.t, 
+  res <- data.frame(datetime = output_t, 
                     rowSums(sweep(res, 
                                   MARGIN = 2, 
                                   STATS  = wu, 
@@ -762,11 +762,11 @@ pickdata <- function(longitude=5.2, latitude=53.2,
 }
 
 # pick_xyt(plotit=TRUE)
-# A <- pick_xyt(plotit=TRUE, input=TempHR, output.t=1:40)
-# A <- pick_xyt(plotit=TRUE, input=TempHR, output.t=seq(from=as.POSIXct("2021-03-01"),to= as.POSIXct("2021-05-01"), by=60))
+# A <- pick_xyt(plotit=TRUE, input=TempHR, output_t=1:40)
+# A <- pick_xyt(plotit=TRUE, input=TempHR, output_t=seq(from=as.POSIXct("2021-03-01"),to= as.POSIXct("2021-05-01"), by=60))
 # A <- pick_xyt(plotit=TRUE, input=TempHR)
-# A <- pick_xyt(plotit=TRUE, input=TempLR, output.t = seq("15-01-2021", "15-12-2021", by=3600*24))
-#  A <- pick_xyt(plotit=TRUE, input=TempHR, output.t=seq(from=as.POSIXct("2021-03-01"),to= as.POSIXct("2021-03-31"), by=60), verbose=TRUE, ylab="m", latitude=53.15)
+# A <- pick_xyt(plotit=TRUE, input=TempLR, output_t = seq("15-01-2021", "15-12-2021", by=3600*24))
+#  A <- pick_xyt(plotit=TRUE, input=TempHR, output_t=seq(from=as.POSIXct("2021-03-01"),to= as.POSIXct("2021-03-31"), by=60), verbose=TRUE, ylab="m", latitude=53.15)
 
 #  A <- pick_xyt(plotit=TRUE, what="NH4", input=RWSbiogeo2021, verbose=TRUE, ylab="m", latitude=53.15)
 
