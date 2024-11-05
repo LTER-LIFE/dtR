@@ -3,9 +3,9 @@
 \alias{map_tx}
 
 \title{
-  \code{map_xy} haps 2D spatial data to xy or 2D format - to be used for spatially dense datasets.
+  \code{map_xy} maps 2D spatial data to xy or 2D format - to be used for spatially dense datasets.
 
-  \code{map_tx} Maps 2D (space x time) data to xt or 2D format - to be used for dense datasets.
+  \code{map_tx} maps 2D (space x time) data to xt or 2D format - to be used for dense datasets.
 }
 
 \description{
@@ -16,49 +16,49 @@
   
 }
 \usage{
-map_xy(input.xyv,
-       input.x, input.y, input.2D,
-       output.xy, 
-       output.x, output.y)
+map_xy(input_xyv,
+       input_x, input_y, input_2D,
+       output_xy, 
+       output_x, output_y)
        
-map_tx(input.txv,
-       input.t, input.x, input.2D,
-       output.tx,  
-       output.t, output.x)
+map_tx(input_txv,
+       input_t, input_x, input_2D,
+       output_tx,  
+       output_t, output_x)
 }
 
 \arguments{
-  \item{input.xyv }{Data.frame with  input data, 3 columns: latitude (or x-values), 
+  \item{input_xyv }{Data.frame with  input data, 3 columns: latitude (or x-values), 
   longitude (or y-values), and variable value. 
   }
-  \item{input.txv }{Data.frame with time series input data, 3 columns: time, position (or x-values), 
+  \item{input_txv }{Data.frame with time series input data, 3 columns: time, position (or x-values), 
   and variable value. 
   }
-  \item{input.x, input.y , input.t}{vectors with \code{x} and \code{y} input values (map_xy), or \code{t} and \code{x} input accompanying the 2D grid data. 
+  \item{input_x, input_y , input_t}{vectors with \code{x} and \code{y} input values (map_xy), or \code{t} and \code{x} input accompanying the 2D grid data. 
   }
-  \item{input.2D }{2-dimensional data to interpolate from, a matrix of dimension \code{(length(x), length(y))} or \code{(length(t), length(x))}. 
+  \item{input_2D }{2-dimensional data to interpolate from, a matrix of dimension \code{(length(x), length(y))} or \code{(length(t), length(x))}. 
   }
- \item{output.xy , output.tx }{Two-columned matrix with the latitude (or x-values), and 
+ \item{output_xy , output_tx }{Two-columned matrix with the latitude (or x-values), and 
   longitude (or y-values) of the output data (\code{map_xy}) or with time and x of the output data.
   }
-  \item{output.x, output.y, output.t  }{vectors with \code{x} and \code{y} or \code{t} values, determining the 2D grid data that will be output. 
+  \item{output_x, output_y, output_t  }{vectors with \code{x} and \code{y} or \code{t} values, determining the 2D grid data that will be output. 
   }
 }
 
 \value{
   Functions \code{map_xy} and \code{map_tx} return either a \code{data.frame} or a \code{list}, depending on the output arguments.
   
-  When the output data are specified as \code{output.xy} or \code{output.xt}, then the output will be a \code{data.frame} with 3 columns: 
+  When the output data are specified as \code{output_xy} or \code{output_xt}, then the output will be a \code{data.frame} with 3 columns: 
   
   \itemize{
-     \item first and second columns contain the x- and y-, or t - and x coordinates as defined in \code{output.xy} (\code{output.tx}),
+     \item first and second columns contain the x- and y-, or t - and x coordinates as defined in \code{output_xy} (\code{output_tx}),
      \item third column contains the interpolated values.
   }
 
-  When the output data are specified as two vectors, \code{output.x} and  \code{output.y} (or \code{output.t}), then the output will be a \code{list} with 3 items: 
+  When the output data are specified as two vectors, \code{output_x} and  \code{output_y} (or \code{output_t}), then the output will be a \code{list} with 3 items: 
   
   \itemize{
-     \item \code{x} and \code{y} or \code{t} and \code{x} are the two vectors defining the x- and y- (or t-) coordinates as input in \code{output.x} and \code{output.y} (or \code{output.t}),
+     \item \code{x} and \code{y} or \code{t} and \code{x} are the two vectors defining the x- and y- (or t-) coordinates as input in \code{output_x} and \code{output_y} (or \code{output_t}),
      \item \code{v} will contain the 2-D matrix with interpolated values.
   }
 
@@ -76,16 +76,16 @@ d3 <- cbind(x = 2,   y = 2,   value = 3)
 d4 <- cbind(x = 2,   y = 3,   value = 4)
 d5 <- cbind(x = 2.5, y = 2.5, value = 5)
 
-Input.xyv <- rbind(d1, d2, d3, d4, d5)
+input_xyv <- rbind(d1, d2, d3, d4, d5)
 
-Output.xy <- cbind(x = runif(n=4, min=1, max=2), 
+output_xy <- cbind(x = runif(n=4, min=1, max=2), 
                    y = runif(n=4, min=2, max=3))
 
-Output.v <- map_xy(input.xyv = Input.xyv, 
-                   output.xy = Output.xy)
-Input.xyv
-Output.xy
-Output.v
+output_v <- map_xy(input_xyv = input_xyv, 
+                   output_xy = output_xy)
+input_xyv
+output_xy
+output_v
 
 ## =============================================================
 ## interpolation from xyv to xyv - volcano
@@ -112,8 +112,8 @@ tomap <- data.frame(x = runif(min=1, max=nrow(volcano), n=2000),
 
 # interpolate
 system.time(
- volcano.pts <- map_xy(input.xyv   = volcano.xyz, 
-                       output.xy   = tomap)
+ volcano.pts <- map_xy(input_xyv   = volcano.xyz, 
+                       output_xy   = tomap)
 )
 head(volcano.pts)
 attributes(volcano.pts)$processing
@@ -132,8 +132,8 @@ par(mfrow=pm)
 # this is a bit slow
 \dontrun{
 system.time(
- volcano.tst <- map_xy(input.xyv   = volcano.xyz, 
-                       output.xy   = volcano.xyz[,1:2])
+ volcano.tst <- map_xy(input_xyv   = volcano.xyz, 
+                       output_xy   = volcano.xyz[,1:2])
 )
 summary(volcano.tst[,3]-volcano.xyz[,3])  # all 0
 
@@ -145,10 +145,10 @@ attributes(volcano.pts)$processing
 ## =============================================================
 
 system.time(
- volcano.pts <- map_xy(input.x   = 1:nrow(volcano),
-                       input.y   = 1:ncol(volcano),
-                       input.2D  = volcano,
-                       output.xy = tomap)
+ volcano.pts <- map_xy(input_x   = 1:nrow(volcano),
+                       input_y   = 1:ncol(volcano),
+                       input_2D  = volcano,
+                       output_xy = tomap)
 )
 
 head(volcano.pts)
@@ -170,10 +170,10 @@ par(mfrow=pm)
 # --------------------------------------------------------------
 
 system.time(
- volcano.tst <- map_xy(input.x   = 1:nrow(volcano),
-                       input.y   = 1:ncol(volcano),
-                       input.2D  = volcano,
-                       output.xy = expand.grid(1:nrow(volcano),
+ volcano.tst <- map_xy(input_x   = 1:nrow(volcano),
+                       input_y   = 1:ncol(volcano),
+                       input_2D  = volcano,
+                       output_xy = expand.grid(1:nrow(volcano),
                                                1:ncol(volcano))
                                )
 )
@@ -191,10 +191,10 @@ xy   <- expand.grid(x = xdbl,
                     y = ydbl)
 
 system.time(
- volcano.dbl <- map_xy(input.x   = 1:nrow(volcano),
-                       input.y   = 1:ncol(volcano),
-                       input.2D  = volcano,
-                       output.xy = xy)
+ volcano.dbl <- map_xy(input_x   = 1:nrow(volcano),
+                       input_y   = 1:ncol(volcano),
+                       input_2D  = volcano,
+                       output_xy = xy)
 )
 
 # recast output to matrix
@@ -217,11 +217,11 @@ image2D(VV-volcano) # SHOULD BE WHITE NOISE or 0
 # SAME but in one step
 
 system.time(
- volcano.dbl2 <- map_xy(input.x  = 1:nrow(volcano),
-                        input.y  = 1:ncol(volcano),
-                        input.2D = volcano,
-                        output.x = xdbl,
-                        output.y = ydbl)
+ volcano.dbl2 <- map_xy(input_x  = 1:nrow(volcano),
+                        input_y  = 1:ncol(volcano),
+                        input_2D = volcano,
+                        output_x = xdbl,
+                        output_y = ydbl)
 )
 
 VV    <- volcano.dbl2$v[seq(1, nrow(volcano.dbl2$v), by = 2), 
@@ -245,10 +245,10 @@ Sedmasked <- na.omit(mask_xy(Sediment[ ,c("longitude", "latitude")],
                              shape=Shape))
 
 system.time(
-  Sed.ext <- map_xy(input.x   = batmasked$longitude, 
-                    input.y   = batmasked$latitude, 
-                    input.2D  = batmasked$depth,
-                    output.xy = Sedmasked)
+  Sed.ext <- map_xy(input_x   = batmasked$longitude, 
+                    input_y   = batmasked$latitude, 
+                    input_2D  = batmasked$depth,
+                    output_xy = Sedmasked)
 )
 
 Sed.ext <- merge(Sed.ext, Sediment)
@@ -271,14 +271,14 @@ twoD <- outer(time, depth, FUN = function(t, x)
 dim(twoD)
 image2D(x = time, y = depth, z=twoD)
 
-output.x <- seq(0, 1, length.out = 50)
-output.t <- seq(from = as.Date("2001-01-01"), 
+output_x <- seq(0, 1, length.out = 50)
+output_t <- seq(from = as.Date("2001-01-01"), 
                 to   = as.Date("2001-12-31"), by = 1)
                 
-twodHR <- map_tx(input.x = depth, input.t = time, 
-                 input.2D = twoD,
-                 output.x = output.x,
-                 output.t = output.t)
+twodHR <- map_tx(input_x = depth, input_t = time, 
+                 input_2D = twoD,
+                 output_x = output_x,
+                 output_t = output_t)
 
 image2D(twodHR$v)                                 
 }
