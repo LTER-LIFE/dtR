@@ -84,11 +84,11 @@ meta <- function(x){
 
 ## ==========================================
 
-subset.dtLife <- function(x, subset, ..., attr=NULL){
+subset.dtLife <- function(x, subset, select, drop=FALSE, ..., attr = NULL){
   attrs <- attributes(x)
   cls   <- class(x)
   out   <- x
-  class(out)   <- "data.frame"
+  class(out) <- "data.frame"
 
   e <- substitute(subset)
   r <- eval(e, out, parent.frame())
@@ -97,7 +97,14 @@ subset.dtLife <- function(x, subset, ..., attr=NULL){
   if (length(r) != nrow(out)) stop ("'subset' evaluation did not provide a selection?")
   if (sum(r) == 0) stop ("'subset' evaluation did not provide a selection?")
   
-  out <- out[r,]    # take subset
+  vars <- if (missing(select))
+    rep_len(TRUE, ncol(out))
+  else {        
+    nl <- as.list(seq_along(out))
+    names(nl) <- names(out)
+    eval(substitute(select), nl, parent.frame())
+  }  
+  out <- out[r, vars, drop=drop]    # take subset
 
   if (is.data.frame(out)){
     atout <- attributes(out)
