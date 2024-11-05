@@ -20,7 +20,7 @@ vignette: >
 ```{r setup, include=FALSE}
 options(width = 120)
 require(dtWad)
-toBibtex(citation("dtLife"))
+toBibtex(citation("dtTools"))
 toBibtex(citation("dtWad"))
 toBibtex(citation("plot3D"))
 toBibtex(citation("FME"))
