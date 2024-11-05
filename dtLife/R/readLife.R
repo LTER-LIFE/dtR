@@ -17,20 +17,26 @@ readKNMI <- function(file, dir="", attr=NULL, ...){
     close(file(fn))
 
     skip <- grep("# STN", TT)-1                        # here the data start
-    kk   <- read.csv(textConnection(TT), skip = skip, ...)
-    WindSpeed      <- kk$FH/10       # m/s
-    WindDirection  <- kk$DD          # degrees
-    AirTemperature <- kk$T/10        # dgC
-    Dewpoint       <- kk$TD/10       # dgC
-    SolarRadiation <- kk$Q*1e4/3600  # J/m2/s (W/m2) was: J/cm2/hr
+    kk   <- read.csv(textConnection(TT), skip = skip[length(skip)], ...)
+    
+    CheckIt <- function(x){
+      if (length(x) == 0) 
+        x <- NA
+      return(x)
+    }
+    
+    WindSpeed      <- CheckIt(kk$FH/10      ) # m/s
+    WindDirection  <- CheckIt(kk$DD         ) # degrees
+    AirTemperature <- CheckIt(kk$T/10       ) # dgC
+    Dewpoint       <- CheckIt(kk$TD/10      ) # dgC
+    SolarRadiation <- CheckIt(kk$Q*1e4/3600 ) # J/m2/s (W/m2) was: J/cm2/hr
     
     if (length(SolarRadiation)==0) SolarRadiation <- NA
-    Pressure       <- kk$P/10        # mbar (hPa) -> divide by 1000 for atm
-    AirHumidity    <- kk$U/100       # -
-    Cloud          <- kk$N
-    SeaTemp        <- kk$TS/10
-    if (length(SeaTemp)==0) SeaTemp <- NA
-    if (length(Cloud) == 0) Cloud <- NA
+    Pressure       <- CheckIt(kk$P/10  )      # mbar (hPa) -> divide by 1000 for atm
+    AirHumidity    <- CheckIt(kk$U/100  )      # -
+    Cloud          <- CheckIt(kk$N     )
+    SeaTemp        <- CheckIt(kk$TS/10 )
+    
     Date <- as.POSIXct(strptime(paste(kk$YYYYMMDD, kk$HH, sep=" "),
                                 format="%Y%m%d %H"))         # Date format
     
