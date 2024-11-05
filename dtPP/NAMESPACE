@@ -5,13 +5,14 @@ importFrom(stats, "coef", "pf", "predict", "printCoefmat", "AIC", "na.omit")
 importFrom("stats", "approx", "approxfun", "uniroot", "lm")
 importFrom("utils", "read.csv", "read.csv2", "read.delim",
            "read.delim2", "read.table")
-import(dtWad, dtLife)     
+import(dtWad, dtTools)     
 
 export(readFRRF, standardizeFRRF)  
-export(fitPI, fitmultiPI, r.squared, 
+export(fitPI, fitmultiPI, r.squared,  
   fWebb, fWebb.I, fJP, fJP.I, fPG, fPG.I, fEP, fEP.I)  
 export(integratedPP)
 
+S3method("logLik",  "fitPI")
 S3method("predict", "fitPI")
 S3method("predict", "fitmultiPI")
 S3method("summary", "fitmultiPI")
