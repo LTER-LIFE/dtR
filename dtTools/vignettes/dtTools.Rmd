@@ -1,0 +1,114 @@
+---
+title: "Tools for Digital Twins - package dtTools"
+author: "Karline Soetaert"
+date: "15-Januari-2024"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: 
+abstract: 
+ The R-package dtTools contains general tools (R-functions) that can be used for making the ecological digital twinss. It contains functions to read datafiles obtained from Dutch governmental organisations (which are in Dutch!), or to read and prepare bathymetric file. Other useful functions are to convert the spatial coordinates used in the Netherlands to more convenient latitude-longitude coordinates, or to interpolate spatially-distinct timeseries to other spatial points. 
+keywords:
+  digital twin, wadden sea, marine, tools, "R"
+bibliography: 
+  vignettes.bib 
+vignette: >
+  %\VignetteIndexEntry{dtTools: tools for digital twins}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup, include=FALSE}
+options(width = 120)
+require(dtTools)
+knitr::write_bib(c(.packages()), file="packages.bib") # adds all used pacakages to bib
+knitr::write_bib(c("plot3D","FME"), file="packages.bib")
+```
+
+# Introduction
+
+The general context of the digital twin (not too long)
+
+The package *dtTools* contains tools that will be useful for making digital twins that deal with specific topics.
+
+It contains several data sets:
+
+
+* *Marsdiep* contains the bathymetry of the marsdiep area in the Dutch waddensea.
+* *Wad_weather* contain wind speeds, light intensity, and radiation for the year 2021.
+* *Wad_watertemp_LR* contains low resolution surface water temperature from Waddensea stations in 2021.
+
+The package also contains several functions:
+
+* Functions to read data files obtained from Dutch governmental organisations: *readKNMI*, *readRWS*
+* Functions to read bathymetric data in net cdf format, and that is obtained from EMODnet: *readBathymetry*.
+
+
+It also contains several small data files that are not exported, but used to demonstrate the used of the reading functions. They can be found in the packages extdata directory.
+
+
+# Datasets
+
+## Bathymetry
+
+* *Marsdiep* contains the bathymetry of the marsdiep area of the Dutch waddensea.
+
+```{r}
+meta(Marsdiep)
+```
+
+```{r, fig.width = 7, fig.height=5}
+with(Marsdiep, 
+   image2D(longitude, latitude, z=depth, asp=asp))
+with(Marsdiep, invisible(lapply(contours, FUN=lines, col="white")))
+mtext(outer=TRUE, side=3, "Datasets Waddensea and Marsdiep", cex=1.5)
+
+```
+
+## Abiotic conditions - weather data
+
+ *Wad_weather* contain wind speeds, light intensity, and radiation for the year 2021.
+
+```{r}
+head(Wad_weather)
+meta(Wad_weather)
+```
+
+```{r, fig.width=8, fig.height=6}
+par(mfrow=c(2,2))
+Weather235 <- subset(Wad_weather, subset=station==235)
+plot(Weather235, type="l")
+```
+
+## Abiotic conditions - water temperature
+
+* *Wad_watertemp_LR* contains water temperatures, at roughly monthly resoltuion, for several station in the Waddensea
+
+```{r}
+data(Wad_watertemp_LR)
+head(Wad_watertemp_LR)
+meta(Wad_watertemp_LR)
+```
+
+```{r, fig.width=8, fig.height=8}
+plot(Wad_watertemp_LR, mfrow=c(3,4), type="l", las=1, ylab="dgC")
+```
+
+## Abiotic conditions - sediment data
+
+```{r}
+head(Sediment)
+points2D(Sediment$longitude, Sediment$latitude, 
+         colvar=Sediment$mdGrain, pch=16, asp=1.674109)
+```
+
+# Functions
+
+
+
+# References
+
+<div id="refs"></div>
+
+
+# Acknowledgements
+
