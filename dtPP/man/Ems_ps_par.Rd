@@ -13,7 +13,7 @@ data(Ems_biogeo)
 \value{
 Biogeochemical data obtained from the Ems-Dollard at quasi monthly intervals, from februari 2012 till december 2013.
 
-\code{Ems_ps} is  a list with the following items: 
+\code{Ems_ps_parameters} is  a list with the following items: 
 \itemize{
   \item \code{station}, A unique name for the sampling station
   \item \code{datetime}, Date and time of the measurement, POSIXct format
@@ -87,11 +87,11 @@ oxygen (AADI 3835 optode sensor)
 
 Chromophoric (or coloured) Dissolved Organic Materials (CDOM ), (CYCLOPS‐7 Submersible Fluorimeter)
 
-Yellow substances include humic and fulvic acid -like components. A Yellow Substance sensor is part of the AOA‐equipment (= “Algae Online Analyser")
+Yellow substances include humic and fulvic acid -like components. A Yellow Substance sensor is part of the AOA‐equipment (=" Algae Online Analyser")
 
 turbidity, measured by a Seapoint sensor
 
-Algal composition, measured with algae online analyser; distinguishes four algae types: green algae, cyanobacteria (blue‐greens), diatoms and Cryptophycaea. All contents are expressed as micro g chla l‐1; the sum is stored as total chla (μg chla/ 1). Conversion to carbon was done based on average biovolumes.
+Algal composition, measured with algae online analyser; distinguishes four algae types: green algae, cyanobacteria (blue‐greens), diatoms and Cryptophycaea. All contents are expressed as micro g chla l‐1; the sum is stored as total chla (ug chla/cm2). Conversion to carbon was done based on average biovolumes.
 
 See Brinkman et al., 2015.
 
@@ -198,15 +198,14 @@ aggregate(x   = Ems_ps_parameters[,c("Cyanophyta_pgC.l", "Diatoms_pgC.l",
   \code{\link{Wad_chlor_RS}} a monthly, spatially-explicit chlorophyll data set.
 }
 \author{
-  Karline Soetaert <karline.soetaert@nioz.nl>
+  Data provider: A.G. Brinkman (WMR)
+  
+  Data extraction and preparation: Karline Soetaert <karline.soetaert@nioz.nl>
 }
-
 \references{
-Brinkman, A.G., Riegman, R., Jacobs, P., Kuhn, S., Meijboom, A. 2015.
+Brinkman, A.G., Riegman, R., Jacobs, P., Kuhn, S., Meijboom, A. 2014.
 Ems-Dollard primary production research: Full data report
-Report / IMARES Wageningen UR : C160/14, 629, IMARES Ecosystemen, 
-
-The Water Framework Directive (WFD) requires EU member states to achieve good ecological and chemical status of all designated water bodies (rivers, lakes, transitional and coastal waters) by 2015. Therefore Rijkswaterstaat Waterdienst has initiated the project &#8216;Research mud dynamics Ems Estuary&#8217; . The aim of this project, carried out by Deltares and IMARES, is to (1) improve our knowledge on the mud dynamics in the Ems Estuary, (2) to identify the reasons for the increase in turbidity and (3) to quantify measures to improve the ecological status of the estuary.
+Report / IMARES Wageningen UR : C160/14, 629 pp,
 
 IJmuiden, IMARES, https://edepot.wur.nl/350873, ID  - 489709
 }
