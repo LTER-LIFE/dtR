@@ -10,14 +10,14 @@
 # ======================================================
 # ======================================================
 
-readFRRF <- function(file, dir="",  # filename and directory
-                     specs=NULL,    # specifications to be added to the data
-                     attr=NULL,     # to be added to the attributes
-                     txt="csv",     # how to read the file
+readFRRF <- function(file, dir = "",  # filename and directory
+                     specs = NULL,    # specifications to be added to the data
+                     attr = NULL,     # to be added to the attributes
+                     txt = "csv",     # how to read the file
                      ...){          # other pars passed to the reading function
   if (txt == "csv") {
     Fread <- read.csv
-    sep=","
+    sep = ","
   }
   else if (txt == "csv2") {
     Fread <- read.csv2
@@ -25,19 +25,19 @@ readFRRF <- function(file, dir="",  # filename and directory
   }
   else if (txt %in% c("txt", "delim")) {
     Fread <- read.delim
-    sep="\t"
+    sep = "\t"
   }
   else if (txt == "delim2") {
     Fread <- read.delim2
-    sep="\t"
+    sep = "\t"
   }
   else if (txt == "table") {
     Fread <- read.table
-    sep=""
+    sep = ""
   }
   
   # filename
-  if (dir == "") Fn <- file else Fn <- paste(dir, file, sep="/")
+  if (dir == "") Fn <- file else Fn <- paste(dir, file, sep = "/")
   
   # read the file
   lines <- readLines(Fn, warn = FALSE)
@@ -49,14 +49,14 @@ readFRRF <- function(file, dir="",  # filename and directory
   
   if (length(act2))
     ff <- parseFRRF.act2   (lines, file, specs, attr, Fread=Fread, 
-                            sep=sep, ...)
+                            sep = sep, ...)
   
   else if (length(LabSTAF))
     ff <- parseFRRF.LabSTAF(lines, file, specs, attr, Fread=Fread, 
-                            sep=sep, ...)
+                            sep = sep, ...)
   else if (length(grep("Acq", lines)))
     ff <- parseFRRF.acq(lines, file, specs, attr, Fread=Fread, 
-                            sep=sep, ...)
+                            sep = sep, ...)
   else
     stop ("Can only read act2 or LabSTAF files")
   
@@ -65,17 +65,17 @@ readFRRF <- function(file, dir="",  # filename and directory
 
 # ======================================
 
-parseFRRF.acq <- function(lines, fn, specs=NULL, attr=NULL, 
-                           Fread=read.csv,  sep=",", 
+parseFRRF.acq <- function(lines, fn, specs = NULL, attr = NULL, 
+                           Fread = read.csv,  sep = ",", 
                            ...){
   
   skip  <- grep("Acq", lines) - 1
   
   LL <- lines[1:(skip-1)]
-  pars <- LL[-which(LL=="")]
+  pars <- LL[-which(LL == "")]
   lines <- lines[-(1:skip)]
   
-  Dat <- Fread(textConnection(lines), header=TRUE, ...)
+  Dat <- Fread(textConnection(lines), header = TRUE, ...)
   Dat[,1]     <- fn
   colnames(Dat)[1] <- "file"  
   Dat$file    <- fn
@@ -84,7 +84,8 @@ parseFRRF.acq <- function(lines, fn, specs=NULL, attr=NULL,
   cn <- colnames(Dat)
   oldcolnames <- c("Date", "X.Chl.", "Fo.or.F.", "Fm.or.Fm.", "Fv.Fm.or.Fq..Fm.", 
                    "JPSII.x.qJ",  "JPSII.x.qP" , "JPSII.x.qL", "dbar")
-  newcolnames <- c("date", "Chl",  "Fo", "Fm", "Fv/Fm", "JPSII_qJ",  "JPSII_qP" , "JPSII_qL", "E")
+  newcolnames <- c("date", "Chl",  "Fo", "Fm", "Fv/Fm", "JPSII_qJ",  
+                   "JPSII_qP" , "JPSII_qL", "E")
   
   ij <- match(oldcolnames, cn)
   
@@ -96,20 +97,20 @@ parseFRRF.acq <- function(lines, fn, specs=NULL, attr=NULL,
     Dat <- Dat[, -ij]
   
   if (length(specs)){
-    ELL <- as.data.frame(matrix(nrow=nrow(Dat), ncol=length(specs), 
-                                data=specs, byrow=TRUE))
+    ELL <- as.data.frame(matrix(nrow = nrow(Dat), ncol = length(specs), 
+                                data = specs, byrow = TRUE))
     names(ELL) <- names(specs)
     Dat <- cbind(Dat, ELL)
   }
   
   if (length(attr))
-    attr(Dat, which=names(attr)) <- attr
+    attr(Dat, which = names(attr)) <- attr
   
-  attributes(Dat)$system <- "act2"
-  attributes(Dat)$file <- fn
-  attributes(Dat)$date <- date 
+  attributes(Dat)$system   <- "act2"
+  attributes(Dat)$file     <- fn
+  attributes(Dat)$date     <- date 
   attributes(Dat)$settings <- pars
-#  attributes(Dat)$fitted.pars <- fit 
+
   attributes(Dat)$processing <-  paste("Created at", Sys.time())
   attributes(Dat)$standardized <- FALSE
   
@@ -118,8 +119,8 @@ parseFRRF.acq <- function(lines, fn, specs=NULL, attr=NULL,
 
 # ======================================
 
-parseFRRF.act2 <- function(lines, fn, specs=NULL, attr=NULL, 
-                           Fread=read.csv,  sep=",", 
+parseFRRF.act2 <- function(lines, fn, specs = NULL, attr = NULL, 
+                           Fread = read.csv,  sep = ",", 
                            ...){
 
   getFRRFdate <- function(lines){
@@ -134,7 +135,7 @@ parseFRRF.act2 <- function(lines, fn, specs=NULL, attr=NULL,
   getFRRFfit <- function(lines){
     ip <- grep("Alpha:", lines)-1
     il <- grep("SErP:", lines)
-    fits  <-  Fread(textConnection(lines[ip:il]), header=TRUE, ...)
+    fits  <-  Fread(textConnection(lines[ip:il]), header = TRUE, ...)
     lines <<- lines[-((ip-1):(il+1))]
     return(fits)
   }    
@@ -144,11 +145,11 @@ parseFRRF.act2 <- function(lines, fn, specs=NULL, attr=NULL,
   skip  <- grep("Saq", lines) - 1
   
   LL <- lines[1:(skip-1)]
-  LL <- LL[-which(LL=="")]
-  pars  <- Fread(textConnection(LL), header=FALSE, ...)
+  LL <- LL[-which(LL == "")]
+  pars  <- Fread(textConnection(LL), header = FALSE, ...)
   lines <- lines[-(1:skip)]
   
-  Dat <- Fread(textConnection(lines), header=TRUE, ...)
+  Dat <- Fread(textConnection(lines), header = TRUE, ...)
   Dat[,1]     <- fn
   colnames(Dat)[1] <- "file"  
   Dat$date    <- date
@@ -167,18 +168,18 @@ parseFRRF.act2 <- function(lines, fn, specs=NULL, attr=NULL,
     Dat <- Dat[, -ij]
   
   if (length(specs)){
-    ELL <- as.data.frame(matrix(nrow=nrow(Dat), ncol=length(specs), 
-                                data=specs, byrow=TRUE))
+    ELL <- as.data.frame(matrix(nrow = nrow(Dat), ncol = length(specs), 
+                                data = specs, byrow = TRUE))
     names(ELL) <- names(specs)
     Dat <- cbind(Dat, ELL)
   }
   
   if (length(attr))
-    attr(Dat, which=names(attr)) <- attr
+    attr(Dat, which = names(attr)) <- attr
   
   attributes(Dat)$system <- "act2"
-  attributes(Dat)$file <- fn
-  attributes(Dat)$date <- date 
+  attributes(Dat)$file   <- fn
+  attributes(Dat)$date   <- date 
   attributes(Dat)$settings <- pars
   attributes(Dat)$fitted.pars <- fit 
   attributes(Dat)$processing <-  paste("Created at", Sys.time())
@@ -189,8 +190,8 @@ parseFRRF.act2 <- function(lines, fn, specs=NULL, attr=NULL,
 
 # ======================================
 
-parseFRRF.LabSTAF <- function(lines, fn, specs=NULL, attr=NULL, 
-                              Fread=read.csv,  sep=",", ...){
+parseFRRF.LabSTAF <- function(lines, fn, specs = NULL, attr = NULL, 
+                              Fread = read.csv, sep = ",", ...){
   
   getaLHII <- function(lines){
     i1 <- grep("aLHII", lines)[1]
@@ -232,12 +233,12 @@ parseFRRF.LabSTAF <- function(lines, fn, specs=NULL, attr=NULL,
   }    
   aLHII_0 <- getaLHII(lines) 
   Ka     <- getKa(lines) 
-  date  <- getFRRFdate(lines)
-  fit   <- getFRRFfit(lines)
-  pars  <- getFRRFsetup(lines)
+  date   <- getFRRFdate(lines)
+  fit    <- getFRRFfit(lines)
+  pars   <- getFRRFsetup(lines)
 
   nend <- grep("Gaq", lines)[1]-1
-  Dat <- Fread(textConnection(lines[2:nend]), header=TRUE, ...)
+  Dat  <- Fread(textConnection(lines[2:nend]), header = TRUE, ...)
   Dat[,1] <- fn
   colnames(Dat)[1] <- "file"  
   Dat$date    <- date
@@ -253,8 +254,8 @@ parseFRRF.LabSTAF <- function(lines, fn, specs=NULL, attr=NULL,
   
   
   if (length(specs)){
-    ELL <- as.data.frame(matrix(nrow=nrow(Dat), ncol=length(specs), 
-                                data=specs, byrow=TRUE))
+    ELL <- as.data.frame(matrix(nrow = nrow(Dat), ncol = length(specs), 
+                                data = specs, byrow = TRUE))
     names(ELL) <- names(specs)
     Dat <- cbind(Dat, ELL)
   }
@@ -281,12 +282,12 @@ parseFRRF.LabSTAF <- function(lines, fn, specs=NULL, attr=NULL,
 # ======================================================
 
 standardizeFRRF <- function(frrf, 
-                            Fblanc=0,   # background fluorescence in water 
-                            Ka=11800,   # instrument-specific constant, units of /m
-                            convJVPII=3600/1000,# from micromol/s to mmol/hour
-                            aLHII_0=NA, # light harvesting 
-                            na.rm=TRUE, # to remove the failed data points or not
-                            verbose=FALSE 
+                            Fblanc = 0,   # background fluorescence in water 
+                            Ka = 11800,   # instrument-specific constant, units of /m
+                            convJVPII = 3600/1000,# from micromol/s to mmol/hour
+                            aLHII_0 = NA, # light harvesting 
+                            na.rm = TRUE, # to remove the failed data points or not
+                            verbose = FALSE 
                             ){  
   
   
@@ -351,7 +352,7 @@ standardizeFRRF <- function(frrf,
   if (! Noa) Noa <- (is.na(Noa) | is.nan(aLHII_0) | is.infinite(aLHII_0))
     
   if (Noa) {# If no data at E=0; use linear regression
-    ffS <- ff [ff$E<100,]
+    ffS <- ff [ff$E < 100,]
     ffS <- ffS[! is.infinite(ffS$a_LHII), ]
     if (nrow(ffS) > 1)
       aLHII_0 <- coef(lm(ffS$a_LHII ~ ffS$E))[1]
