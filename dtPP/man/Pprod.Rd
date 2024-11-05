@@ -18,16 +18,16 @@
 
 \usage{
 integratedPP (
-    zmin=0, zmax=100, nbox=100, zi=NULL, 
-    times=0:10, convFac=1.,
-    PI.par=c(alpha=0.05, eopt=1000, ps=50), 
-    PI.fun=NULL, 
-    It.data=data.frame(time=0:10, I=(0:10)*10), 
-    It.fun=NULL,
-    kz=0.1, Iz.data=NULL, Iz.fun=NULL, 
-    Mz.data=1, Mz.fun=NULL,
-    Ht.data=NULL, Ht.fun=NULL,
-    avgOver=NULL, avgTime=1,
+    zmin = 0, zmax = 100, nbox = 100, zi = NULL, 
+    times = 0:10, convFac = 1.,
+    PI.par = c(alpha=0.05, eopt=1000, ps=50), 
+    PI.fun = NULL, 
+    It.data = data.frame(time=0:10, I=(0:10)*10), 
+    It.fun = NULL,
+    kz = 0.1, Iz.data = NULL, Iz.fun = NULL, 
+    Mz.data = 1, Mz.fun = NULL,
+    Ht.data = NULL, Ht.fun = NULL,
+    avgOver = NULL, avgTime = 1,
     verbose = TRUE, 
     unit = list(mass = "mgC", length = "m", time = "h", light = "uEinst/m2/s"))   
 }
@@ -58,7 +58,7 @@ integratedPP (
  }
  \item{Ht.data, Ht.fun }{Time series or function of (water) elevation; typically in units of [m]. Based on this, the actual depth of the water column will be estimated as zn + Ht. Specification of water elevation makes sense only for shallow areas, where a significant fraction of the light extends till the bottom (at znmax). Note that this will only clip the depth to the calculated depth and set the production below this depth equal to 0. If not \code{NULL}, then data set \code{Ht.data} should be a two-column data.frame or matrix containing (time, Ht). \code{Ht.data} will be ignored and if \code{Ht.fun} is present. In that case, function \code{Ht.fun} will be called as \code{Ht.fun(times)}, where times is the time at which the integrated production needs to be estimated. If \code{Mt.fun} is \code{NULL} (the default), then it will be created as: \code{approxfun(x=Ht.data, rule=2)}. 
  }
- \item{avgOver }{Only when \code{times} is of type POSIXct or POSIXlt: the time instance over which has to be averaged, i.e. one of "sec", "min", "hour", "mon", "year", "mday" (day of the month), "wday" (day of the week), "yday" (day of the year). See \link[dtLife]{average_timeseries}.
+ \item{avgOver }{Only when \code{times} is of type POSIXct or POSIXlt: the time instance over which has to be averaged, i.e. one of "sec", "min", "hour", "mon", "year", "mday" (day of the month), "wday" (day of the week), "yday" (day of the year). See \link[dtTools]{average_timeseries}.
  }
  \item{avgTime }{The length of time units over which need to be averaged.
  }
@@ -468,7 +468,7 @@ Pprod_day <- integratedPP(
                  avgTime = 1
 )                     
 
-plot(Pprod_day, mass="mgC", length="m", time="h")
+plot(Pprod_day)
 
 }
 

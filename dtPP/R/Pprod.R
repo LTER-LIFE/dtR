@@ -97,7 +97,7 @@ integratedPP <- function(
     
     } else if (nc == 2 ){
       if (indep == "time") CheckTime (Data, var)
-      TFUN  <- approxfun(x = Data, rule=2, ties=mean)
+      TFUN  <- approxfun(x = Data, rule = 2, ties = mean)
     }
     else stop (err)    
     
@@ -113,7 +113,7 @@ integratedPP <- function(
   # data or function - return data
   # --------------------------
   
-  getdata <- function(Data, fun, var, indep="time"){
+  getdata <- function(Data, fun, var, indep = "time"){
     
     if (! is.null(Data))
       return(DataSeries(Data, var, indep))
@@ -136,7 +136,7 @@ integratedPP <- function(
   if (! is.null(Ht.data) | 
       ! is.null(Ht.fun)) { # water depth is variable
     
-    Ht.data <- getdata(Ht.data, Ht.fun, "Ht", indep="time")
+    Ht.data <- getdata(Ht.data, Ht.fun, "Ht", indep = "time")
       
     variableH <- TRUE
 
@@ -158,7 +158,7 @@ integratedPP <- function(
       f.root <- function(p, dx.1, nbox, L) 
         dx.1 * (p^(nbox)-1)/(p-1)- L
       
-      p.est <- uniroot(f = f.root, dx = dx.1, nbox=nbox, L=L, 
+      p.est <- uniroot(f = f.root, dx = dx.1, nbox = nbox, L = L, 
                        lower = 1.001, upper = 10, tol = 1e-20)$root
       DX <- dx.1*p.est^(0:(nbox-1))
       return(zmin + c(0, cumsum(DX)))
@@ -211,7 +211,7 @@ integratedPP <- function(
   # light profile or light function  
 
   if (! is.null(Iz.data) | ! is.null(Iz.fun)) {
-    Iz.data <- getdata(Iz.data, Iz.fun, "Iz", indep="depth")
+    Iz.data <- getdata(Iz.data, Iz.fun, "Iz", indep = "depth")
   
     Ibot    <- It.data * Iz.data[length(Iz.data)]  # light in last box
   
@@ -251,7 +251,7 @@ integratedPP <- function(
     } else if (ncol_kz == 2) {  # time, kz values
         
         CheckTime (kz, "kz")
-        kz      <- approx(kz, xout=times, rule=2, ties=mean)$y
+        kz      <- approx(kz, xout = times, rule = 2, ties = mean)$y
         
         # Iz.data is a matrix
         Iz.data <- outer(kz, z, 
@@ -264,9 +264,9 @@ integratedPP <- function(
        if (ncol(kz) == 4){
         CheckTime (kz, "kz")
         KK <- data.frame(
-          p  = approx(kz[,  1:2 ], xout=times, rule=2, ties=mean)$y,
-          k1 = approx(kz[,c(1,3)], xout=times, rule=2, ties=mean)$y,
-          k2 = approx(kz[,c(1,4)], xout=times, rule=2, ties=mean)$y
+          p  = approx(kz[,  1:2 ], xout = times, rule = 2, ties = mean)$y,
+          k1 = approx(kz[,c(1,3)], xout = times, rule = 2, ties = mean)$y,
+          k2 = approx(kz[,c(1,4)], xout = times, rule = 2, ties = mean)$y
         )
        } else {
          p   = kz[,  1] 
@@ -353,9 +353,9 @@ integratedPP <- function(
           
           ii          <- np[i]
           # a matrix with dimension (times, depth)
-          PI.par[[i]] <- map_xy(input_xyv = ppar[,c(tt, zz, i)],
-                                output_x  = times, 
-                                output_y  = z)$v
+          PI.par[[i]] <- map_dense(input_xyv = ppar[,c(tt, zz, i)],
+                                   output_x  = times, 
+                                   output_y  = z)$v
         } 
         names(PI.par) <- pnames[np]
         
@@ -415,12 +415,20 @@ integratedPP <- function(
     for (i in 1: length(np)){  # loop over all parameters
       
       ii <- np[i]
-      PI.par[[i]] <- map_tx(input_t  = ppar[[tt]], 
-                            input_x  = ppar[[zz]], 
-                            input_2D = ppar[[ii]],
-                            output_t = times, 
-                            output_x = z)$v
-    } 
+#      PI.par[[i]] <- interpolate_xt( 
+#                            input_t  = ppar[[tt]], 
+#                            input_x  = ppar[[zz]], 
+#                            input_2D = ppar[[ii]],
+#                            output_t = times, 
+#                            output_x = z)$v
+      PI.par[[i]] <- map_dense(  # t -> x; z-> y
+        input_x  = ppar[[tt]], 
+        input_y  = ppar[[zz]], 
+        input_2D = ppar[[ii]],
+        output_x = times, 
+        output_y = z)$v
+
+   } 
     names(PI.par) <- pnames[np]
   } 
     
@@ -815,6 +823,8 @@ plot.integratedPP <- function(x, ...,
 
 image2D.integratedPP <- function(z, las = 1, 
                               ...){
+  
+  ldots <- list(...)
   
   mfrow <- ldots$mfrow
   if (is.null(names(list(...))['mfrow'])) {
