@@ -2,12 +2,12 @@
 # distance between two points
 # ==============================================================================
 
-getDistance <- function(input.xy, 
-                        output.xy, 
+getDistance <- function(input_xy, 
+                        output_xy, 
                         asp = 1) {   # y/x aspect ratio
   
-  DD1 <- outer(output.xy [, 1], input.xy[, 1], FUN="-")
-  DD2 <- outer(output.xy [, 2], input.xy[, 2], FUN="-")
+  DD1 <- outer(output_xy [, 1], input_xy[, 1], FUN="-")
+  DD2 <- outer(output_xy [, 2], input_xy[, 2], FUN="-")
   
   Distance <- sqrt(DD1^2 + DD2^2*asp^2)
   
@@ -19,15 +19,15 @@ getDistance <- function(input.xy,
 # finds weights based on inverse distances
 # ==============================================================================
 
-findWeights.id <- function(input.xy, output.xy, asp=1, nmean=3){
+findWeights.id <- function(input_xy, output_xy, asp=1, nmean=3){
 
-  Distance <- getDistance(input.xy, output.xy, asp=asp)
+  Distance <- getDistance(input_xy, output_xy, asp=asp)
   
   # find three closest points 
   # which data sets to use for each output station, 
-  imin <- min(nmean, nrow(input.xy))  # at most 3 columns selected
+  imin <- min(nmean, nrow(input_xy))  # at most 3 columns selected
   
-  i.close <- matrix(nrow  = nrow(output.xy), 
+  i.close <- matrix(nrow  = nrow(output_xy), 
                     byrow = TRUE, 
                     data  = unlist(apply(Distance, 
                                          MARGIN = 1, 
@@ -37,6 +37,8 @@ findWeights.id <- function(input.xy, output.xy, asp=1, nmean=3){
                    MARGIN = 1, 
                    FUN    = order))[,1:imin]
   
+  if (!is.matrix(i.close)) 
+    i.close <- matrix(nrow=1, data=i.close)
   # weighing values ~ inverse distance
   w.close <- NULL
   
@@ -54,7 +56,7 @@ findWeights.id <- function(input.xy, output.xy, asp=1, nmean=3){
     w.close[ii] <- 1
   w.close[is.nan(w.close)] <- 0
   
-  bc  <- rep(FALSE, times=nrow(output.xy))
+  bc  <- rep(FALSE, times=nrow(output_xy))
   
   return(list(idx = i.close, p = w.close, bc=bc))
 }
@@ -63,26 +65,29 @@ findWeights.id <- function(input.xy, output.xy, asp=1, nmean=3){
 # finds barycentric weights
 # ==============================================================================
 
-findWeights.bc <- function(input.xy, output.xy, asp=1, dn=NULL){
+findWeights.bc <- function(input_xy, output_xy, asp=1, dn=NULL){
   
   if (is.null(dn))
-    dn  <- delaunayn(input.xy)
+    dn  <- delaunayn(input_xy)
   
-  tri <- tsearch(input.xy[,1],
-                 input.xy[,2],
+  tri <- tsearch(input_xy[,1],
+                 input_xy[,2],
                  dn, 
-                 output.xy[,1],
-                 output.xy[,2],
+                 as.vector(output_xy[,1]),
+                 as.vector(output_xy[,2]),
                  bary = TRUE)
   idx <- dn[tri$idx,]
+  if (!is.matrix(idx)) 
+    idx <- matrix(nrow=1, data=idx)
+  
   p   <- tri$p
-  bc  <- rep(TRUE, times=nrow(output.xy))
+  bc  <- rep(TRUE, times=nrow(output_xy))
   
   isNA  <- which(is.na(idx[, 1])) # points NOT embraced by triangles
 
   
   if (length(isNA)) {
-    WW <- findWeights.id(input.xy, output.xy[isNA, ], asp=asp, nmean=3)
+    WW <- findWeights.id(input_xy, output_xy[isNA, ], asp=asp, nmean=3)
     
     idx[isNA, ] <- WW$idx
     p[isNA, ]   <- WW$p
@@ -168,19 +173,19 @@ CreateTriangles <- function(n = 5) {
 
 # ============================================================================
 # Function to apply barycentric interpolation
-# Typically, input.xy contains few points 
+# Typically, input_xy contains few points 
 # ============================================================================
 
-findWeights.bc.2 <- function(input.xy, output.xy, asp=1, nmax=10){
+findWeights.bc.2 <- function(input_xy, output_xy, asp=1, nmax=10){
   
-  nmax <- min(nmax, nrow(input.xy))
+  nmax <- min(nmax, nrow(input_xy))
   NS <- CreateTriangles(n = nmax)
   
-  output.xy.B <- cbind(output.xy, 1)
+  output_xy.B <- cbind(output_xy, 1)
   
   # distance between data points and all points to map -
   # note: for latitude and longitude: apply the aspect ratio
-  Dist <- getDistance(input.xy, output.xy, asp=asp)
+  Dist <- getDistance(input_xy, output_xy, asp=asp)
   
   # for each point to map, sort datapoints according to closeness with data points
   i.close <- t(apply(X      = Dist, 
@@ -190,10 +195,10 @@ findWeights.bc.2 <- function(input.xy, output.xy, asp=1, nmax=10){
   # Apply barycentric interpolation
   
   # Results will be stored here: index to data points and the factors
-  IRES <- FAC <- matrix(nrow = nrow(output.xy), ncol=3, NA)
+  IRES <- FAC <- matrix(nrow = nrow(output_xy), ncol=3, NA)
   
   # All the points that still need to be mapped
-  iA     <- 1:nrow(output.xy)
+  iA     <- 1:nrow(output_xy)
   
   for (TT in 1: nrow(NS)){   # loop over possible triangles; closest points first
     
@@ -203,9 +208,9 @@ findWeights.bc.2 <- function(input.xy, output.xy, asp=1, nmax=10){
     
     for (i in iA)      # for all indices still in iA : solve the equations
       A <- rbind(A, 
-                 solve(CreateA(input.xy[i.close[i, isel],1], 
-                               input.xy[i.close[i, isel],2]), 
-                       b = output.xy.B[i,]))
+                 solve(CreateA(input_xy[i.close[i, isel],1], 
+                               input_xy[i.close[i, isel],2]), 
+                       b = output_xy.B[i,]))
     
     # select results that show that data points embrace the b-points
     ii <- apply(X      = A, 
@@ -222,7 +227,7 @@ findWeights.bc.2 <- function(input.xy, output.xy, asp=1, nmax=10){
     if (length(iA) == 0) break()
     # plot(c(A[ii,] %*% c(x1, x2, x3)), c(A[ii,]%*% c(y1, y2, y3)))
   }
-  Embrace <- rep(TRUE, times = nrow(output.xy))
+  Embrace <- rep(TRUE, times = nrow(output_xy))
   
   # not all have been mapped - for those that have no embracing points, 
   #  we interpolate with the inverse distances
@@ -246,84 +251,90 @@ findWeights.bc.2 <- function(input.xy, output.xy, asp=1, nmax=10){
   
 }
 
-
 # ==============================================================================
 # ==============================================================================
 # Interpolate spatial time series defined in (xy) points to other (xy) points 
 # ==============================================================================
 # ==============================================================================
 
-interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, value
-                             output.xy, 
-                             output.t, 
+interpolate_xyt <-  function(input_xytv,  # longitude (x), latitude (y), time, value
+                             output_xy, 
+                             output_t, 
                              barycentric = FALSE,
                              nmean      = 3,
                              ID         = NULL,   #unique identifier for the output
-                             geographic = TRUE)   # longitude and latitude
-                              {   
+                             geographic = TRUE,   # longitude and latitude
+                             rule = 2,
+                             all.output = FALSE)  {   
   
   attrs <- NULL
   
-  if (inherits(input.xytv, "dtLife"))
-    attrs <- attributes(input.xytv)
+  if (inherits(input_xytv, "dtLife"))
+    attrs <- attributes(input_xytv)
   
-  # input.xytv: 4 columns: longitude (x), latitude (y), time, value
-  if (ncol(input.xytv) != 4) 
-    stop ("'input.xytv' should have 4 columns: longitude (x), latitude (y), time, value")
+  # input_xytv: 4 columns: longitude (x), latitude (y), time, value
+  if (ncol(input_xytv) != 4) 
+    stop ("'input_xytv' should have 4 columns: longitude (x), latitude (y), time, value")
 
-  tname <- names(input.xytv)[3] # to label the output
+  tname <- names(input_xytv)[3] # to label the output
   
   # input xy values
-  input.xy  <- unique(input.xytv[, 1:2])
-  ni        <- nrow(input.xy)
+  input_xy  <- unique(input_xytv[, 1:2])
+  ni        <- nrow(input_xy)
   
   # output xy values
-  if (is.vector(output.xy))
-    output.xy <- matrix(nrow = 1, ncol = 2, data = output.xy)
+  if (is.vector(output_xy))
+    output_xy <- matrix(nrow = 1, ncol = 2, data = output_xy)
   else 
-    output.xy <- unique(output.xy[,1:2])
+    output_xy <- unique(output_xy[,1:2])
   
-  no        <- nrow(output.xy)
+  no        <- nrow(output_xy)
   
   ##### step 1: weighting points #####
   # distance between two points
   # euclidean_distance
   
   if (geographic) {
-    if (min(output.xy[,2], na.rm=TRUE) < -90 |
-        max(output.xy[,2], na.rm=TRUE) >  90)
-      stop ("second column of output.xytv should contain valid latitude, -90:90")
+    if (min(output_xy[,2], na.rm=TRUE) < -90 |
+        max(output_xy[,2], na.rm=TRUE) >  90)
+      stop ("second column of output_xytv should contain valid latitude, -90:90")
   
-    if (min(input.xy[,2], na.rm=TRUE) < -90 |
-        max(input.xy[,2], na.rm=TRUE) >  90)
-      stop ("second column of input.xy should contain valid latitude, -90:90")
-    asp      <- 1/cos((mean(output.xy[,2], na.rm=TRUE)*pi)/180)  # y/x aspect ratio
+    if (min(input_xy[,2], na.rm=TRUE) < -90 |
+        max(input_xy[,2], na.rm=TRUE) >  90)
+      stop ("second column of input_xy should contain valid latitude, -90:90")
+    asp      <- 1/cos((mean(output_xy[,2], na.rm=TRUE)*pi)/180)  # y/x aspect ratio
   } else asp = 1
   
   if (barycentric == 1)  # barycentric; triangulation fixed
-    W <- findWeights.bc(input.xy, output.xy, asp = asp)
+    W <- findWeights.bc(input_xy, output_xy, asp = asp)
   
   else if (barycentric == 2)  # barycentric; triangulation smallest
-    W <- findWeights.bc.2(input.xy, output.xy, asp = asp)
+    W <- findWeights.bc.2(input_xy, output_xy, asp = asp)
   
   else if (barycentric == 0)   # inverse distance
-    W <- findWeights.id(input.xy, output.xy, asp = asp, nmean = nmean)   
+    W <- findWeights.id(input_xy, output_xy, asp = asp, nmean = nmean)   
   
   # columns that are used in weighing
   i.unique <- unique(as.vector(W$idx))
   
+  if (barycentric != 0)
+    nmean <- min(3, nrow(input_xy))  # at most 3 columns selected
+  else      
+    nmean <- min(nmean, nrow(input_xy))  # at most 3 columns selected
+
   ##### step2: interpolate to output times for all inputs #####
-  xytin <- matrix(nrow = length(output.t), 
+  xytin <- matrix(nrow = length(output_t), 
                   ncol = max(i.unique), 
                   data = 0)
   
   for (i in i.unique){
     # interpolate to required times
-    ii <- which(input.xytv[,1] == input.xy[i, 1] & 
-                input.xytv[,2] == input.xy[i, 2])
-    V.out  <- approx(x    = input.xytv[ii, 3],   # time
-                     y    = input.xytv[ii, 4],   # value
-                     xout = output.t, rule=2)$y
+    # browser()
+    ii <- which(input_xytv[,1] == input_xy[i, 1] & 
+                input_xytv[,2] == input_xy[i, 2])
+    V.out  <- approx(x    = input_xytv[ii, 3],   # time
+                     y    = input_xytv[ii, 4],   # value
+                     xout = output_t, rule=rule)$y
     xytin[,i] <- V.out
   }
   
@@ -337,8 +348,8 @@ interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, v
   }
   
   Stations <- data.frame(ID = stnames,
-                         x  = output.xy[,1], 
-                         y  = output.xy[,2])
+                         x  = output_xy[,1], 
+                         y  = output_xy[,2])
   row.names(Stations) <- NULL
   
   ##### step 3: create matrix equation and solve
@@ -351,7 +362,7 @@ interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, v
                          x    = as.numeric(t(W$p)),
                          dims = c(lNA, nrow(f)))
   result  <- M %*% as.matrix(f)
-  result <- data.frame(datetime = output.t, 
+  result <- data.frame(datetime = output_t, 
                        t(as.matrix(result)))
   colnames(result) <- c(tname,  stnames)
 
@@ -369,36 +380,155 @@ interpolate_xyt <-  function(input.xytv,  # longitude (x), latitude (y), time, v
   attr(result, "processing") <- c(
     atout$processing, paste("interpolated from 2D-time input, at:", Sys.time()))
 
-  attributes(result)$barycentric <- W$bc
+  if (all.output){
+    
+    for (i in 1:no){
+      attributes(result)$interpolation[[i]] <- data.frame(
+        x = input_xy[W$idx[i,],1],
+        y = input_xy[W$idx[i,],2],
+        stat.index  = W$idx[i,],
+        stat.weight = W$p[i,]
+      ) 
+   }
+  names(attributes(result)$interpolation) <- stnames
   if (! is.null(ID)) attr(result, "ID") <- Stations
   
+  attributes(result)$barycentric <- W$bc
+  if (! is.null(ID)) attr(result, "ID") <- Stations
+  }
   result
 }
 
 # ==============================================================================
+# ==============================================================================
+# Interpolate spatial dataset defined in (xy) points to other (xy) points 
+# ==============================================================================
+# ==============================================================================
 
-match_timeseries <- function(input.xytv, # timeseries in latitude, longitude, time, value
+interpolate_xy <- function(input_xyv,  # longitude (x), latitude (y), value
+                           output_xy, 
+                           barycentric = FALSE,
+                           nmean      = 3,
+                           geographic = TRUE,   # longitude and latitude
+                           rule = 2,
+                           all.output = FALSE)  {   
+  
+  attrs <- NULL
+  
+  if (inherits(input_xyv, "dtLife"))
+    attrs <- attributes(input_xyv)
+  
+  # input_xyv: 3 columns: longitude (x), latitude (y), value
+  if (ncol(input_xyv) != 3) 
+    stop ("'input_xyv' should have 3 columns: longitude (x), latitude (y), value")
+  
+  # input xy values
+  input_xy  <- unique(input_xyv[, 1:2])
+  ni        <- nrow(input_xy)
+  
+  # output xy values
+  if (is.vector(output_xy))
+    output_xy <- matrix(nrow = 1, ncol = 2, data = output_xy)
+  else 
+    output_xy <- unique(output_xy[,1:2])
+  
+  no        <- nrow(output_xy)
+  
+  ##### step 1: weighting points #####
+  # distance between two points
+  # euclidean_distance
+  
+  if (geographic) {
+    if (min(output_xy[,2], na.rm=TRUE) < -90 |
+        max(output_xy[,2], na.rm=TRUE) >  90)
+      stop ("second column of output_xytv should contain valid latitude, -90:90")
+    
+    if (min(input_xy[,2], na.rm=TRUE) < -90 |
+        max(input_xy[,2], na.rm=TRUE) >  90)
+      stop ("second column of input_xy should contain valid latitude, -90:90")
+    asp      <- 1/cos((mean(output_xy[,2], na.rm=TRUE)*pi)/180)  # y/x aspect ratio
+  } else asp = 1
+  
+  if (barycentric == 1)  # barycentric; triangulation fixed
+    W <- findWeights.bc(input_xy, output_xy, asp = asp)
+  
+  else if (barycentric == 2)  # barycentric; triangulation smallest
+    W <- findWeights.bc.2(input_xy, output_xy, asp = asp)
+  
+  else if (barycentric == 0)   # inverse distance
+    W <- findWeights.id(input_xy, output_xy, asp = asp, nmean = nmean)   
+  
+  # columns that are used in weighing
+  i.unique <- unique(as.vector(W$idx))
+  
+  if (barycentric != 0)
+    nmean <- min(3, nrow(input_xy))  # at most 3 columns selected
+  else      
+    nmean <- min(nmean, nrow(input_xy))  # at most 3 columns selected
+  
+  result <- output_xy
+
+  ##### step 3: create matrix equation and solve
+  
+  lNA    <- no
+  
+  f      <- input_xyv[,3]
+  M      <- sparseMatrix(i  = rep(1:lNA, each = nmean),
+                         j    = as.numeric(t(W$idx)),
+                         x    = as.numeric(t(W$p)),
+                         dims = c(lNA, length(f)))
+  result$value  <- as.vector(M %*% as.matrix(f))
+  colnames(result) <- colnames(input_xyv)
+  atout <- attributes(result)
+  
+  if (! is.null(attrs))
+    attributes(result) <- c(atout, attrs[!names(attrs) %in% names(atout)])
+  
+  attributes(result)$format <- "long"
+  attr(result, "processing") <- c(
+    atout$processing, paste("interpolated from 2D input, at:", Sys.time()))
+  
+  if (all.output){
+   for (i in 1:no){
+    attributes(result)$interpolation[[i]] <- data.frame(
+      x = input_xy[W$idx[i,],1],
+      y = input_xy[W$idx[i,],2],
+      stat.index  = W$idx[i,],
+      stat.weight = W$p[i,]
+    ) 
+   }
+
+   attributes(result)$barycentric <- W$bc
+  }
+  
+  result
+}
+
+
+# ==============================================================================
+
+match_timeseries <- function(input_xytv, # timeseries in latitude, longitude, time, value
                              data       # should have ID with (ID, latitude, longitude) in its attributes
                              ) {  
   # data on which to map the timeseries
   dname    <- deparse(substitute(data))
   tsname   <- deparse(substitute(timeseries))
 
-  timeseries <- as.data.frame(input.xytv)
+  timeseries <- as.data.frame(input_xytv)
   
   #  if (is.character(timeseries[,dtname]))
   #    timeseries[,dtname] <- as.Date(timeseries[,dtname])
   
-  output.xy <- meta(data)$ID  [, c("ID", "longitude", "latitude")]                                    
-  output.t  <- unique(timeseries[, 3])
+  output_xy <- meta(data)$ID  [, c("ID", "longitude", "latitude")]                                    
+  output_t  <- unique(timeseries[, 3])
   
   matched   <- interpolate_xyt(timeseries, 
-                               output.xy = output.xy[,-1], 
-                               output.t  = output.t, 
-                               ID        = output.xy$ID)
+                               output_xy = output_xy[,-1], 
+                               output_t  = output_t, 
+                               ID        = output_xy$ID)
   
-  attributes(matched)$ID         <- output.xy
-  attributes(matched)$variables  <- meta(input.xytv)$variables
+  attributes(matched)$ID         <- output_xy
+  attributes(matched)$variables  <- meta(input_xytv)$variables
   attributes(matched)$processing <- paste("matched timeseries named '", tsname, 
                                           "'with", dname, "at", Sys.time())
   matched
