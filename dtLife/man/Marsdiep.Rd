@@ -81,10 +81,10 @@ with(Marsdiep,
 # =============================
 
 ZZ <- with(Marsdiep, 
-     map_xy(input.x   = longitude, 
-            input.y   = latitude, 
-            input.2D  = depth, 
-            output.xy = expand.grid(x=longitude, y=latitude)))
+     map_xy(input_x   = longitude, 
+            input_y   = latitude, 
+            input_2D  = depth, 
+            output_xy = expand.grid(x=longitude, y=latitude)))
 
 head(ZZ)
 

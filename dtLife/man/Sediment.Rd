@@ -69,10 +69,10 @@ plotBathymetry(Marsdiep,
 # Find the depths for the positions of the grain size data
 system.time(
   Grain.all <- map_xy(
-                  input.x   = Marsdiep$longitude, 
-                  input.y   = Marsdiep$latitude, 
-                  input.2D  = Marsdiep$depth,
-                  output.xy = Sediment[, c("longitude", "latitude")])
+                  input_x   = Marsdiep$longitude, 
+                  input_y   = Marsdiep$latitude, 
+                  input_2D  = Marsdiep$depth,
+                  output_xy = Sediment[, c("longitude", "latitude")])
 )
 
 Grain.all <- merge(Grain.all, Sediment)
