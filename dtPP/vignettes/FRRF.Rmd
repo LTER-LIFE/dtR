@@ -24,7 +24,7 @@ vignette: >
 ```{r setup, include=FALSE}
 options(width = 120)
 require(dtPP)
-toBibtex(citation("dtLife"))
+toBibtex(citation("dtTools"))
 toBibtex(citation("dtWad"))
 toBibtex(citation("dtPP"))
 toBibtex(citation("plot3D"))
