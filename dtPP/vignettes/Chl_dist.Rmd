@@ -1,0 +1,114 @@
+---
+title: "Chlorophyll distribution"
+output: html_document
+date: "2024-06-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The original formula
+
+A function that generates a Chl profile, based on integrated concentration
+in a layer of sediment with thickness zn. 
+Based on the model from Jesus et al. 2006,
+
+Journal of Experimental Marine Biology and Ecology 332 (2006) 60– 74
+
+The formula of Jesus et al, 2006 represents the Chlorophyll amount accumulated at depth d $Chl_d$, as a function of the total amount of Chlorophyll in the layer with thickness $d_{max}$, $Chl_T$.
+
+$$ Chl_d = Chl_T \cdot [ \frac{d}{d_{max}} + mud(1-\frac{d}{d_{max}}-e^{-2e\frac{d}{d_{max}}})]$$
+
+At d=0, the integrated Chlorophyll equals 0, while at d=$d_{max}$ this equals $Chl_T$.
+
+This is first rewritten as a weighted combination of the mud fraction and the remainder:
+
+$$ IChl_d = \int_0^{d}f(z)dz=  Chl_T \cdot [ (1-mud)\cdot \frac{d}{d_{max}} + mud(1-e^{-2e\frac{d}{d_{max}}})]$$
+This integral represents the integrated concentration of Chl up to a depth $d$, and f(z) is a function that expresses the Chl amount as a function of depth z. To find f(z), the right hand side is differentiated with respect to $d$.
+
+Divided by $zn$, we get a function that describes the chlorophyll concentration at depth z, as a function of the mud content and the mean Chlorophyll concentration in a layer with thickness $d_max$, $Chl_m$:
+
+$$ Chl_z = (1-mud) \cdot Chl_m + mud \cdot Chl_m \cdot (2 \cdot e \cdot e^{-2e\frac{z}{z_{max}}})]$$
+
+```{r}
+int.mud <- function(Chl  = 1,    # Integrated Chl concentration in layer 0-zn
+                     zn   = 0.002,
+                     pMud = 0.5){
+  
+
+  z     <- seq(0.5*zn/100, zn, by = zn/100)
+
+  # integrated fraction
+  Chl*(z/zn + pMud*(1-z/zn-exp(-2*exp(1)*z/zn)))
+}
+```
+
+
+```{r}
+pChl.mud <- function(Chl  = 1,    # Mean Chl concentration in layer 0-zn
+                     zn   = 0.002,
+                     pMud = 0.5){
+  
+
+  z     <- seq(0.5*zn/100, zn, by = zn/100)
+
+  # Chl when 0 and 1 mudfraction
+  Chl_0 <- Chl
+  Chl_1 <- Chl*(2*exp(1)*exp(-2*exp(1)*z/zn)* (z < zn))
+  Chlz  <- (1-pMud)*Chl_0 + pMud*Chl_1
+  Chlz
+}
+```
+
+Show that this is the same:
+
+```{r}
+x <- (0:99)/100
+x.cum <-(0.5:99.5)/100
+plot(int.mud(pMud=1)*100, x,ylab= "z/zn", xlab="Int conc", ylim=c(1,0))
+lines(cumsum(pChl.mud(pMud=1)), x.cum)
+
+points(int.mud(pMud=0.6)*100, x,col=2)
+lines(cumsum(pChl.mud(pMud=0.6)), x.cum,col=2)
+
+points(int.mud(pMud=0.3)*100, x,col = 2)
+lines(cumsum(pChl.mud(pMud=0.3)),x.cum, col=3)
+
+points(int.mud(pMud=0)*100, x,col=4)
+lines(cumsum(pChl.mud(pMud=0)),x.cum, col=4)
+
+```
+
+This is how the actual concentration changes 
+
+```{r}
+x <- (0:99)/100
+plot(pChl.mud(pMud=1), x, ylab= "z/zn", 
+     xlab="concentration", ylim=c(1,0), type="l")
+
+lines(pChl.mud(pMud=0.6), x, col=2)
+
+lines(pChl.mud(pMud=0.3), x, col=3)
+
+lines(pChl.mud(pMud=0), x, col=4)
+
+```
+
+```{r}
+plot(diff(int.mud()))
+lines(pChl.mud())
+```
+
+# Mean Chl concentration
+
+```{r}
+xm  <- 0.002
+xn  <- 0.00025  # depth of the peak
+xst <- 0.00005
+x   <- seq(0, xm, len=10000)
+y   <- dnorm(x, mean = xn, sd=xst) #- dnorm(0, mean = xn, sd=xst)
+y   <- y/(pnorm(xm, mean = xn, sd=xst) - pnorm(0, mean = xn, sd=xst)) * xm
+plot(x, y)
+mean(y)
+```
