@@ -34,7 +34,7 @@ Sand was estimated as the weight fration < 2000 micrometer - silt fraction
 }
 
 \note{
-a suitable aspect ratio can be estimated as:
+a suitable aspect ratio for plotting can be estimated as:
 1/cos((mean(latitude) * pi)/180)
 }
 \examples{
@@ -77,24 +77,25 @@ plotBathymetry(Wad_depth,
 
 # this is requested at too high resolution - a lot of NA, where there 
 # no values in the grid cell
-Mdgrain2D <- map_xy(input.xyv = Wad_sediment[,c("longitude", "latitude", "mdGrain")],
-                    output.x = seq(from       = min(Wad_sediment$longitude), 
-                                   to         = max(Wad_sediment$longitude),
-                                   length.out = 500),
-                    output.y = seq(from       = min(Wad_sediment$latitude), 
-                                   to         = max(Wad_sediment$latitude),
-                                   length.out = 500))
+Mdgrain2D <- map_dense(
+       input_xyv = Wad_sediment[,c("longitude", "latitude", "mdGrain")],
+       output_x = seq(from       = min(Wad_sediment$longitude), 
+                      to         = max(Wad_sediment$longitude),
+                      length.out = 500),
+       output_y = seq(from       = min(Wad_sediment$latitude), 
+                      to         = max(Wad_sediment$latitude),
+                      length.out = 500))
 
 # find NAs and select only the ones in the Wadden:
 
 #NAs     <- which(is.na(Mdgrain2D$mdGrain), arr.ind = TRUE)
 #NAcoord <- data.frame(longitude = Mdgrain2D$longitude[NAs[,1]], 
 #                      latitude  = Mdgrain2D$latitude [NAs[,2]])
-#NAs     <- mask_xy(coordinates = NAcoord, shape=Wad_shape)
+#NAs     <- mask_shape(coordinates = NAcoord, shape=Wad_shape)
 #NAcoord <- subset(NAcoord, subset = ! is.na(NAs$mask))
 
-#Mdext <- map_xy(input.xyv = Wad_sediment[,c("longitude", "latitude", "mdGrain")],
-#                output.xy = NAcoord)
+#Mdext <- map_dense(input_xyv = Wad_sediment[,c("longitude", "latitude", "mdGrain")],
+#                output_xy = NAcoord)
 
 ## =============================================================
 ## find corresponding depths for grain size data
@@ -105,19 +106,22 @@ Mdgrain2D <- map_xy(input.xyv = Wad_sediment[,c("longitude", "latitude", "mdGrai
 # ----------------------------------
 
 # bathymetry
-batmasked        <- mask_bat(Wad_depth,
-                             shape = Wad_shape)  
+batmasked        <- mask_shape(longitude = Wad_depth$longitude,
+                               latitude  = Wad_depth$latitude,
+                               shape     = Wad_shape)  
 batmasked$depth  <- Wad_depth$depth * batmasked$mask 
 
 # grain size
-grainmasked <- na.omit(mask_xy(Wad_sediment[ ,c("longitude", "latitude")],
-                               shape = Wad_shape))
+grainmasked <- na.omit(
+              mask_shape(coordinates = Wad_sediment[ ,c("longitude", "latitude")],
+                         shape       = Wad_shape))
 
 system.time(
-  Grain.ext <- map_xy(input.x   = batmasked$longitude, 
-                      input.y   = batmasked$latitude, 
-                      input.2D  = batmasked$depth,
-                      output.xy = grainmasked)
+  Grain.ext <- map_dense(
+                   input_x   = batmasked$longitude, 
+                   input_y   = batmasked$latitude, 
+                   input_2D  = batmasked$depth,
+                   output_xy = grainmasked)
 )
 
 Grain.ext <- merge(Grain.ext, Wad_sediment)
@@ -128,15 +132,15 @@ with(Grain.ext, plot(v, mdGrain))  # v = value in Grain.ext
 # ----------------------------------
 
 system.time(
-  Grain.all <- map_xy(
-                  input.x   = Wad_depth$longitude, 
-                  input.y   = Wad_depth$latitude, 
-                  input.2D  = Wad_depth$depth,
-                  output.xy = Wad_sediment[, c("longitude", "latitude")])
+  Grain.all <- map_dense(
+                  input_x   = Wad_depth$longitude, 
+                  input_y   = Wad_depth$latitude, 
+                  input_2D  = Wad_depth$depth,
+                  output_xy = Wad_sediment[, c("longitude", "latitude")])
 )
 
-GG <- mask_xy(Grain.all[ ,c("longitude", "latitude")],
-              shape = Wad_shape)
+GG <- mask_shape(coordinates = Grain.all[ ,c("longitude", "latitude")],
+                 shape       = Wad_shape)
               
 GG$mask[is.na(GG$mask)] <- 0
 
