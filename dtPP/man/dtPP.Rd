@@ -14,7 +14,9 @@
 \author{
   Karline Soetaert
   
-  Dick van Oevelen
+  Stanley Nmor
+  
+  Qing Zhang
 }
 \references{
   to be added
