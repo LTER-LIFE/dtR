@@ -5,8 +5,12 @@ Author: Karline Soetaert <karline.soetaert@nioz.nl>
 Maintainer: Karline Soetaert <karline.soetaert@nioz.nl>
 Depends: R (>= 3.5.0), plot3D, sf
 Imports: grDevices, graphics, stats, ncdf4, Matrix, geometry
-Suggests: knitr, rmarkdown
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
 Description: General functions in support of the digital twins of the LTER Life project.
 License: GPL (>= 2)
 VignetteBuilder: knitr
 LazyData: yes
+Config/testthat/edition: 3

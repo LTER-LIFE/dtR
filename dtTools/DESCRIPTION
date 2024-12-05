@@ -1,7 +1,7 @@
 Package: dtTools
 Version: 0.0.3
 Title: Lter Life Digital Twin: general utilities
-Author@R:c(person("Karline","Soetaert", role = c("aut", "cre"), 
+Author@R: c(person("Karline","Soetaert", role = c("aut", "cre"), 
                     email = "karline.soetaert@nioz.nl",
                     comment = c(ORCID = "0000-0003-4603-7100")),
              person("Stanley","Nmor", role = c("aut"),
@@ -16,8 +16,12 @@ Author: Karline Soetaert [aut, cre] (<https://orcid.org/0000-0003-4603-7100>),
 Maintainer: Karline Soetaert <karline.soetaert@nioz.nl>
 Depends: R (>= 3.5.0), plot3D, sf
 Imports: grDevices, graphics, stats, ncdf4, Matrix, geometry
-Suggests: knitr, rmarkdown
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
 Description: General tools in support of the digital twins of the LTER Life project.
 License: GPL (>= 2)
 VignetteBuilder: knitr
 LazyData: yes
+Config/testthat/edition: 3
