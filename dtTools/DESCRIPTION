@@ -15,7 +15,8 @@ Author: Karline Soetaert [aut, cre] (<https://orcid.org/0000-0003-4603-7100>),
   Qing Zhan [aut] (<https://orcid.org/0000-0002-1339-3646>)
 Maintainer: Karline Soetaert <karline.soetaert@nioz.nl>
 Depends: R (>= 3.5.0), plot3D, sf
-Imports: grDevices, graphics, stats, ncdf4, Matrix, geometry
+Imports: grDevices, graphics, stats, ncdf4, Rcpp (>= 1.0.13)
+LinkingTo: Rcpp
 Suggests: 
     knitr,
     rmarkdown,
