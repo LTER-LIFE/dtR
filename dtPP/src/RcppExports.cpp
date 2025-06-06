@@ -58,11 +58,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// intPP_log
+NumericMatrix intPP_log(NumericVector zmax, NumericVector kd, NumericVector zn, NumericVector zsd, NumericMatrix par, NumericMatrix alfa, NumericMatrix eopt, NumericMatrix pmax);
+RcppExport SEXP _dtPP_intPP_log(SEXP zmaxSEXP, SEXP kdSEXP, SEXP znSEXP, SEXP zsdSEXP, SEXP parSEXP, SEXP alfaSEXP, SEXP eoptSEXP, SEXP pmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type zmax(zmaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type kd(kdSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type zn(znSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type zsd(zsdSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type par(parSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type alfa(alfaSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type eopt(eoptSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type pmax(pmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(intPP_log(zmax, kd, zn, zsd, par, alfa, eopt, pmax));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_dtPP_intPP_mixed", (DL_FUNC) &_dtPP_intPP_mixed, 7},
     {"_dtPP_rad_bot", (DL_FUNC) &_dtPP_rad_bot, 4},
     {"_dtPP_intPP_exp", (DL_FUNC) &_dtPP_intPP_exp, 7},
+    {"_dtPP_intPP_log", (DL_FUNC) &_dtPP_intPP_log, 8},
     {NULL, NULL, 0}
 };
 

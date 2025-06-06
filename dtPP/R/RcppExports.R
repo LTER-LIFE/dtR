@@ -2,14 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 intPP_mixed <- function(zmax, kd, par, alfa, eopt, pmax, height) {
-    .Call(`_dtPP_intPP_mixed`, zmax, kd, par, alfa, eopt, pmax, height)
+    .Call('_dtPP_intPP_mixed', PACKAGE = 'dtPP', zmax, kd, par, alfa, eopt, pmax, height)
 }
 
 rad_bot <- function(zmax, kd, par, height) {
-    .Call(`_dtPP_rad_bot`, zmax, kd, par, height)
+    .Call('_dtPP_rad_bot', PACKAGE = 'dtPP', zmax, kd, par, height)
 }
 
 intPP_exp <- function(zmax, kd, pMud, par, alfa, eopt, pmax) {
-    .Call(`_dtPP_intPP_exp`, zmax, kd, pMud, par, alfa, eopt, pmax)
+    .Call('_dtPP_intPP_exp', PACKAGE = 'dtPP', zmax, kd, pMud, par, alfa, eopt, pmax)
+}
+
+intPP_log <- function(zmax, kd, zn, zsd, par, alfa, eopt, pmax) {
+    .Call('_dtPP_intPP_log', PACKAGE = 'dtPP', zmax, kd, zn, zsd, par, alfa, eopt, pmax)
 }
 
