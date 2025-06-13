@@ -87,7 +87,7 @@ plot.dtLife <- function(x, mfrow=NULL, ylab=NULL, main=NULL,
 ## ==========================================
 ## ==========================================
 
-plotBathymetry <- function(bat, pts=NULL, type=NULL, ptlist=NULL, negativeDepth=FALSE, ...){
+plot_bathymetry <- function(bat, pts=NULL, type=NULL, ptlist=NULL, negativeDepth=FALSE, ...){
 
   ldots <- list(...)
   

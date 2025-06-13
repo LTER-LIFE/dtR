@@ -15,9 +15,11 @@ average_timeseries(input, avgOver = "hour",  avgTime  = 1,
 }
 
 \arguments{
-  \item{input }{2-columned data.frame with time series input data, one of its columns should have a datetime value (either of POSIXct, POSIXlt, or Date. The other column should have the values.
+  \item{input }{data.frame with time series input data, one of its columns should have a datetime value (either of POSIXct, POSIXlt, or Date. The other column(s) should contain the values to average.
   }
-  \item{datetime, value }{Name of the column with the times, and values respectively.   
+  \item{datetime }{Name of the column with the times (only one name)  
+  }
+  \item{value }{Name of the column(s) with the values.   
   }
  \item{avgOver }{Time instance over which has to be averaged, i.e. one of "sec", "min", "hour", "mon", "year", 
    "mday" (day of the month), "wday" (day of the week), "yday" (day of the year).  
@@ -45,9 +47,32 @@ data(Wad_weather)
 head(Wad_weather)  # timeseries every hour for several stations
 dim(Wad_weather)
 
-# ================================================
+# ========================================================
+# daily averages, subset of the data
+# ========================================================
+
+WW208 <- subset(Wad_weather, 
+                subset = (station == 208 & 
+                          datetime < "2021-01-15 00:00:00"))
+
+ZZ <- average_timeseries(WW208, avgOver = "day", value = "temperature")
+
+plot(WW208$datetime, WW208$temperature, 
+     xlab = " time", ylab = "dgC", main = "temperature timeseries",
+     type = "l")
+     
+T0 <- WW208$datetime[1]     
+abline(v = seq(from = T0, to = T0 + 86400*15, by = 86400),
+       lty = 2)     
+
+points(ZZ, col = "red", pch = 16)
+
+legend("bottomleft", col = 1:2, lty = c(1, NA), pch = c(NA, 16),
+       legend = c("hourly (original)", "daily (averaged)"), cex = 0.7)
+
+# ========================================================
 # time averages of several time series at once - wide format
-# ================================================
+# ========================================================
 
 # take averages over all the stations
 
@@ -69,9 +94,9 @@ AT <- average_timeseries(
 
 head(AT)
 
-# ================================================
+# ========================================================
 # time averages of one time series in wide format
-# ================================================
+# ========================================================
  
 head(Wad_watertemp_LR)
 

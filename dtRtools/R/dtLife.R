@@ -38,11 +38,11 @@ meta <- function(x){
   class(out)   <- class(out)[2] # to avoid recursion
 
   out   <- out[i, j, ...]       # subset it
+  atout <- attributes(out)
   
   if (is.data.frame(out)){
     
-    atout <- attributes(out)
-    attributes(out) <- c(attributes(out), attrs[!names(attrs) %in% names(atout)])
+    attributes(out) <- c(attributes(out), attrs[!names(attrs) %in% c(names(atout), "row.names", "names")])
     class(out) <- c("dtLife", class(out))
     
     # adapt stations and variables  

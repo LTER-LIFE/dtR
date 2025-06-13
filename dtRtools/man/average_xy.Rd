@@ -12,7 +12,7 @@
 \usage{
 average_xy (input_xyv,
             input_x, input_y, input_2D,
-            output_x, output_y)
+            output_x, output_y, wide = TRUE)
 }
 
 \arguments{
@@ -27,16 +27,33 @@ average_xy (input_xyv,
   }
   \item{output_x, output_y  }{vectors with \code{x} and \code{y} values, determining the output grid to which the input values will be averaged. 
   }
+  \item{wide }{if \code{TRUE}, will return values in matrix format, else in long format
+  
+  }
 }
 
 \value{
+
+\itemize{
+
+  \item if \code{wide = TRUE} ,
   Function \code{average_xy} returns a \code{list} with 3 items: 
   
   \itemize{
-     \item \code{x} and \code{y} are the two vectors defining the x- and y- coordinates as input in \code{output_x} and \code{output_y},
+     \item \code{x} and \code{y} are the two vectors defining the x- and 
+     y- coordinates as input in \code{output_x} and \code{output_y},
      \item \code{v} will contain the 2-D matrix with averaged values.
   }
 
+  \item if \code{wide = FALSE} ,
+  Function \code{average_xy} returns a \code{data.frame} with 3 columns: 
+  
+  \itemize{
+     \item first two columns are the combinations of the x- and y- coordinates as input in \code{output_x} and \code{output_y},
+     \item third column contains the averaged values for the (x, y) coordinate.
+  }
+
+}
 }
 
 \examples{
@@ -97,7 +114,7 @@ system.time(
 ## =============================================================
 
 pm <- par(mfrow = c(2,2))
-plotBathymetry(Marsdiep)
+plot_bathymetry(Marsdiep)
 
 # mapping on itself
 M1 <- average_xy(input_x  = Marsdiep$longitude ,

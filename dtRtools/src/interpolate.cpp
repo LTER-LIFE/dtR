@@ -832,11 +832,11 @@ NumericMatrix interpolate_ts_xy_2D_cpp (
   
   int  iin, iox, ioy, iw, it, io;         // iterators
   
-  int  nin = input_xy.nrow();    // size of input geographic points
-  int  nt  =  input_t.nrow();    // size of input time points
-  int  nox = output_x.size();       
-  int  noy = output_y.size();       
-  int nout = nox*noy;  
+  int  nin  = input_xy.nrow();    // size of input geographic points
+  int  nt   =  input_t.nrow();    // size of input time points
+  int  nox  = output_x.size();       
+  int  noy  = output_y.size();       
+  int  nout = nox*noy;  
   int  imax = 0;
   
   double  *D_x = new double[nin];

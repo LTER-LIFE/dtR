@@ -1,19 +1,23 @@
 ---
-title: "Tools for Digital Twins - package dtRtools"
-author: "Karline Soetaert"
+title: "R Tools for Digital Twins - package dtRtools"
+author: "Karline Soetaert and Stanley Nmor"
 date: "15-Januari-2024"
 output:
-  pdf_document: default
-  html_document: default
-  word_document: 
-abstract: 
- The R-package dtRtools contains general tools (R-functions) that can be used for making the ecological digital twinss. It contains functions to read datafiles obtained from Dutch governmental organisations (which are in Dutch!), or to read and prepare bathymetric file. Other useful functions are to convert the spatial coordinates used in the Netherlands to more convenient latitude-longitude coordinates, or to interpolate spatially-distinct timeseries to other spatial points. 
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: true
+    toc_float: true
+    code_folding: show
+    theme: cosmo
+abstract: >
+ "The R-package dtRtools contains general tools (R-functions) that can be used for making ecological digital twins. It contains amongst others functions to read datafiles obtained from Dutch governmental organisations (which are in Dutch), or to read and prepare bathymetric data. Other functions allow fast interpolation of spatially-distinct timeseries to dense grids or to average timeseries." 
 keywords:
   digital twin, wadden sea, marine, tools, "R"
 bibliography: 
   vignettes.bib 
 vignette: >
-  %\VignetteIndexEntry{dtRtools: tools for digital twins}
+  %\VignetteIndexEntry{dtRtools: R tools for digital twins}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -21,26 +25,40 @@ vignette: >
 ```{r setup, include=FALSE}
 options(width = 120)
 require(dtRtools)
-knitr::write_bib(c(.packages()), file="packages.bib") # adds all used pacakages to bib
-knitr::write_bib(c("plot3D","FME"), file="packages.bib")
+
+knitr::write_bib(c(.packages()), 
+                 file = "packages.bib") # adds all used packages to bib
+knitr::write_bib(c("plot3D", "FME"), file = "packages.bib")
 ```
 
 # Introduction
 
-The general context of the digital twin (not too long)
-
-The package *dtRtools* contains tools that will be useful for making digital twins that deal with specific topics.
+The package *dtRtools* contains tools that will be useful for making digital twins.
 
 It contains several data sets:
 
 -   *Marsdiep* contains the bathymetry of the marsdiep area in the Dutch waddensea.
--   *Wad_weather* contain wind speeds, light intensity, and radiation for the year 2021.
--   *Wad_watertemp_LR* contains low resolution surface water temperature from Waddensea stations in 2021.
+-   *Shape* a shape file of the waddensea
+-   *Wad_weather* contain wind speeds, light intensity, and radiation obtained from the KNMI (Dutch meteorological organisation) for the year 2021.
+-   *Wad_watertemp_LR* contains low resolution surface water temperature from Waddensea stations in 2021 (Rijkswaterstaat data).
+-   *Sediment*, sediment characteristics for the Waddensea
+
 
 The package also contains several functions:
 
--   Functions to read data files obtained from Dutch governmental organisations: *readKNMI*, *readRWS*
--   Functions to read bathymetric data in net cdf format, and that is obtained from EMODnet: *readBathymetry*.
+```{r}
+ls("package:dtRtools")
+```
+
+-   Functions *read_KNMI*, *read_RWS* read data files obtained from Dutch governmental organisations; 
+-   Function *read_bathymetry* reads bathymetric data in net cdf format, as obtained from EMODnet; .
+-   Function *plot_bathymetry* plots bathymetric data
+-   Functions *all_in_period*, *first_in_period*, *last_in_period*, *count_in_period* find first, last... occurrences of a variable meeting a certain target.
+-   Function *average_timeseries* takes hourly, daily,... averages of time series
+-   Function *dt_reshape*,  *dt_tolong*,  *dt_towide* are convenience functions to go from wide to long format
+-   Functions *interpolate_xy* and *interpolate_xyt* provide fast interpolation of spatial or spatio-temporal data, where the input is sparse and the output dense
+-   Function *average_xy* regrids high density spatial data by averaging them in a lower resolution regular grid
+
 
 It also contains several small data files that are not exported, but used to demonstrate the used of the reading functions. They can be found in the packages extdata directory.
 
@@ -107,3 +125,13 @@ points2D(Sediment$longitude, Sediment$latitude,
 :::
 
 # Acknowledgements
+
+# Appendix
+
+## List of all functions in the package
+
+
+```{r,out.width=2000}
+func_names <- capture.output(lsf.str("package:dtRtools"))
+for (i in 1:length(func_names)) cat(func_names[i], "\n\n")
+```

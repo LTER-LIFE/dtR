@@ -1,11 +1,12 @@
-\name{plotBathymetry}
-\alias{plotBathymetry}
+\name{plot_bathymetry}
+\alias{plot_bathymetry}
 \title{
   Simple plot function for bathymetric data.
 }
 
 \usage{
-plotBathymetry(bat, pts=NULL, type=NULL, ptlist = NULL, negativeDepth=FALSE, ...)
+plot_bathymetry(bat, pts = NULL, type = NULL, ptlist = NULL, 
+                negativeDepth = FALSE, ...)
 }
 
 \value{
@@ -38,12 +39,12 @@ returns nothing
 # Plot the bathymetry only
 # ---------------------------------------------------
 
-plotBathymetry(Marsdiep)
-plotBathymetry(Marsdiep, type = "both")
-plotBathymetry(Marsdiep, type = "contour")
+plot_bathymetry(Marsdiep)
+plot_bathymetry(Marsdiep, type = "both")
+plot_bathymetry(Marsdiep, type = "contour")
 
 # add shade to emphasise topography - use negative depths.
-plotBathymetry(Marsdiep, 
+plot_bathymetry(Marsdiep, 
                shade = 0.15, 
                NAcol = grey(0.7),
                col   = ramp.col(col=c("darkblue", "lightblue", "white")),
@@ -53,14 +54,14 @@ plotBathymetry(Marsdiep,
 # Plot the bathymetry with points on top
 # ---------------------------------------------------
 
-plotBathymetry(Marsdiep, 
+plot_bathymetry(Marsdiep, 
                pts    = RWSstations[,3:2], 
                ptlist = list(cex=3), 
                main   = "Position of RWS stations")
 
 }
 \seealso{
-  \code{\link{readBathymetry}} to read bathymetric data.
+  \code{\link{read_bathymetry}} to read bathymetric data.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

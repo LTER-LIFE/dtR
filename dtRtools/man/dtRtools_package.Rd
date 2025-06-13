@@ -20,8 +20,8 @@
 \examples{
 \dontrun{
 ## show examples (see respective help pages for details)
-example(readRWS)
-example(readKNMI)
+example(read_RWS)
+example(read_KNMI)
 }
 }
 

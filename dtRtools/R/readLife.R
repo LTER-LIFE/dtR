@@ -8,7 +8,7 @@
 ## weather (KNMI)
 ## ==========================================
 
-readKNMI <- function(file, dir="", attr=NULL, ...){
+read_KNMI <- function(file, dir="", attr=NULL, ...){
   KNMI <- NULL
   for (fi in file){
     fn <- paste(dir, fi, sep="/")
@@ -83,7 +83,7 @@ readKNMI <- function(file, dir="", attr=NULL, ...){
   attributes(KNMI)$datasource <- "KNMI"
   attributes(KNMI)$file       <- file
   attributes(KNMI)$processing <-  paste("Created at", Sys.time())
-  attributes(KNMI)$fun        <- "readKNMI" 
+  attributes(KNMI)$fun        <- "read_KNMI" 
   attributes(KNMI)$format     <- "wide" 
   if (length(attr))
     attributes(KNMI) <- c(attributes(KNMI), attr)
@@ -96,7 +96,7 @@ readKNMI <- function(file, dir="", attr=NULL, ...){
 ## water data (RWS)
 ## ==========================================
 
-readRWS <- function(file, dir="", attr=NULL, format="wide", ...){
+read_RWS <- function(file, dir="", attr=NULL, format="wide", ...){
   
   RWS <- NULL
   for (fi in file){
@@ -263,7 +263,7 @@ readRWS <- function(file, dir="", attr=NULL, format="wide", ...){
   attributes(RWSdat)$EPSG <- unique(na.omit(RWS$EPSG))
   attributes(RWSdat)$file <- file
   attributes(RWSdat)$processing <-  paste("Created at", Sys.time())
-  attributes(RWSdat)$fun  <- "readRWS" 
+  attributes(RWSdat)$fun  <- "read_RWS" 
   attributes(RWSdat)$format <- format 
   if (length(attr))
     attributes(RWSdat) <- c(attributes(RWSdat), attr)
@@ -275,7 +275,7 @@ readRWS <- function(file, dir="", attr=NULL, format="wide", ...){
 ## bathymetry (EMODnet)
 ## ==========================================
 
-readBathymetry <- function(file, dir="", attr=NULL, lonlim=NULL, latlim=NULL, 
+read_bathymetry <- function(file, dir="", attr=NULL, lonlim=NULL, latlim=NULL, 
                    levels=c( -5, 0, 5, 10, 20), by=1, ...){
   fn <- paste(dir, file, sep="/")
   fn <- gsub("//", replacement = "/", fn)
@@ -331,7 +331,7 @@ readBathymetry <- function(file, dir="", attr=NULL, lonlim=NULL, latlim=NULL,
   } else contours <- NULL 
   Bat$contours <- contours
   if (! is.null(attr)) Bat <- c(Bat, attr)
-  attributes(Bat)$fun  <- "readBathymetry"
+  attributes(Bat)$fun  <- "read_bathymetry"
   class(Bat) <- c("dtBathymetry", class(Bat))
   Bat
 } 

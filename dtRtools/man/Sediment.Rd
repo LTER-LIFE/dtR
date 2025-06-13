@@ -55,7 +55,7 @@ with(Sediment,
 # Plot the bathymetry with Grainsize points on top
 # ---------------------------------------------------
 
-plotBathymetry(Marsdiep, 
+plot_bathymetry(Marsdiep, 
                pts    = Sediment[,c("longitude", "latitude", "mdGrain")], 
                ptlist = list(cex=1.5), 
                log    = "c", clab = "um",
