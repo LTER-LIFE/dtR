@@ -23,7 +23,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-options(width = 120)
+options(width = 100)
 require(dtRtools)
 
 knitr::write_bib(c(.packages()), 
@@ -51,70 +51,197 @@ ls("package:dtRtools")
 ```
 
 -   Functions *read_KNMI*, *read_RWS* read data files obtained from Dutch governmental organisations; 
--   Function *read_bathymetry* reads bathymetric data in net cdf format, as obtained from EMODnet; .
--   Function *plot_bathymetry* plots bathymetric data
 -   Functions *all_in_period*, *first_in_period*, *last_in_period*, *count_in_period* find first, last... occurrences of a variable meeting a certain target.
 -   Function *average_timeseries* takes hourly, daily,... averages of time series
 -   Function *dt_reshape*,  *dt_tolong*,  *dt_towide* are convenience functions to go from wide to long format
 -   Functions *interpolate_xy* and *interpolate_xyt* provide fast interpolation of spatial or spatio-temporal data, where the input is sparse and the output dense
 -   Function *average_xy* regrids high density spatial data by averaging them in a lower resolution regular grid
+-   Functions *wgs84_to_rd*, *wgs84_to_xy*, *xy_to_wgs84* are convenience functions to convert xy units often used in dutch governmental organisations to latitude, longitude coordinates.
 
 
-It also contains several small data files that are not exported, but used to demonstrate the used of the reading functions. They can be found in the packages extdata directory.
+# Working with bathymetric data
 
-# Datasets
+## reading
 
-## Bathymetry
+-   Function *read_bathymetry* reads bathymetric data in net cdf format, as obtained from EMODnet. This function also adds metadata to the attributes of the returned object.
 
--   *Marsdiep* contains the bathymetry of the marsdiep area of the Dutch waddensea.
+-   As an example dataset, *Marsdiep* contains the bathymetry of the marsdiep area of the Dutch waddensea. 
 
 ```{r}
 meta(Marsdiep)
 ```
 
-```{r, fig.width = 7, fig.height=5}
-with(Marsdiep, 
-   image2D(longitude, latitude, z=depth, asp=asp))
-with(Marsdiep, invisible(lapply(contours, FUN=lines, col="white")))
-mtext(outer=TRUE, side=3, "Datasets Waddensea and Marsdiep", cex=1.5)
+## plotting
 
+-   Function *mask_shape* adds a mask on bathymetric data based on a shapefile.
+-   Function *plot_bathymetry* plots bathymetric data, setting the proper aspect ratio.
+
+Function plot_bathymetry is based on image2D from the plot3D package, and thus accepts the arguments of this function.
+
+```{r, fig.width = 10, fig.height=5}
+par(mfrow = c(1, 2))
+plot_bathymetry(Marsdiep, main = "dataset Marsdiep",
+                contour = list(levels = c(5, 10), 
+                               col = c("white", "grey"))
+                )
+
+masked_Marsdiep       <- mask_shape(bat = Marsdiep, shape = Shape)
+masked_Marsdiep$depth <- Marsdiep$depth*masked_Marsdiep$mask
+
+plot_bathymetry(masked_Marsdiep, main = "dataset Marsdiep, masked",
+                contour = list(levels = c(5, 10), 
+                               col = c("white", "grey"))
+                )
 ```
 
-## Abiotic conditions - weather data
+# Working with Dutch weather data
 
-data set *Wad_weather* contain wind speeds, light intensity, and radiation for the year 2021.
+Dutch weather data are provided from the Dutch Meteorological society (KNMI). The data can be extracted via Open Data API, but they can also be manually downloaded from https://www.knmi.nl/nederland-nu/klimatologie/uurgegevens.
+
+The specifics of all weather stations are in dataset *KNMIstations*; stations close enough to the Waddensea have an attribute *Wadden* set to TRUE:
+
+```{r}
+head(KNMIstations, n = 2)
+KNMIwad <- subset(KNMIstations, 
+                  subset = Wadden == TRUE, 
+                  select = c(station, location, longitude, latitude, height ))
+
+knitr:::kable(KNMIwad, align = "l", digits = c(0,NA,3,3,2), row.names = FALSE)
+```
+
+## reading
+
+Function *read_KNMI* reads such manually downloaded files, converts the units, and adds proper metadata to the object. The object returned is a long-format data.file of type *dtLife*.
+
+Data set *Wad_weather* is based on such a set of downloaded files, and contain wind speeds, light intensity, and radiation for the year 2021. It was read as:
+
+```{r, eval = FALSE}
+Wad_weather <- read_KNMI(
+     files = c("uurgeg_208_2021-2030.txt", "uurgeg_235_2021-2030.txt",
+               "uurgeg_242_2021-2030.txt", "uurgeg_251_2021-2030.txt",
+               "uurgeg_270_2021-2030.txt", "uurgeg_277_2021-2030.txt"))
+```
+
 
 ```{r}
 head(Wad_weather)
 meta(Wad_weather)
 ```
 
+## plotting
+
+Datasets in the dtLife class can be easiliy plotted, where
+the units and either the description, or the names of the variables from the metadata are used to label the plots.
+
 ```{r, fig.width=8, fig.height=6}
-par(mfrow=c(2,2))
-Weather235 <- subset(Wad_weather, subset=station==235)
-plot(Weather235, type="l")
+par(mfrow = c(2, 2))
+Weather235 <- subset(Wad_weather, 
+                     subset = station==235)
+
+plot(Weather235, type = "l", 
+     use_names = TRUE)  # use names rather than description
 ```
 
-## Abiotic conditions - water temperature
-
--   *Wad_watertemp_LR* contains water temperatures, at roughly monthly resoltuion, for several station in the Waddensea
+Subsetting the data keeps the metadata; data from different stations can be colored (cvar)
 
 ```{r}
-data(Wad_watertemp_LR)
-head(Wad_watertemp_LR)
-meta(Wad_watertemp_LR)
+W_temperature <- subset(Wad_weather, 
+                        select = 
+                    c("station", "datetime", "temperature"))
+plot(W_temperature, cvar = "station")                      
 ```
+
+# Dutch water data
+
+watercolumn monitoring data can be  obtained from the Rijkswaterstaat, and manually downloaded from https://waterinfo.rws.nl. Information about stations in the waddensea that are monitored by RWS is in dataset *RWSstations*.
+
+```{r}
+head(RWSstations)
+```
+
+## reading
+
+Function *read_RWS* reads  manually downloaded files from the RWS, converts the units, and adds proper metadata to the object. The object returned is a long-format data.file of type *dtLife*.
+
+Data set *Wad_watertemp_LR* contains water temperatures, at roughly monthly resolution, for several station in the Waddensea, in wide format.
+
+```{r}
+head(Wad_watertemp_LR, n = 2)
+
+names(meta(Wad_watertemp_LR))
+
+meta(Wad_watertemp_LR)$variables  # also records all methods used (in dutch)
+```
+
+## plotting
+
+The RWS data are easily plotted, where the data for each station are plotted separately. To plot them together, we need to cast the data into long format, and color them according to the station name
 
 ```{r, fig.width=8, fig.height=8}
-plot(Wad_watertemp_LR, mfrow=c(3,4), type="l", las=1, ylab="dgC")
+par(mfrow = c(2, 3))
+
+# plot data for all stations separately
+plot(Wad_watertemp_LR[, 1:6], 
+     ylab  = "dgC", 
+     mfrow = NA,    # mfrow = NA to avoid from altering it
+     type  = "l", las = 1, 
+     xlim  = range(Wad_watertemp_LR$datetime),
+     ylim  = c(0, 25))
+
+# plot data for all stations in one plot
+
+# cast into long format
+WW_LR_L <- dt_tolong(Wad_watertemp_LR[, 1:6])
+
+plot(WW_LR_L, 
+     main  = "all stations",
+     cvar  = "station",        # color variable
+     mfrow = NA)
+
+legend("bottom", col = 1:5, lty = 1,
+       legend = levels(factor(WW_LR_L$station)))
 ```
 
-## Abiotic conditions - sediment data
+# interpolation functions
+
+
+
+# Sediment data
+
+Dataset obtained from rijkswaterstaat, as transformed to netcdf in
+
+https://opendap.deltares.nl/thredds/catalog/opendap/
+
+rijkswaterstaat/sedimentatlas_waddenzee/catalog.html.
 
 ```{r}
 head(Sediment)
-points2D(Sediment$longitude, Sediment$latitude, 
-         colvar=Sediment$mdGrain, pch=16, asp=1.674109)
+plot_dtmap(Sediment, pch = 16)
+```
+
+```{r}
+outputx <- seq(min(Sediment$longitude), max(Sediment$longitude), 
+               by = 0.005)
+outputy <- seq(min(Sediment$latitude),  max(Sediment$latitude),  
+               by = 0.005)
+
+Sed2D <- interpolate_xy(input_xyv = Sediment, 
+                        output_x  = outputx,
+                        output_y  = outputy,
+                        max_distance = 0.02
+                                        )
+plot_dtmap(Sed2D)
+
+outputx <- seq(min(Sediment$longitude), max(Sediment$longitude), 
+               by = 0.015)
+outputy <- seq(min(Sediment$latitude),  max(Sediment$latitude),  
+               by = 0.015)
+Sed2Db <- average_xy(input_xyv = Sediment, 
+                        output_x  = outputx,
+                        output_y  = outputy
+                                        )
+plot_dtmap(Sed2Db)
+
 ```
 
 # Functions

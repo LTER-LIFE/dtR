@@ -86,8 +86,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // interpolate_xy_2D_cpp
-NumericMatrix interpolate_xy_2D_cpp(NumericMatrix input_xyv, NumericVector output_x, NumericVector output_y, int nmean, double asp);
-RcppExport SEXP _dtRtools_interpolate_xy_2D_cpp(SEXP input_xyvSEXP, SEXP output_xSEXP, SEXP output_ySEXP, SEXP nmeanSEXP, SEXP aspSEXP) {
+NumericMatrix interpolate_xy_2D_cpp(NumericMatrix input_xyv, NumericVector output_x, NumericVector output_y, int nmean, double max_distance, double asp);
+RcppExport SEXP _dtRtools_interpolate_xy_2D_cpp(SEXP input_xyvSEXP, SEXP output_xSEXP, SEXP output_ySEXP, SEXP nmeanSEXP, SEXP max_distanceSEXP, SEXP aspSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -95,8 +95,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector >::type output_x(output_xSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type output_y(output_ySEXP);
     Rcpp::traits::input_parameter< int >::type nmean(nmeanSEXP);
+    Rcpp::traits::input_parameter< double >::type max_distance(max_distanceSEXP);
     Rcpp::traits::input_parameter< double >::type asp(aspSEXP);
-    rcpp_result_gen = Rcpp::wrap(interpolate_xy_2D_cpp(input_xyv, output_x, output_y, nmean, asp));
+    rcpp_result_gen = Rcpp::wrap(interpolate_xy_2D_cpp(input_xyv, output_x, output_y, nmean, max_distance, asp));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -133,16 +134,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // interpolate_xy_xy_cpp
-NumericVector interpolate_xy_xy_cpp(NumericMatrix input_xyv, NumericMatrix output_xy, int nmean, double asp);
-RcppExport SEXP _dtRtools_interpolate_xy_xy_cpp(SEXP input_xyvSEXP, SEXP output_xySEXP, SEXP nmeanSEXP, SEXP aspSEXP) {
+NumericVector interpolate_xy_xy_cpp(NumericMatrix input_xyv, NumericMatrix output_xy, int nmean, double max_distance, double asp);
+RcppExport SEXP _dtRtools_interpolate_xy_xy_cpp(SEXP input_xyvSEXP, SEXP output_xySEXP, SEXP nmeanSEXP, SEXP max_distanceSEXP, SEXP aspSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type input_xyv(input_xyvSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type output_xy(output_xySEXP);
     Rcpp::traits::input_parameter< int >::type nmean(nmeanSEXP);
+    Rcpp::traits::input_parameter< double >::type max_distance(max_distanceSEXP);
     Rcpp::traits::input_parameter< double >::type asp(aspSEXP);
-    rcpp_result_gen = Rcpp::wrap(interpolate_xy_xy_cpp(input_xyv, output_xy, nmean, asp));
+    rcpp_result_gen = Rcpp::wrap(interpolate_xy_xy_cpp(input_xyv, output_xy, nmean, max_distance, asp));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -184,10 +186,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_dtRtools_average_grid_t", (DL_FUNC) &_dtRtools_average_grid_t, 7},
     {"_dtRtools_interpolate_2D_xy_cpp", (DL_FUNC) &_dtRtools_interpolate_2D_xy_cpp, 5},
     {"_dtRtools_interpolate_2D_xy_r_cpp", (DL_FUNC) &_dtRtools_interpolate_2D_xy_r_cpp, 5},
-    {"_dtRtools_interpolate_xy_2D_cpp", (DL_FUNC) &_dtRtools_interpolate_xy_2D_cpp, 5},
+    {"_dtRtools_interpolate_xy_2D_cpp", (DL_FUNC) &_dtRtools_interpolate_xy_2D_cpp, 6},
     {"_dtRtools_interpolate_2D_2D_cpp", (DL_FUNC) &_dtRtools_interpolate_2D_2D_cpp, 6},
     {"_dtRtools_interpolate_2D_2D_r_cpp", (DL_FUNC) &_dtRtools_interpolate_2D_2D_r_cpp, 6},
-    {"_dtRtools_interpolate_xy_xy_cpp", (DL_FUNC) &_dtRtools_interpolate_xy_xy_cpp, 4},
+    {"_dtRtools_interpolate_xy_xy_cpp", (DL_FUNC) &_dtRtools_interpolate_xy_xy_cpp, 5},
     {"_dtRtools_interpolate_ts_cpp", (DL_FUNC) &_dtRtools_interpolate_ts_cpp, 5},
     {"_dtRtools_interpolate_ts_xy_2D_cpp", (DL_FUNC) &_dtRtools_interpolate_ts_xy_2D_cpp, 6},
     {NULL, NULL, 0}

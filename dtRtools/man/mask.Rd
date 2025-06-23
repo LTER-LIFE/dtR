@@ -9,15 +9,18 @@
 }
 
 \usage{
-mask_shape(coordinates, longitude, latitude, shape, EPSG = 4326)
+mask_shape(coordinates, longitude, latitude, shape, bat, EPSG = 4326)
 }
 
 \arguments{
-  \item{longitude, latitude }{Vectors with coordinates.
+  \item{longitude, latitude }{Vectors with coordinates. Will be ignored if \code{bat} is present.
   }
  \item{coordinates }{Two-columned matrix or data.frame with the longitude (1st column), and 
-  latitude (second column) of the positions that need to be masked.
+  latitude (second column) of the positions that need to be masked. Will be ignored if \code{bat} is present.
   }
+ \item{bat }{A list with vectors \code{longitude} and \code{latitude}; if \code{asp}, and \code{processing} is present in the list, it will be updated.
+ 
+ }  
  \item{shape }{The boundary shapefile to be used for the selection. 
   }
   \item{EPSG }{EPSG number of the coordinates. The default is the WGS84. 
@@ -25,11 +28,13 @@ mask_shape(coordinates, longitude, latitude, shape, EPSG = 4326)
 }
 
 \value{
-  When \code{longitude} and \code{latitude} in used for input, the function will return a \code{list} with 3 items: 
+  When \code{bat}, or \code{longitude} and \code{latitude} is used for input, the function will return a \code{list} with 3 items: 
   
   \itemize{
      \item latitude, longitude: the vectors as input to the function,
      \item mask, a matrix with dimensions (length(latitude), length(longitude)), with the value \code{1} for coordinates falling within the shape, \code{NA} for coordinates outside of the shape. 
+     \item asp, the aspect ratio that can be used for plotting
+     \item processing, strings with the processing that occurred on the data set
   }
 
     When \code{coordinates} is input, \code{mask_shape}  returns a \code{data.frame} with 3 columns: 

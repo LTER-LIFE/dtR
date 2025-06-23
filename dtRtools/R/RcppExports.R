@@ -21,8 +21,8 @@ interpolate_2D_xy_r_cpp <- function(range_x, range_y, input_2D, output_xy, asp) 
     .Call(`_dtRtools_interpolate_2D_xy_r_cpp`, range_x, range_y, input_2D, output_xy, asp)
 }
 
-interpolate_xy_2D_cpp <- function(input_xyv, output_x, output_y, nmean, asp) {
-    .Call(`_dtRtools_interpolate_xy_2D_cpp`, input_xyv, output_x, output_y, nmean, asp)
+interpolate_xy_2D_cpp <- function(input_xyv, output_x, output_y, nmean, max_distance, asp) {
+    .Call(`_dtRtools_interpolate_xy_2D_cpp`, input_xyv, output_x, output_y, nmean, max_distance, asp)
 }
 
 interpolate_2D_2D_cpp <- function(input_x, input_y, input_2D, output_x, output_y, asp) {
@@ -33,8 +33,8 @@ interpolate_2D_2D_r_cpp <- function(range_x, range_y, input_2D, output_x, output
     .Call(`_dtRtools_interpolate_2D_2D_r_cpp`, range_x, range_y, input_2D, output_x, output_y, asp)
 }
 
-interpolate_xy_xy_cpp <- function(input_xyv, output_xy, nmean, asp) {
-    .Call(`_dtRtools_interpolate_xy_xy_cpp`, input_xyv, output_xy, nmean, asp)
+interpolate_xy_xy_cpp <- function(input_xyv, output_xy, nmean, max_distance, asp) {
+    .Call(`_dtRtools_interpolate_xy_xy_cpp`, input_xyv, output_xy, nmean, max_distance, asp)
 }
 
 interpolate_ts_cpp <- function(input_xy, input_t, output_xy, nmean, asp) {

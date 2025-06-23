@@ -1,4 +1,3 @@
-
 # ==============================================================================
 # ==============================================================================
 # Maps xy points to other xy points 
@@ -11,6 +10,7 @@ interpolate_xy <- function(
                       output_xy, 
                       output_x, output_y,
                       nmean = 3,
+                      max_distance = NULL, 
                       asp = c("geographic", "mean", "none")){  # y/x aspect ratio
   # check input
   if (missing (input_xyv)){
@@ -24,42 +24,49 @@ interpolate_xy <- function(
       stop("either output_xy should be input or (output_x & output_y)")
   }
   
+  if (is.null(max_distance)) 
+    max_distance = -99.
+  else 
+    max_distance = as.double(max_distance[1]^2) # squared distance
+  
   # call correct function
   if (! missing (input_xyv) & 
       ! missing (output_xy))
     
-    result <- interpolate_xy_xy(input_xyv = input_xyv, # latitude (x), longitude (y), value
-                                output_xy = output_xy, 
-                                nmean     = nmean,
-                                asp       = asp) 
+    result <- interpolate_xy_xy(input_xyv    = input_xyv, # latitude (x), longitude (y), value
+                                output_xy    = output_xy, 
+                                nmean        = nmean,
+                                max_distance = max_distance,
+                                asp          = asp) 
   
   else if (! missing (input_x) & ! missing(input_y) & ! missing(input_2D) & 
            ! missing (output_xy))
     
-    result <- interpolate_2D_xy (input_x    = input_x, 
-                                 input_y    = input_y, 
-                                 input_2D   = input_2D,        
-                                 output_xy  = output_xy,
-                                 asp        = asp)
+    result <- interpolate_2D_xy (input_x      = input_x, 
+                                 input_y      = input_y, 
+                                 input_2D     = input_2D,        
+                                 output_xy    = output_xy,
+                                 asp          = asp)
   
   else if (! missing(input_xyv) & 
            ! missing(output_x)  & ! missing(output_y))
     
-    result <- interpolate_xy_2D(input_xyv = input_xyv, 
-                                output_x   = output_x, 
-                                output_y   = output_y,
-                                nmean      = nmean,
-                                asp        = asp)
+    result <- interpolate_xy_2D(input_xyv    = input_xyv, 
+                                output_x     = output_x, 
+                                output_y     = output_y,
+                                nmean        = nmean,
+                                max_distance = max_distance,
+                                asp          = asp)
   
   else if (! missing(input_x) & ! missing(input_y) & ! missing(input_2D) & 
            ! missing(output_x) & !missing(output_y))
     
-    result <- interpolate_2D_2D (input_x  = input_x, 
-                                 input_y  = input_y, 
-                                 input_2D = input_2D, 
-                                 output_x = output_x, 
-                                 output_y = output_y,
-                                 asp      = asp)
+    result <- interpolate_2D_2D (input_x      = input_x, 
+                                 input_y      = input_y, 
+                                 input_2D     = input_2D, 
+                                 output_x     = output_x, 
+                                 output_y     = output_y,
+                                 asp          = asp)
   
   else 
     stop ("one of the required arguments is missing")
@@ -75,6 +82,7 @@ interpolate_xy <- function(
 interpolate_xy_xy <- function(input_xyv, # latitude (x), longitude (y), value
                               output_xy, 
                               nmean = 3,
+                              max_distance = NULL,
                               asp = c("geographic", "mean", "none")){
   
   if (ncol(input_xyv) != 3) 
@@ -116,16 +124,19 @@ interpolate_xy_xy <- function(input_xyv, # latitude (x), longitude (y), value
   # Check overlap of x and of y - IF NO overlap: stop
   if (max(input_xyv[,2]) < min(output_xy[,2]))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
+  
   if (min(input_xyv[,2]) > max(output_xy[,2]))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
   
   storage.mode(input_xyv) <- storage.mode(output_xy) <- "double"
+  
   result <- interpolate_xy_xy_cpp(input_xyv = input_xyv, 
                                   output_xy = output_xy, 
                                   nmean     = as.integer(nmean), 
+                                  max_distance = as.double(max_distance),
                                   asp       = as.double(asp))
   
-  result <- data.frame(output_xy, value=result)
+  result <- data.frame(output_xy, value = result)
   colnames(result) <- colnames(input_xyv)
   
   result
@@ -210,7 +221,8 @@ interpolate_2D_xy <-  function(
                                     input_2D  = input_2D, 
                                     output_xy = output_xy, 
                                     asp       = as.double(asp))
-    Result <- data.frame(output_xy, v=Result)
+    Result <- data.frame(output_xy, 
+                         v = Result)
     
   } else {  # equidistant input data points
     
@@ -220,7 +232,8 @@ interpolate_2D_xy <-  function(
                 input_2D  = input_2D, 
                 output_xy = output_xy, 
                 asp       = as.double(asp))
-    Result <- data.frame(output_xy, v=Result)
+    Result <- data.frame(output_xy, 
+                         v = Result)
 
   }
   Result 
@@ -236,6 +249,7 @@ interpolate_xy_2D <- function(input_xyv,
                               output_x = NULL, 
                               output_y = NULL,
                               nmean = 3,
+                              max_distance = NULL,
                               asp = c("geographic", "mean", "none")){
   
   ##### check input 
@@ -273,6 +287,7 @@ interpolate_xy_2D <- function(input_xyv,
   
   if (is.numeric(asp)) {
     asp <- asp[1]
+    
   } else {
     asp <- match.arg (asp, c("geographic", "mean", "none"))
     if (asp == "geographic")
@@ -286,22 +301,25 @@ interpolate_xy_2D <- function(input_xyv,
   # Check overlap of x and of y - IF NO overlap: stop
   if (max(input_xyv[,1]) < min(output_x))
     stop( "cannot perform mapping: x-variables of in-output do not overlap")
+  
   if (min(input_xyv[,1]) > max(output_x))
     stop( "cannot perform mapping: x-variables of in-output do not overlap")
   
   # Check overlap of x and of y - IF NO overlap: stop
   if (max(input_xyv[,2]) < min(output_y))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
+  
   if (min(input_xyv[,2]) > max(output_y))
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
   
   storage.mode(input_xyv) <- storage.mode(output_x) <- storage.mode(output_y) <- "double" 
 
-  val <- interpolate_xy_2D_cpp(input_xyv = input_xyv, 
-                               output_x = output_x, 
-                               output_y = output_y, 
-                               nmean = as.integer(nmean), 
-                               asp = as.double(asp))
+  val <- interpolate_xy_2D_cpp(input_xyv    = input_xyv, 
+                               output_x     = output_x, 
+                               output_y     = output_y, 
+                               nmean        = as.integer(nmean), 
+                               max_distance = as.double(max_distance),
+                               asp          = as.double(asp))
 
   out <- list(output_x, output_y, val)
   names(out) <- colnames(input_xyv)[1:3]
@@ -347,7 +365,8 @@ interpolate_2D_2D <- function(input_x, input_y, input_2D,
   
   if (is.numeric(asp)) {
     asp <- asp[1]
-  } else {
+  
+    } else {
     asp <- match.arg (asp, c("geographic", "mean", "none"))
     if (asp == "geographic")
       asp <- aspect_coord(output_y) 
@@ -386,12 +405,12 @@ interpolate_2D_2D <- function(input_x, input_y, input_2D,
   storage.mode(output_x) <- storage.mode(output_y) <- "double"
   
   if (! equidistant){  # SLOWer!
-    Result <- interpolate_2D_2D_cpp (input_x = input_x, 
-                                     input_y = input_y, 
+    Result <- interpolate_2D_2D_cpp (input_x  = input_x, 
+                                     input_y  = input_y, 
                                      input_2D = input_2D, 
                                      output_x = output_x, 
                                      output_y = output_y, 
-                                     asp = as.double(asp))
+                                     asp      = as.double(asp))
   } else {
     Result <- interpolate_2D_2D_r_cpp(
       range_x   = as.double(c(min(input_x), max(input_x), dlon[1])), 
@@ -402,7 +421,9 @@ interpolate_2D_2D <- function(input_x, input_y, input_2D,
       asp       = as.double(asp))
     
   }
-  out <- list(x=output_x, y=output_y, v=Result)
+  out <- list(x = output_x, 
+              y = output_y, 
+              v = Result)
   out
 }
 

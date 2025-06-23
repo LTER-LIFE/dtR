@@ -18,7 +18,7 @@
 }
 \usage{
 dt_reshape (x, swap = "station", ...)
-dt_tolong  (x, swap = "station", vname = "value", na.rm=TRUE)
+dt_tolong  (x, swap = "station", vname = "value", na.rm = TRUE)
 dt_towide  (x, swap = "station", newcol = NULL)
 
 }

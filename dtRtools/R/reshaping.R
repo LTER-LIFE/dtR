@@ -73,17 +73,17 @@ dt_towide <- function(x,
   idvar <- idvar[-iswap]
   
   xx <- reshape(x, 
-                direction="wide", 
-                idvar   = idvar,   
-                timevar = swap, 
-                sep=".")
+                direction = "wide", 
+                idvar     = idvar,   
+                timevar   = swap, 
+                sep       = ".")
   
   cn  <- colnames(xx)
   cnx <- cn[ncol(xx)]
-  zz <- gregexpr(".", cnx, fixed=TRUE)[[1]]
+  zz <- gregexpr(".", cnx, fixed = TRUE)[[1]]
   hd <- substr(cnx, 1, zz)
   
-  cn <- gsub(hd, "", cn, fixed=TRUE)
+  cn <- gsub(hd, "", cn, fixed = TRUE)
   colnames(xx) <- cn  
   
   atts$processing <- c(atts$processing , 
@@ -115,15 +115,16 @@ dt_tolong <- function (x,
   
   nc    <- (nt+1):ncol(x)
   xx    <- reshape(x, 
-                   direction= "long", 
-                   timevar  = swap, 
-                   varying  = list(nc) , 
-                   idvar    = "value")
+                   direction = "long", 
+                   timevar   = swap, 
+                   varying   = list(nc) , 
+                   idvar     = "value")
   cnxx   <- cn[nc]
-  lookup <- data.frame(v=1:length(cnxx), name=cnxx)
-  nn     <- lookup$name[match(xx[,swap], lookup$v)]
-  xx[,swap] <- nn
-  xx            <- xx[,-ncol(xx)]
+  lookup <- data.frame(v    = 1:length(cnxx), 
+                       name = cnxx)
+  nn     <- lookup$name[match(xx[, swap], lookup$v)]
+  xx[, swap] <- nn
+  xx         <- xx[,-ncol(xx)]
   colnames(xx)[ncol(xx)] <- vname
   
   atts$processing <- c(atts$processing , 
@@ -133,7 +134,8 @@ dt_tolong <- function (x,
     if (length(ina)){
     xx <- xx[-ina,]
       atts$processing <- c(atts$processing , 
-                           paste("removed ", length(ina), "NA values from long format at", Sys.time()))
+                           paste("removed ", length(ina), 
+                                 "NA values from long format at", Sys.time()))
     }
   }
   atts$format <- "long"

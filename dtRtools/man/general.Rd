@@ -1,6 +1,5 @@
-\name{meta}
+\name{general tools}
 \alias{meta}
-\alias{plot.dtLife}
 \title{
   extract metadata from an object - keeps the attributes for [] and \code{subset}
 }
@@ -11,27 +10,24 @@
 
 \usage{
 meta(x)
-
-\method{plot}{dtLife}(x, mfrow = NULL, ylab = NULL, main = NULL, 
-                      cvar = NULL, type = "p", ...)
 }
 
 \arguments{
-  \item{x }{The object whose metadata have to be extracted or that is to be plotted.
-  }
-  \item{mfrow, ylab, main, type }{arguments passed to the plotting functions.
-  }  
-  \item{cvar }{ Name of the variable that is used to color the plots.
-  }
-  \item{... }{Any other arguments passed to the plotting functions.
+  \item{x }{The object whose metadata have to be extracted .
   }
 }
 
 \value{
   Function \code{meta} returns a \code{data.frame} with the objects attributes, except the names, row.names and class.
+  
+  Subsetting an object keeps the metadata.
 }
 
 \examples{
+
+# ------------------------
+# the metadata
+# ------------------------
 
 meta(Wad_watertemp_LR)
 meta(Marsdiep)
@@ -41,14 +37,28 @@ meta(Wad_weather)
 # subsetting keeps the attributes
 meta(Wad_weather[, 1:3])
 meta(Wad_weather[1:3, ])
+
 meta(subset(Wad_weather, subset = station == 208))
 
 # but not if it is a matrix
 
 names(meta(as.matrix(Wad_weather[, 1:3])))
 
+# ------------------------
+# plotting
+# ------------------------
+
 # The plotting function makes use of the attributes
-plot(Wad_weather, type = "l", cvar = "station")
+
+# The default uses the description of the variables as title (too long here)
+plot(subset(Wad_weather, 
+            subset = station == 235,
+            select = c("datetime", "radiation", "temperature")),
+     type = "l")
+
+# how to color the datapoints can be specified
+plot(Wad_weather, type = "l", cvar = "station", 
+     use_names = TRUE)    # uses names for labelling rather than description
 }
 
 \seealso{

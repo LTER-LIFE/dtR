@@ -89,29 +89,33 @@ plot(Shape, add = TRUE)
 # ---------------------------------------------------
 # Summaries of the data
 # ---------------------------------------------------
-aggregate(x   = Wad_weather$windspeed, 
-          by  = list(Wad_weather$station), 
-          FUN = mean, na.rm=TRUE)
-aggregate(x   = Wad_weather$temperature, 
-          by  = list(Wad_weather$station), 
-          FUN = mean, na.rm=TRUE)
-aggregate(x   = Wad_weather$radiation, 
-          by  = list(Wad_weather$station), 
-          FUN = mean, na.rm=TRUE)
+aggregate(x     = Wad_weather$windspeed, 
+          by    = list(Wad_weather$station), 
+          FUN   = mean, 
+          na.rm = TRUE)
+aggregate(x     = Wad_weather$temperature, 
+          by    = list(Wad_weather$station), 
+          FUN   = mean, 
+          na.rm = TRUE)
+aggregate(x     = Wad_weather$radiation, 
+          by    = list(Wad_weather$station), 
+          FUN   = mean, 
+          na.rm = TRUE)
 
 # ---------------------------------------------------
 # Plot the hourly data of station 235
 # ---------------------------------------------------
 
-mf <- par(mfrow=c(3,1))
-St_235 <- subset(Wad_weather, subset=station==235)
+mf <- par(mfrow = c(3,1))
+St_235 <- subset(Wad_weather, 
+                 subset = station == 235)
 
 with(St_235, 
    plot(x    = datetime, 
         y    = windspeed, 
-        main ="wind speed", 
+        main = "wind speed", 
         ylab = "m/s", xlab = "time",
-        las  = 1, type= "l"))
+        las  = 1, type = "l"))
 with(St_235, 
    plot(x    = datetime, 
         y    = temperature, 
@@ -123,7 +127,7 @@ with(St_235,
         y    = radiation, 
         main = "light intensity", 
         ylab = "W/m2", xlab = "time",
-        las  = 1, type =  "l"))
+        las  = 1, type = "l"))
 
 # ---------------------------------------------------
 # Plot daily-averaged data
@@ -159,10 +163,11 @@ plot(x    = Wad_weatherDay$datetime,
      ylab = "W/m2", xlab = "time",
      las  = 1, type = "l")
 
-par(mfrow=mf)    
+par(mfrow = mf)    
 
+# similar, in one go
 \dontrun{
-plot(Wad_weatherDay, type="l")
+plot(Wad_weatherDay, type = "l", use_names = TRUE)
 }
 }
 \seealso{

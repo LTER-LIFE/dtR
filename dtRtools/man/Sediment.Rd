@@ -57,7 +57,7 @@ with(Sediment,
 
 plot_bathymetry(Marsdiep, 
                pts    = Sediment[,c("longitude", "latitude", "mdGrain")], 
-               ptlist = list(cex=1.5), 
+               ptlist = list(cex = 1.5), 
                log    = "c", clab = "um",
                main   = "Grain size")
 

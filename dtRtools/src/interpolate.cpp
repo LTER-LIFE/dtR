@@ -137,8 +137,9 @@ double get_value (double *w,  // input: distance^2, output: weight
     if (w[iw] == 0) {  // exact match 
       
       hasNAN = true;
-      w[iw] = -99.;    // negative values are simple to find
-      
+      w[iw]  = -99.;   // negative values are simple to find
+    } else if (w[iw] > 0.9e100) { // point was too far
+      w[iw] = 0.;  
     } else  
       w [iw] = 1./sqrt(w[iw]); // from distance^2 to weight
   } 
@@ -159,8 +160,8 @@ double get_value (double *w,  // input: distance^2, output: weight
     for (iw = 0; iw < nmean; ++iw) { 
       
       if (w[iw] < 0 ) {
-        w[iw] = 1;
-      } else w[iw] = 0;
+        w[iw] = 1;      // exact match gets weight = 1
+      } else w[iw] = 0; // no    match gets weight = 0
     }
     
   }  
@@ -389,8 +390,8 @@ NumericVector interpolate_2D_xy_r_cpp(
 // =============================================================================
 // =============================================================================
 //
-// input: xy data
-// output: 2D format
+// input: xy data (long format)
+// output: 2D format (wide)
 //
 // =============================================================================
 // =============================================================================
@@ -402,7 +403,8 @@ NumericMatrix interpolate_xy_2D_cpp(
     NumericMatrix input_xyv,  //             (nin, 3)
     NumericVector  output_x,  //             (nox)
     NumericVector  output_y,  //             (noy)
-    int               nmean,    
+    int               nmean,  // number of points to average 
+    double      max_distance,  // above this value: assume NA, unless negative
     double             asp )  // y/x aspect ratio  
   
 {  
@@ -434,7 +436,7 @@ NumericMatrix interpolate_xy_2D_cpp(
   
     for (iox = 0; iox < nox; ++iox) {  // output x
       
-      // squared distance in x for all iin
+      // squared distance in x-direction for all iin
       x = output_x(iox);
       
       for (iin = 0; iin < nin; ++iin) {  // input
@@ -445,12 +447,20 @@ NumericMatrix interpolate_xy_2D_cpp(
       
         for (iin = 0; iin < nin; ++iin) {  // input
           
-          y = input_xyv(iin, 1);
+          y   = input_xyv(iin, 1);
+          
+          // squared distance in y-direction 
           D_y = pow(y - output_y(ioy), 2)*asp*asp; 
-        
-          dd = D_x[iin] + D_y;  // squared total distance
-       
-          update_w_v( w, dd,               // update distance
+          
+          // squared total distance
+          dd = D_x[iin] + D_y;  
+          
+          if (max_distance > 0){ 
+             if (dd > max_distance) dd =  1.0e100;
+          }
+          
+          // update weights w, with dd; value v with input(,2)
+          update_w_v( w, dd,                
                       v, input_xyv(iin, 2), 
                       &imax, iin, nmean);
          } // iin  
@@ -664,6 +674,7 @@ NumericVector interpolate_xy_xy_cpp(
     NumericMatrix input_xyv,  //  (nin, 3)
     NumericMatrix output_xy,  //  (nout, 2)
     int               nmean,  //  number to average  
+    double      max_distance,  // above this value: assume NA, unless negative
     double             asp )  // y/x aspect ratio  
   
 {  
@@ -699,6 +710,10 @@ NumericVector interpolate_xy_xy_cpp(
       // squared distance
       dd     = pow(x - input_xyv(ii, 0), 2); 
       dd    += pow(y - input_xyv(ii, 1), 2)*asp*asp; 
+      
+      if (max_distance > 0){  // if negative ignore; if above max_distance -> NA
+        if (dd > max_distance) dd = 1.0e100;
+      }
       
       update_w_v( w, dd, 
                   v, input_xyv(ii, 2), 

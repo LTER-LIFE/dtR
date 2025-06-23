@@ -6,13 +6,13 @@
 
 \description{
 
-  \code{interpolate_xyt} interpolates spatially-distinct timeseries to other spatial points. 
+  \code{interpolate_xyt} interpolates spatially-distinct timeseries to other spatial and time points. 
+  
   The input dataset is typically more sparse than the output. 
   
-  For each output position, it finds the three spatially closest data sets in the input data. 
+  For each output position, it finds the spatially closest data sets in the input data. 
   For the selected spatial input points, the time series values are interpolated to the required time output points. 
-  These three data sets are then averaged, using inverse distance weighing.
-  
+  These data sets are then averaged, using inverse distance weighing.
   
   \code{interpolate_dense} interpolates spatially-distinct timeseries to other spatial points, for very dense input datasets. 
   
@@ -342,16 +342,16 @@ pm <- par(mfrow = c(2, 2))
 with(Sediment, points2D(longitude, latitude, 
                         colvar = mdGrain, 
                         main   = "original data",
-                        pch = ".", cex = 3,
-                        asp = asp))
-plot(Shape, add=TRUE)
+                        pch    = ".", cex = 3,
+                        asp    = asp))
+plot(Shape, add = TRUE)
 
 with(Sed2D, points2D(longitude, latitude, 
                      colvar = mdGrain, 
                      main   = "interpolated data",
                      pch = ".", cex = 3,
                      asp = asp))
-plot(Shape, add=TRUE)
+plot(Shape, add = TRUE)
 
 with(Sed2D, points2D(longitude, latitude, 
                      colvar = mdGrain, 
@@ -359,7 +359,7 @@ with(Sed2D, points2D(longitude, latitude,
                      pch = ".", cex = 3,
                      asp = asp))
 
-plot(Shape, add=TRUE)
+plot(Shape, add = TRUE)
 
 ## =============================================================
 ## Water temperature
@@ -410,7 +410,7 @@ par(mfrow=pm)
 
 \seealso{
   \code{\link{interpolate_xy}} for a comparable method as \code{interpolate_xyt}.
-  \code{\link{Sediment}} data set with sediment composition.
+  \link{average_xy} to be used when the input grid is denser than the output grid.
 }
 
 \author{

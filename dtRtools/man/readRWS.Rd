@@ -15,7 +15,7 @@
 }
 
 \usage{
-read_RWS (file, dir="", attr=NULL, format="wide", ...)
+read_RWS (file, dir = "", attr = NULL, format = "wide", ...)
 
 data(RWSstations)
 }

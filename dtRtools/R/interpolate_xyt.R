@@ -1,4 +1,3 @@
-
 # ==============================================================================
 # ==============================================================================
 # Maps xy timeseries to other xy timeseries
@@ -11,9 +10,9 @@ interpolate_xyt <-  function(
               output_x, output_y,
               output_t, 
               nmean = 3,
-              asp  = c("geographic", "mean", "none"),  # y/x aspect ratio
-              rule = 2, 
-              ID         = NULL)    # unique identifier for the output
+              asp   = c("geographic", "mean", "none"),  # y/x aspect ratio
+              rule  = 2, 
+              ID    = NULL)    # unique identifier for the output
                    {   
   
   ##### step 0: prepare/check the inputs #####
@@ -77,12 +76,12 @@ interpolate_xyt <-  function(
     } else {
       asp <- match.arg (asp, c("geographic", "mean", "none"))
       if (asp == "geographic"){
-        if (min(output_xy[,2], na.rm=TRUE) < -90 |
-            max(output_xy[,2], na.rm=TRUE) >  90)
+        if (min(output_xy[,2], na.rm = TRUE) < -90 |
+            max(output_xy[,2], na.rm = TRUE) >  90)
           stop ("second column of output_xytv should contain valid latitude, -90:90")
         
-        if (min(input_xy[,2], na.rm=TRUE) < -90 |
-            max(input_xy[,2], na.rm=TRUE) >  90)
+        if (min(input_xy[,2], na.rm = TRUE) < -90 |
+            max(input_xy[,2], na.rm = TRUE) >  90)
           stop ("second column of input_xy should contain valid latitude, -90:90")
         
         asp <- aspect_coord(output_xy[,2])
@@ -96,11 +95,11 @@ interpolate_xyt <-  function(
     storage.mode(input_t)   <- "double"
     storage.mode(output_xy) <- "double"
   
-    Result <- interpolate_ts_cpp (input_xy = input_xy, 
-                                  input_t = input_t, 
+    Result <- interpolate_ts_cpp (input_xy  = input_xy, 
+                                  input_t   = input_t, 
                                   output_xy = output_xy, 
-                                  nmean = as.integer(nmean),
-                                  asp = as.double(asp))
+                                  nmean     = as.integer(nmean),
+                                  asp       = as.double(asp))
 
   } else {  #output_x and output_y values
     output_x <- unlist(output_x)
@@ -133,12 +132,14 @@ interpolate_xyt <-  function(
     # Check overlap of x and of y - IF NO overlap: stop
     if (max(input_xytv[,1]) < min(output_x))
       stop( "cannot perform mapping: x-variables of in-output do not overlap")
+    
     if (min(input_xytv[,1]) > max(output_x))
       stop( "cannot perform mapping: x-variables of in-output do not overlap")
     
     # Check overlap of x and of y - IF NO overlap: stop
     if (max(input_xytv[,2]) < min(output_y))
       stop( "cannot perform mapping: y-variables of in-output do not overlap")
+    
     if (min(input_xytv[,2]) > max(output_y))
       stop( "cannot perform mapping: y-variables of in-output do not overlap")
     
