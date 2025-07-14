@@ -1,3 +1,4 @@
+useDynLib(dtPP, .registration = TRUE)
 import(FME, plot3D)
 importFrom(grDevices, "dev.interactive")
 importFrom(graphics, "lines", "par",  "legend")
