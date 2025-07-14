@@ -19,8 +19,8 @@ data(Shape)
 Dataset Marsdiep is a \code{list} with the following items:
 
 \itemize{
-  \item \code{longitude}, longitude at the middle of the grid in x [dgE], length=693.
-  \item \code{latitude}, latitude at the middle of the grid in y [dgN], length=259.
+  \item \code{longitude}, longitude at the middle of the grid in x [dgE], length = 693.
+  \item \code{latitude}, latitude at the middle of the grid in y [dgN], length = 259.
   \item \code{depth}, sea-floor depth below NAP (normaal amsterdams peil) [m], (693, 258).
   \item \code{source}, reference to the website from which the data were extracted.
   \item \code{asp}, the aspect ratio that can be used for plotting.
@@ -83,7 +83,8 @@ ZZ <- with(Marsdiep,
      interpolate_xy(input_x   = longitude, 
                     input_y   = latitude, 
                     input_2D  = depth, 
-                    output_xy = expand.grid(x=longitude, y=latitude)))
+                    output_xy = expand.grid(x = longitude, 
+                                            y = latitude)))
 
 head(ZZ)
 

@@ -1,17 +1,17 @@
-\name{readBathymetry}
-\alias{readBathymetry}
+\name{read_bathymetry}
+\alias{read_bathymetry}
 
 \title{
   Reads bathymetric data from the EMODnet bathymetry project.
 }
 
 \description{
-  \code{readBat} reads netCDF files with bathymetric data, 
+  \code{read_bathymetry} reads netCDF files with bathymetric data, 
   as downloaded from the EMODnet bathymetry project.
 }
 
 \usage{
-readBathymetry(file, dir="", attr=NULL, lonlim=NULL, latlim=NULL, 
+read_bathymetry(file, dir="", attr=NULL, lonlim=NULL, latlim=NULL, 
                levels=c(-5, 0, 5, 10, 20), by=1, ...)
 }
 
@@ -54,7 +54,7 @@ completeness, or usefulness, of this information.
 }
 
 \value{
-  Function \code{readBathymetry} returns a list with the following items:
+  Function \code{read_bathymetry} returns a list with the following items:
 
 \itemize{
  \item latitude, longitude: the coordinates of the depth points, in [dgN], [dgE]; mapping in EPSG:4326
@@ -82,7 +82,7 @@ dir(fpath)  # shows all files
 ## Read the bathymetry file
 ## =============================================================
 
-Bat <- readBathymetry(
+Bat <- read_bathymetry(
             file = "BathymetrySmall.nc", 
             dir  = fpath,
             attr = list(author = "karline soetaert", project = "LTER-life")
@@ -90,7 +90,7 @@ Bat <- readBathymetry(
 
 names(Bat)
 
-Bat2 <- readBathymetry(
+Bat2 <- read_bathymetry(
             file   = "BathymetrySmall.nc", 
             dir    = fpath,
             lonlim = c(7.2, 7.4), latlim=c(53.22, 53.30))
@@ -130,7 +130,7 @@ with(Bat,
 "http://www.emodnet-bathymetry.eu/"
 }
 \seealso{
-\link{readKNMI}, \link{readRWS} for other reading functions.
+\link{read_KNMI}, \link{read_RWS} for other reading functions.
 }
 
 \author{

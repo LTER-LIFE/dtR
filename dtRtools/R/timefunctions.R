@@ -33,10 +33,10 @@ average_timeseries <- function(input,
      ii      <- which(DDnames == avgOver)
      
      if (! length(ii)) 
-        stop("'avgOver' should be one of: ", paste(DDnames, collapse=", ")) 
+        stop("'avgOver' should be one of: ", paste(DDnames, collapse = ", ")) 
     
-     DD <- as.integer((DD[, avgOver] %/% avgTime) * avgTime + avgTime/2)
-     
+     DD  <- as.integer((DD[, avgOver] %/% avgTime) * avgTime + avgTime/2)
+     fac <- 0
      if (length(unique(na.omit(DD))) < 1)
        stop("averaging time unit 'avgOver' and time 'avgTime' does not create suitable averages")
      
@@ -49,10 +49,10 @@ average_timeseries <- function(input,
                     "min"  = 60,
                     "hour" = 3600,
                     "day"  = 86400,
-                    "yy" = 86400*365.25 )
+                    "yy"   = 86400*365.25 )
     fac <- avgTime* avgSecond                  
     DD <- as.numeric(input[,datetime]) %/% fac
-    DD <- as.POSIXct(DD*fac, origin="1970-01-01")
+    DD <- as.POSIXct(DD*fac, origin = "1970-01-01")
   }
 #  ignore <- which(colnames(input) %in% c(datetime, value))
 #    DI <- data.frame(input[, -ignore], DD)
@@ -61,7 +61,9 @@ average_timeseries <- function(input,
   else
     DI <- data.frame(input[, by], DD)
   
-  HH <- aggregate(input[,value], by= as.list(DI), FUN=mean, ...)
+  HH <- aggregate(input[,value], 
+                  by = as.list(DI), 
+                  FUN = mean, ...)
   
   colnames(HH) <- c(by, datetime, value)
   if (is.null(by))
@@ -69,7 +71,8 @@ average_timeseries <- function(input,
   else
      ii <- order(HH[, by[1]], HH[,datetime])
    
-  HH <- HH[ii,]
+  HH            <- HH[ii,]
+  HH[,datetime] <- HH[,datetime] + fac/2  # time = middle of interval
   
   if (inherits(input, "dtLife")){
     attrs <- attributes(input)

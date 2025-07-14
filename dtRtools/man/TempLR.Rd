@@ -41,7 +41,7 @@ Dataset obtained from the Rijkswaterstaat, downloaded from https://waterinfo.rws
 # Plot the data
 # ---------------------------------------------------
 
-plot(Wad_watertemp_LR, mfrow=c(3,4))
+plot(Wad_watertemp_LR, mfrow = c(3, 4))
 
 # ---------------------------------------------------
 # Show the metadata

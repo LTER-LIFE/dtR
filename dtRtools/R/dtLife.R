@@ -1,34 +1,41 @@
-
-
-## ==========================================
-## ==========================================
-## make datasets globally available
-## ==========================================
-## ==========================================
+# ==============================================================================
+# ==============================================================================
+# make datasets globally available
+# ==============================================================================
+# ==============================================================================
 
 if (getRversion() >= "2.15.1")  
-  utils::globalVariables(c("Marsdiep", "WadTempLR", "Shape",
-                           "Weather2021", "Sediment",
-                           "KNMIstations", "RWSstations"))
+  utils::globalVariables(c("Marsdiep", "Wad_waterTempLR", "Shape",
+                           "Wad_weather", "Sediment",
+                           "KNMIstations", "RWSstations",
+                           "Veluwe_mean_tree_temperature",
+                           "Veluwe_tree_budstage"))
 
-## ==========================================
-## Extracting metadata from an object
-## ==========================================
+# ==============================================================================
+# ==============================================================================
+# Extracting metadata from an object
+# ==============================================================================
+# ==============================================================================
 
 meta <- function(x){
+  
   if (inherits(x, "dtBathymetry"))
     Meta <- x[!names(x) %in% c("longitude", "latitude", "depth", "contours")]
+  
   else{
     att <- attributes(x)
     natt <- names(att)
     Meta <- att[natt[!natt %in% c("names", "row.names", "class", "reshapeWide")]]
   }
+  
   Meta
 }
 
-## ==========================================
-## Subsetting without loosing the attributes
-## ==========================================
+# ==============================================================================
+# ==============================================================================
+# Subsetting without loosing the attributes
+# ==============================================================================
+# ==============================================================================
 
 `[.dtLife` <- function(x, i, j, ...) {
   attrs <- attributes(x)
@@ -38,11 +45,12 @@ meta <- function(x){
   class(out)   <- class(out)[2] # to avoid recursion
 
   out   <- out[i, j, ...]       # subset it
+  atout <- attributes(out)
   
   if (is.data.frame(out)){
     
-    atout <- attributes(out)
-    attributes(out) <- c(attributes(out), attrs[!names(attrs) %in% names(atout)])
+    attributes(out) <- c(attributes(out), 
+                         attrs[!names(attrs) %in% c(names(atout), "row.names", "names")])
     class(out) <- c("dtLife", class(out))
     
     # adapt stations and variables  
@@ -51,7 +59,8 @@ meta <- function(x){
     if ("station" %in% nout & ! is.null(attributes(out)$stations)){
       stations <- unique(out$station)
       attstat  <- attributes(out)$stations
-      attstat  <- subset(attstat, subset=attstat$station %in% stations)
+      attstat  <- subset(attstat, 
+                         subset = attstat$station %in% stations)
       attributes(out)$stations <- attstat
       
     } else if (! is.null(attributes(out)$stations)) {
@@ -65,7 +74,8 @@ meta <- function(x){
     if ("variable" %in% nout & ! is.null(attributes(out)$variables)){
       variables <- unique(out$variable)
       attvar <- attributes(out)$variables
-      attvar <- subset(attvar, subset=attstat$variable %in% variables)
+      attvar <- subset(attvar, 
+                       subset = attstat$variable %in% variables)
       attributes(out)$variables <- attvar
     }
     
@@ -83,16 +93,20 @@ meta <- function(x){
   out
 }
 
-## ==========================================
+# ==============================================================================
+# ==============================================================================
 
-subset.dtLife <- function(x, subset, select, drop=FALSE, ..., attr = NULL){
+subset.dtLife <- function(x, subset, select, drop = FALSE, ..., attr = NULL){
   attrs <- attributes(x)
   cls   <- class(x)
   out   <- x
   class(out) <- class(out)[2]
 
+    
   e <- substitute(subset)
+  if (! missing(e)) {
   r <- eval(e, out, parent.frame())
+  } else {r <- rep(TRUE, length = nrow(out))}
   if (!is.logical(r)) stop("'subset' must be logical")
   r <- r & !is.na(r)
   if (length(r) != nrow(out)) stop ("'subset' evaluation did not provide a selection?")
@@ -105,7 +119,8 @@ subset.dtLife <- function(x, subset, select, drop=FALSE, ..., attr = NULL){
     names(nl) <- names(out)
     eval(substitute(select), nl, parent.frame())
   }  
-  out <- out[r, vars, drop=drop]    # take subset
+  
+  out <- out[r, vars, drop = drop]    # take subset
 
   if (is.data.frame(out)){
     atout <- attributes(out)

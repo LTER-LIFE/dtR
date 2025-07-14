@@ -6,13 +6,13 @@
 
 \description{
 
-  \code{interpolate_xyt} interpolates spatially-distinct timeseries to other spatial points. 
+  \code{interpolate_xyt} interpolates spatially-distinct timeseries to other spatial and time points. 
+  
   The input dataset is typically more sparse than the output. 
   
-  For each output position, it finds the three spatially closest data sets in the input data. 
+  For each output position, it finds the spatially closest data sets in the input data. 
   For the selected spatial input points, the time series values are interpolated to the required time output points. 
-  These three data sets are then averaged, using inverse distance weighing.
-  
+  These data sets are then averaged, using inverse distance weighing.
   
   \code{interpolate_dense} interpolates spatially-distinct timeseries to other spatial points, for very dense input datasets. 
   
@@ -71,6 +71,45 @@ Completely disjoint (x, y, t) points will not be properly interpolated!
 }
 
 \examples{
+
+## =============================================================
+## testing on the volcano data set
+## =============================================================
+
+# Volcano is a matrix - cast it in x,y,v format
+
+xy          <- expand.grid(x = 1:nrow(volcano), 
+                           y = 1:ncol(volcano))
+
+volcano.xyz <- data.frame(xy, 
+                          v = as.vector(volcano))
+
+# create a 'time series data set'
+volcano.xytz <- rbind(
+    data.frame(volcano.xyz[,1:2], time = 1, d = volcano.xyz[,3]    *1), 
+    data.frame(volcano.xyz[,1:2], time = 2, d = volcano.xyz[,3]  *0.5), 
+    data.frame(volcano.xyz[,1:2], time = 3, d = volcano.xyz[,3]*0.125))
+
+head(volcano.xytz)
+par(mfrow = c(2,2))
+
+# interpolate in time, using output_x and output_y
+v1 <- interpolate_xyt(input_xytv = volcano.xytz,
+                      output_x   = seq(1, nrow(volcano), by = 0.5),
+                      output_y   = seq(1, ncol(volcano), by = 0.5),
+                      output_t   = seq(1, 3, by = 0.5))
+
+points2D(v1[,1], v1[,2], colvar = v1[,3], pch = 18)
+
+points2D(v1[,1], v1[,2], colvar = v1[,4], pch = 18)
+
+# interpolate in time, using output_xy
+v2 <- interpolate_xyt(input_xytv = volcano.xytz,
+                      output_xy  = xy,
+                      output_t   = 1:3)
+
+points2D(v2[,1], v2[,2], colvar = v2[,3], pch = 18)
+points2D(v2[,1], v2[,2], colvar = v2[,4], pch = 18)
 
 ## =============================================================
 ## 2D-time interpolation of small data set
@@ -303,16 +342,16 @@ pm <- par(mfrow = c(2, 2))
 with(Sediment, points2D(longitude, latitude, 
                         colvar = mdGrain, 
                         main   = "original data",
-                        pch = ".", cex = 3,
-                        asp = asp))
-plot(Shape, add=TRUE)
+                        pch    = ".", cex = 3,
+                        asp    = asp))
+plot(Shape, add = TRUE)
 
 with(Sed2D, points2D(longitude, latitude, 
                      colvar = mdGrain, 
                      main   = "interpolated data",
                      pch = ".", cex = 3,
                      asp = asp))
-plot(Shape, add=TRUE)
+plot(Shape, add = TRUE)
 
 with(Sed2D, points2D(longitude, latitude, 
                      colvar = mdGrain, 
@@ -320,7 +359,7 @@ with(Sed2D, points2D(longitude, latitude,
                      pch = ".", cex = 3,
                      asp = asp))
 
-plot(Shape, add=TRUE)
+plot(Shape, add = TRUE)
 
 ## =============================================================
 ## Water temperature
@@ -328,7 +367,7 @@ plot(Shape, add=TRUE)
 
 head(Wad_watertemp_LR, n = c(3, 3))
 
-WT <- dttolong(Wad_watertemp_LR)
+WT <- dt_tolong(Wad_watertemp_LR)
 
 Stations <- meta(Wad_watertemp_LR)$stations
 Stations
@@ -338,8 +377,16 @@ WT <- WT[,c("longitude", "latitude", "datetime", "value")]
 
 xyout <- expand.grid(x = seq(4.75,  7.2, length.out = 20),
                      y = seq(53.0, 53.5, length.out = 20))
-                     
-################ TO DO
+
+tout <- seq(from = as.POSIXct("2021-02-01 00:00:00 CET"), 
+            to   = as.POSIXct("2021-03-01 00:00:00 CET"), 
+            by   = 86400*7)
+            
+WTint <- interpolate_xyt(input_xytv = WT,
+                         output_xy  = xyout,
+                         output_t   = tout)
+
+points2D(WTint[,1], WTint[,2], colvar= WTint[,3], pch = 18)
 
 par(mfrow=pm)
 }
@@ -363,7 +410,7 @@ par(mfrow=pm)
 
 \seealso{
   \code{\link{interpolate_xy}} for a comparable method as \code{interpolate_xyt}.
-  \code{\link{Sediment}} data set with sediment composition.
+  \link{average_xy} to be used when the input grid is denser than the output grid.
 }
 
 \author{

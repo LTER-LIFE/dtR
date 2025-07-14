@@ -1,4 +1,3 @@
-
 # ==============================================================================
 # ==============================================================================
 # Maps xy timeseries to other xy timeseries
@@ -10,10 +9,10 @@ interpolate_xyt <-  function(
               output_xy, 
               output_x, output_y,
               output_t, 
-              nmean      = 3,
-              asp = c("geographic", "mean", "none"),  # y/x aspect ratio
-              rule = 2, 
-              ID         = NULL)    # unique identifier for the output
+              nmean = 3,
+              asp   = c("geographic", "mean", "none"),  # y/x aspect ratio
+              rule  = 2, 
+              ID    = NULL)    # unique identifier for the output
                    {   
   
   ##### step 0: prepare/check the inputs #####
@@ -61,8 +60,10 @@ interpolate_xyt <-  function(
   
   # output xy values: 
   if (! missing (output_xy)){
+    
     if (is.vector(output_xy))
       output_xy <- matrix(nrow = 1, ncol = 2, data = output_xy)
+    
     else 
       output_xy <- as.matrix(unique(output_xy[,1:2]))
   
@@ -75,12 +76,12 @@ interpolate_xyt <-  function(
     } else {
       asp <- match.arg (asp, c("geographic", "mean", "none"))
       if (asp == "geographic"){
-        if (min(output_xy[,2], na.rm=TRUE) < -90 |
-            max(output_xy[,2], na.rm=TRUE) >  90)
+        if (min(output_xy[,2], na.rm = TRUE) < -90 |
+            max(output_xy[,2], na.rm = TRUE) >  90)
           stop ("second column of output_xytv should contain valid latitude, -90:90")
         
-        if (min(input_xy[,2], na.rm=TRUE) < -90 |
-            max(input_xy[,2], na.rm=TRUE) >  90)
+        if (min(input_xy[,2], na.rm = TRUE) < -90 |
+            max(input_xy[,2], na.rm = TRUE) >  90)
           stop ("second column of input_xy should contain valid latitude, -90:90")
         
         asp <- aspect_coord(output_xy[,2])
@@ -90,24 +91,25 @@ interpolate_xyt <-  function(
         asp <- 1
     }
 
-  storage.mode(input_xy)  <- "double"
-  storage.mode(input_t)  <- "double"
-  storage.mode(output_xy) <- "double"
+    storage.mode(input_xy)  <- "double"
+    storage.mode(input_t)   <- "double"
+    storage.mode(output_xy) <- "double"
   
-  Result <- interpolate_ts_cpp (input_xy = input_xy, 
-                                input_t = input_t, 
-                                output_xy = output_xy, 
-                                nmean = as.integer(nmean),
-                                asp = as.double(asp))
-  } else {
+    Result <- interpolate_ts_cpp (input_xy  = input_xy, 
+                                  input_t   = input_t, 
+                                  output_xy = output_xy, 
+                                  nmean     = as.integer(nmean),
+                                  asp       = as.double(asp))
+
+  } else {  #output_x and output_y values
     output_x <- unlist(output_x)
     output_y <- unlist(output_y)
     
     if (is.null(output_x)) 
-      output_x <- sort(unique(input_xyv[,1]))
+      output_x <- sort(unique(input_xytv[,1]))
     
     if (is.null(output_y)) 
-      output_y <- sort(unique(input_xyv[,2]))
+      output_y <- sort(unique(input_xytv[,2]))
     
     if (any (is.na(output_x)))
       stop ("cannot proceed: some elements of 'output_x' are NA")
@@ -128,26 +130,30 @@ interpolate_xyt <-  function(
     }
     
     # Check overlap of x and of y - IF NO overlap: stop
-    if (max(input_xyv[,1]) < min(output_x))
+    if (max(input_xytv[,1]) < min(output_x))
       stop( "cannot perform mapping: x-variables of in-output do not overlap")
-    if (min(input_xyv[,1]) > max(output_x))
+    
+    if (min(input_xytv[,1]) > max(output_x))
       stop( "cannot perform mapping: x-variables of in-output do not overlap")
     
     # Check overlap of x and of y - IF NO overlap: stop
-    if (max(input_xyv[,2]) < min(output_y))
-      stop( "cannot perform mapping: y-variables of in-output do not overlap")
-    if (min(input_xyv[,2]) > max(output_y))
+    if (max(input_xytv[,2]) < min(output_y))
       stop( "cannot perform mapping: y-variables of in-output do not overlap")
     
-    storage.mode(input_xyv) <- storage.mode(output_x) <- storage.mode(output_y) <- "double" 
+    if (min(input_xytv[,2]) > max(output_y))
+      stop( "cannot perform mapping: y-variables of in-output do not overlap")
     
-    val <- interpolate_ts_xy_2D_cpp(input_xy = input_xy, 
-                                    input_t = input_t, 
-                                    output_x = output_x, 
-                                    output_y = output_y, 
-                                    nmean = as.integer(nmean), 
-                                    asp = as.double(asp))
-    output_xy <- expand.grid(longitude = output_x, latitude = output_y)    
+    storage.mode(input_xy) <- storage.mode(output_x) <- storage.mode(output_y) <- "double" 
+    
+    Result <- interpolate_ts_xy_2D_cpp(input_xy = input_xy, 
+                                    input_t     = input_t, 
+                                    output_x    = output_x, 
+                                    output_y    = output_y, 
+                                    nmean       = as.integer(nmean), 
+                                    asp         = as.double(asp))
+    output_xy <- expand.grid(latitude = output_y, longitude = output_x)[, 2:1]  
+    nout      <- nrow(output_xy)
+    
   }  
   
   c.names <- c("longitude", "latitude", as.character(output_t))

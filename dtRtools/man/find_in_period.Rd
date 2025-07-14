@@ -120,19 +120,19 @@ with (F0d,
 # =======================================
 
 # generate data (high density data)
-time  <- seq(from = as.POSIXct("1990-01-01"), 
-             to   = as.POSIXct("2000-01-01"), 
+time  <- seq(from = as.POSIXct("1995-01-01"), 
+             to   = as.POSIXct("1998-01-01"), 
              by   = 3600)                      # hourly values
              
 value <- sin((1:length(time))/1000)
 
 x     <- data.frame(time  = time, 
-                    value = value, 
-                    year  = format(time, "\%Y"), 
-                    month = format(time, "\%m"))
+                    value = value)
+                    
+x$year <- as.POSIXlt(x$time)$year + 1900
+x$month <- as.POSIXlt(x$time)$mon + 1 
 
 # find first occurrences of value 0.5 *per year*
-
 Fyear <- first_in_period(x, 
                          datetime = time, 
                          value    = value, 
@@ -146,10 +146,11 @@ Fa <- first_in_period(x,
                       period   = year, 
                       target   = 0.5, 
                       type     = "asc")
-plot(time, value, type = "l")
-abline(h = 0.5)
-abline(v = Fyear$first)
-abline(v = Fa$first, col="red", lty=2)
+                      
+plot(time, value, pch = ".")
+abline(h = 0.5)   # horizontal line at the target
+abline(v = Fyear$first, lwd = 2)
+abline(v = Fa$first, col = "red", lty = 2, lwd = 2)
 
 # find first occurrences per *month for each year*
 
@@ -159,10 +160,16 @@ Fmonth <- first_in_period(x,
                           period   = month, 
                           by       = year, 
                           target   = 0.5)
+# day of the month
+Fmonth$dom <- as.POSIXlt(Fmonth$first)$mday # day in month of first occurrence
+
 }
 
 \references{
 to be added}
+\seealso{
+  \code{\link{Veluwe_tree_budstage}} for a data set.
+}
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>
 }

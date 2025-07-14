@@ -64,7 +64,7 @@ These are cartesian coordinates, with units of m. The center of RD (where X=0, Y
 
 The function \code{aspect_coord} is defined as:
 
-1/cos((mean(latitude, na.rm=TRUE)*pi)/180)  
+1/cos((mean(latitude, na.rm = TRUE)*pi)/180)  
 
 This is a crude approximation that is valid for small regions. It does not take into account the actual coordinate system. Better estimates can be founc in spatial packages (e.g. sf).
 

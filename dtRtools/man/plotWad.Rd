@@ -1,20 +1,29 @@
-\name{plotBathymetry}
-\alias{plotBathymetry}
+\name{plot_bathymetry}
+\alias{plot_bathymetry}
+\alias{plot_dtmap}
 \title{
-  Simple plot function for bathymetric data.
+  Simple plot functions for bathymetric or 2D data.
 }
 
 \usage{
-plotBathymetry(bat, pts=NULL, type=NULL, ptlist = NULL, negativeDepth=FALSE, ...)
+plot_bathymetry(bat, type = NULL, pts = NULL, ptlist = NULL, 
+                negativeDepth = FALSE, ...)
+
+plot_dtmap     (bat, varname = NULL, type = NULL, 
+                pts = NULL, ptlist = NULL,  ...)
+
 }
 
 \value{
 returns nothing
 }
+
 \arguments{
-  \item{bat }{A list with the bathymetric information. Should at least contain the vectors named \code{longitude} and \code{latitude} and the matrix named \code{depth} (of dimension \code{(length(longtiude), length(latitude))}. 
+  \item{bat }{A list with the mapping or bathymetric information. Should at least contain the vectors named \code{longitude} and \code{latitude} and, for \code{plot_bathymetry}, the matrix named \code{depth} (of dimension \code{(length(longitude), length(latitude))}. 
   }
-  \item{pts }{A data.frame with 3 columns, latitude, longitude, value, describing the points whose values should be plotted.  
+  \item{varname }{The name of the 2D variable to be plotted.
+  }
+  \item{pts }{A data.frame with 3 columns, latitude, longitude, value, describing the points whose values should be plotted.  If \code{bat} is missing, but \code{pts} is passed, then the plot will be performed with points2D.
   }
   \item{ptlist }{A list with settings for the points.  
   }
@@ -28,8 +37,12 @@ returns nothing
 }
 
 \description{
- Simple plotting of dataset obtained from EMODnet. 
- On behalf of the EMODnet project, http://www.emodnet-bathymetry.eu/.
+ Simple plotting of maps. 
+ An aspect ratio is estimated based on the average of the latitudes, so this plot will not produce faithful maps if the latitude range is very large.
+ 
+ \code{plot_dtmap} can be used to plot 2D matrices, or a set of points on coordinate systems.
+ 
+ If the first argument to \code{plot_dtmap} is not named, it will be tested if it is a list (in which case, it will be assumed to represent \code{bat}), or a data.frame or matrix (assumed to represent \code{pts}).
 }
 
 \examples{
@@ -38,12 +51,12 @@ returns nothing
 # Plot the bathymetry only
 # ---------------------------------------------------
 
-plotBathymetry(Marsdiep)
-plotBathymetry(Marsdiep, type = "both")
-plotBathymetry(Marsdiep, type = "contour")
+plot_bathymetry(Marsdiep)
+plot_bathymetry(Marsdiep, type = "both")
+plot_bathymetry(Marsdiep, type = "contour")
 
 # add shade to emphasise topography - use negative depths.
-plotBathymetry(Marsdiep, 
+plot_bathymetry(Marsdiep, 
                shade = 0.15, 
                NAcol = grey(0.7),
                col   = ramp.col(col=c("darkblue", "lightblue", "white")),
@@ -53,14 +66,29 @@ plotBathymetry(Marsdiep,
 # Plot the bathymetry with points on top
 # ---------------------------------------------------
 
-plotBathymetry(Marsdiep, 
+plot_bathymetry(Marsdiep, 
                pts    = RWSstations[,3:2], 
                ptlist = list(cex=3), 
                main   = "Position of RWS stations")
 
+# ---------------------------------------------------
+# Plot other maps
+# ---------------------------------------------------
+
+# mask_shape returns a list with longitude, latitude, and mask
+mask <- mask_shape(bat   = Marsdiep, 
+                   shape = Shape)
+                   
+plot_dtmap(mask, colkey = FALSE, col = "grey")
+
+# use plot_dtmap to plot points
+
+plot_dtmap(Sediment, pch = 18,
+           main   = "Sediment data")
+
 }
 \seealso{
-  \code{\link{readBathymetry}} to read bathymetric data.
+  \code{\link{read_bathymetry}} to read bathymetric data.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

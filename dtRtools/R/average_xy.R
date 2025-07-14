@@ -1,4 +1,3 @@
-
 # ==============================================================================
 # ==============================================================================
 # averages xy points from a dense grid to xy points at lower resolution
@@ -6,9 +5,11 @@
 # ==============================================================================
 
 average_xy <- function(
-                      input_xyv, # 3 columns: longitude (x), latitude (y), value (v)
-                      input_x, input_y, input_2D,
-                      output_x, output_y){  # coordinates are longitude/latitude  ?
+            input_xyv,           # 3 col: longitude (x), latitude (y), value (v)
+            input_x, input_y, input_2D,
+            output_x, output_y,  # longitude/latitude of output
+            wide = TRUE){        # TRUE: 2D output, FALSE: data.frame
+  
   # check input
   if (missing (input_xyv)){
     if (missing(input_x) | missing(input_y) | missing(input_2D) )
@@ -19,8 +20,9 @@ average_xy <- function(
   if (! missing(input_xyv) )
     
     result <- average_xy_2D(input_xyv = input_xyv, 
-                            output_x   = output_x, 
-                            output_y   = output_y)
+                            output_x  = output_x, 
+                            output_y  = output_y, 
+                            wide      = wide)
   
   else if (! missing(input_x) & ! missing(input_y) & ! missing(input_2D))
     
@@ -28,10 +30,12 @@ average_xy <- function(
                              input_y  = input_y, 
                              input_2D = input_2D, 
                              output_x = output_x, 
-                             output_y = output_y)
+                             output_y = output_y, 
+                             wide     = wide)
   
   else 
     stop ("one of the required arguments is missing")
+  
   
   attr(result, "processing") <- paste("averaged in grid , at:", 
                                       Sys.time())
@@ -40,20 +44,21 @@ average_xy <- function(
 }
 
 # ==============================================================================
-# ==============================================================================
 # maps xy values on a 2D regular grid
 # ==============================================================================
-# ==============================================================================
 
-average_xy_2D <- function(input_xyv, 
-                          output_x = NULL, 
-                          output_y = NULL){
+average_xy_2D <- function(input_xyv,        # data.frame or matrix (x, y, v)
+                          output_x = NULL,  # vector
+                          output_y = NULL, 
+                          wide     = TRUE){ 
   
   ##### check input 
 
   input_xyv <- as.matrix(input_xyv[, 1:3])
+  
   ni        <- nrow(input_xyv)
   if (ni == 0) stop("input_xyv is empty")
+  
   if (any (is.na(input_xyv[, 1:2])))
     stop ("cannot proceed: some of the input coordinates are NA")
   
@@ -107,23 +112,30 @@ average_xy_2D <- function(input_xyv,
     stop( "cannot perform mapping: y-variables of in-output do not overlap")
   
   storage.mode(input_xyv) <-  "double" 
-  storage.mode(range_x) <- storage.mode(range_y) <- "double"
+  storage.mode(range_x)   <- storage.mode(range_y) <- "double"
   
   val <- average_xy_2D_r_cpp(input_xyv = input_xyv, 
                                range_x = range_x, 
                                range_y = range_y)
 
-  out <- list(output_x, output_y, val)
+  if (wide) 
+    out <- list(output_x, output_y, val)
+  else
+    out <- data.frame(expand.grid(output_x, output_y), as.vector(val))
+  
   names(out) <- colnames(input_xyv)[1:3]
+  
   return(out)
 
 }
 
 # ==============================================================================
+# maps 2D values on a 2D regular grid
 # ==============================================================================
 
 average_2D_2D <- function(input_x, input_y, input_2D, 
-                          output_x = NULL, output_y = NULL){
+                          output_x = NULL, output_y = NULL, 
+                          wide = TRUE){
   
   dd <- dim(input_2D)
   
@@ -189,20 +201,27 @@ average_2D_2D <- function(input_x, input_y, input_2D,
   
   storage.mode(range_x) <- storage.mode(range_y) <- "double"
   
-    Result <- average_2D_2D_r_cpp(
-      input_x = input_x,
-      input_y = input_y,
+  Result <- average_2D_2D_r_cpp(
+      input_x  = input_x,
+      input_y  = input_y,
       input_2D = input_2D,
-      range_x = range_x, 
-      range_y = range_y)
+      range_x  = range_x, 
+      range_y  = range_y)
+  
+  if (wide)  
+    out <- list(x = output_x, 
+                y = output_y, 
+                v = Result)
+  else
+    out <- data.frame(expand.grid(output_x, output_y), 
+                      as.vector(Result))
     
-  out <- list(x=output_x, y=output_y, v=Result)
   out
 }
 
 # ==============================================================================
 # ==============================================================================
-# AVERAGING TIME SERIES
+# AVERAGING TIME SERIES (not  yet exported)
 # ==============================================================================
 # ==============================================================================
 
@@ -250,7 +269,7 @@ average_xyt <- function(input_xyv,   # matrix: x, y, v1, v2, ....
   
   output_xy <- as.matrix(output_xy)
   
-  mode(input_xy) <- mode(input_2Dt) <- "double"
+  mode(input_xy)  <- mode(input_2Dt) <- "double"
   mode(output_xy) <- mode(outx) <- mode(outy) <- "double"
   mode(input_t)   <- mode(output_t)  <- "double"
   

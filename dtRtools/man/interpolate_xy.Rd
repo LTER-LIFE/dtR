@@ -7,14 +7,16 @@
 
 \description{
   \code{interpolate_xy} interpolates spatial (xy) values to other spatial points. 
-  Uses inverse distance weighing. 
+  Uses inverse distance weighing.
+  To be used when the input grid is much less dense than the output grid.
 }
 \usage{
 interpolate_xy (input_xyv,
                 input_x, input_y, input_2D,
                 output_xy, 
                 output_x, output_y,
-                nmean = 3, asp = c("geographic", "mean", "none"))
+                nmean = 3, max_distance = NULL, 
+                asp = c("geographic", "mean", "none"))
 }
 
 \arguments{
@@ -30,8 +32,10 @@ interpolate_xy (input_xyv,
  \item{output_xy }{Two-columned matrix with the latitude (or x-values), and 
   longitude (or y-values) of the output data.
   }
-  \item{output_x, output_y  }{vectors with \code{x} and \code{y} values, determining the x and y values to which the input data will be mapped. 
+  \item{output_x, output_y  }{Vectors with \code{x} and \code{y} values, determining the x and y values to which the input data will be mapped. 
   Ignored if \code{output_xy} is given a value.
+  }
+  \item{max_distance }{If not \code{NULL}, the distance (in y coordinates) above which the interpolated values is assumed to be NA. 
   }
  \item{asp }{The y/x aspect ratio for weighing y versus x. If "geographic" then it is assumed that the spatial points are geographic (spherical) coordinates (latitude, longitude) 
  and an aspect ratio for distances will be used (based on \link{aspect_coord}). 
@@ -267,6 +271,47 @@ VV    <- volcano.dbl2$v[seq(1, nrow(volcano.dbl2$v), by = 2),
 image2D(VV-volcano) # SHOULD BE 0
 
 ## =============================================================
+## interpolate irregular sediment data to 2D grid
+## =============================================================
+
+head(Sediment)
+
+par(mfrow = c(2,2))
+
+# show the data itself
+points2D(Sediment$longitude, Sediment$latitude, 
+         colvar=Sediment$mdGrain, 
+         pch=16, asp = aspect_coord(Sediment$latitude))
+
+# interpolate to regular grid
+outputx <- seq(from = min(Sediment$longitude), 
+               to   = max(Sediment$longitude), 
+               by   = 0.005)
+outputy <- seq(from = min(Sediment$latitude),  
+               to   = max(Sediment$latitude),  
+               by   = 0.005)
+
+# interpolate over empty areas
+Sed2Da <- interpolate_xy(input_xyv = Sediment, 
+                        output_x  = outputx,
+                        output_y  = outputy)
+plot_dtmap(Sed2Da, main = "interpolate_xy")
+
+# add the originial points
+plot_dtmap(Sed2Da, main = "interpolate_xy", type = "image",
+           pts = Sediment[, c("longitude", "latitude")], 
+           ptlist = list(pch = ".", col = "white", cex= 2))           
+
+# empty area = where distance (in latitude coords) > 0.02
+Sed2Db <- interpolate_xy(input_xyv = Sediment, 
+                        output_x  = outputx,
+                        output_y  = outputy, nmean = 5,
+                        max_distance = 0.02
+                                        )
+plot_dtmap(Sed2Db, 
+           main = "max_distance=0.02")
+
+## =============================================================
 ## find corresponding depths for sediment data
 ## =============================================================
 
@@ -299,9 +344,7 @@ with(Sed.ext, plot(v, mdGrain))
 }
 
 \seealso{
-  \code{\link{Sediment}} data set with sediment composition.
-  \code{\link{Wad_watertemp_LR}} data set with (low resolution) water temperature from the Waddensea.
-  \code{\link{Wad_weather}} data set with weather information from Waddensea stations.
+  \link{average_xy} to be used when the input grid is denser than the output grid.
 }
 \author{
   Karline Soetaert <karline.soetaert@nioz.nl>

@@ -1,25 +1,25 @@
 \name{reshape timeseries}
-\alias{dtreshape}
-\alias{dttowide}
-\alias{dttolong}
+\alias{dt_reshape}
+\alias{dt_towide}
+\alias{dt_tolong}
 
 \title{
  Reshapes timeseries from long to wide format and vice versa - only usable for simple conversions.
 }
 
 \description{
-  \code{dtreshape} is a general function to cast a dataset in another format. 
+  \code{dt_reshape} is a general function to cast a dataset in another format. 
   
-  \code{dttowide} transforms a dataset from long to wide format. 
+  \code{dt_towide} transforms a dataset from long to wide format. 
 
-  \code{dttolong} transforms a dataset from wide to long format. 
+  \code{dt_tolong} transforms a dataset from wide to long format. 
 
   All these functions require that a column called "datetime" is present.
 }
 \usage{
-dtreshape (x, swap = "station", ...)
-dttolong  (x, swap = "station", vname = "value", na.rm=TRUE)
-dttowide  (x, swap = "station")
+dt_reshape (x, swap = "station", ...)
+dt_tolong  (x, swap = "station", vname = "value", na.rm = TRUE)
+dt_towide  (x, swap = "station", newcol = NULL)
 
 }
 
@@ -32,30 +32,30 @@ dttowide  (x, swap = "station")
   }
   \item{na.rm }{To remove the NA values in the long format.
   }
-  \item{... }{Any other arguments passed to dttolong.
+  \item{newcol }{Nameame of the column in long format that will be expanded to columns in wide format. The default (\code{NULL}) means that the column named \code{datetime}, or \code{date}, or \code{time} will be used.
+  }
+  \item{... }{Any other arguments passed to dt_tolong.
   }
 }
 
 \details{
 These functions are based on the function \link[stats]{reshape}. 
 
-In both dttowide and dttolong, the column called \code{datetime} plays an important role:
+In both dt_towide and dt_tolong, the column called \code{datetime} plays an important role:
 
-in \code{dttowide}, \code{datetime} marks the end of the \code{id} section. 
-The \code{idvar} are all columns prior to and including \code{datetime}, except for the column name passed via argument \code{swap}. 
+in \code{dt_towide}, the column named \code{newcol} (default \code{datetime}) marks the end of the \code{id} section.  The \code{idvar} are all columns prior to and including \code{newcol} or \code{datetime}, except for the column name passed via argument \code{swap}. 
 
-for \code{dttolong}, it is assumed that \code{datetime} marks the beginning of the \code{varying} section.
-
+for \code{dt_tolong}, it is assumed that \code{datetime} marks the beginning of the \code{varying} section.
 \code{swap} is passed as the timevar
 
 }
 
 \value{
-  Function \code{dttowide} returns a \code{data.frame} in \code{wide} format.
+  Function \code{dt_towide} returns a \code{data.frame} in \code{wide} format.
   
-  Function \code{dttolong} returns a \code{data.frame} in \code{long} format.
+  Function \code{dt_tolong} returns a \code{data.frame} in \code{long} format.
   
-  Function \code{dtreshape} tries to derive the original format of the dataset and returns the data in the other format.
+  Function \code{dt_reshape} tries to derive the original format of the dataset and returns the data in the other format.
 
 }
 
@@ -75,7 +75,7 @@ meta(Wad_watertemp_LR)$format
 # keep the na values
 # ----------------------------
 
-WadTempL <- dtreshape(x     = Wad_watertemp_LR, 
+WadTempL <- dt_reshape(x     = Wad_watertemp_LR, 
                       na.rm = FALSE)
 
 head(WadTempL)
@@ -85,14 +85,14 @@ meta(WadTempL)$format
 # remove the na values
 # ----------------------------
 
-WadTempL2 <- dtreshape(x    = Wad_watertemp_LR)
+WadTempL2 <- dt_reshape(x    = Wad_watertemp_LR)
 
 head(WadTempL2)
 
 # back to original format
 # ----------------------------
 
-WW       <- dtreshape(x     = WadTempL2)
+WW       <- dt_reshape(x     = WadTempL2)
 
 head(WW)  # ordering is different
 
@@ -112,10 +112,10 @@ meta(Wad_weather)$format
 # ----------------------------
 
 # does not work with default arguments (swaps according to station):
-# head(dttolong(Wad_weather))
+# head(dt_tolong(Wad_weather))
 
-WeatherL <- dttolong(x    = Wad_weather, 
-                     swap = "variable")   # name of the long variable
+WeatherL <- dt_tolong(x    = Wad_weather, 
+                      swap = "variable")   # name of the long variable
 
 head(WeatherL)
 
@@ -127,8 +127,8 @@ head(WeatherL2)
 
 # reshape to wide format; columns are now the stations 
 
-WeatherS <- dtreshape(x    = WeatherL2, 
-                      swap = "station")  # long name to expand
+WeatherS <- dt_reshape(x    = WeatherL2, 
+                       swap = "station")  # long name to expand
 
 head(WeatherS)
 }
